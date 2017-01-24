@@ -1,7 +1,7 @@
 # Accurity UI Data Lineage
 ## Data Lineage visualization tool for Glossary's Mappings
 
-- Build Status: [![Build Status](http://dev04.simplity.dev/buildStatus/icon?job=accurity-ui-workspace)](http://dev04.simplity.dev/buildStatus/icon?job=accurity-ui-workspace)
+- Build Status: [![Build Status](http://dev04.simplity.dev/buildStatus/icon?job=accurity-ui-data-lineage)](http://dev04.simplity.dev/buildStatus/icon?job=accurity-ui-data-lineage)
 - [How to contribute](CONTRIBUTING.md)
 - [What has changed?](CHANGELOG.md)
 
@@ -11,7 +11,7 @@ This project is a graphical representation of data lineage on Glossary's Mapping
 
 # Getting Started
 
-## Prerequisities
+## Prerequisites
 
 - [Git](https://git-for-windows.github.io/) or any other Git client to clone and commit, set up your git as explained in [this guide](https://project.simplity.eu/projects/product-architecture/wiki/The_setup)
 - [Node.js v6.2.0](https://nodejs.org/en/) see `node.version` in `pom.xml`
@@ -20,15 +20,17 @@ This project is a graphical representation of data lineage on Glossary's Mapping
 ## Clone this repository
 
 ```
-> git clone https://git.simplity.eu/gdovinf/DaLineGraMa.git
+> git clone https://git.simplity.eu/gdovinf/accurity-ui-data-lineage.git
 ```
 
 ## Maven Dependencies
 
-The UI Workspace project defines runtime dependencies to ensure compatibility with other pool libraries.
+The UI Data Lineage project defines runtime dependencies to ensure compatibility with other pool libraries.
 
 | groupId | artifactId | version | scope | notes |
 | ------- | ---------- | ------- | ----- | ----- |
+
+So far, there are no maven dependencies on other projects
 
 # Running with Maven
 
@@ -52,7 +54,7 @@ This will run test also with code coverage. Generally, this is a bit slower than
 
 If you have not installed `npm` into your operating system, you need to use `node/npm` command instead of `npm`.
 
-## Install dependencies for DaLineGraMa
+## Install dependencies for UI Data Lineage
 
 ```
 > npm install
@@ -70,5 +72,5 @@ a good idea to remove this directory and do a fresh install.
 
 This command executes the webpack-dev-server which enabled hot reload and files are served from the 'src' folder.
 
-The DaLineGraMa will start on port http://localhost:3000 but will detect a development
+The UI Data Lineage will start on port http://localhost:3000 but will detect a development
 mode and try to connect to your app - see default ports above.
