@@ -9,7 +9,7 @@ class Main extends React.Component {
 
   render() {
     return (
-          <GraphScreen width={800} height={600} />
+          <GraphScreen width={1280} height={640} />
     );
   }
 }

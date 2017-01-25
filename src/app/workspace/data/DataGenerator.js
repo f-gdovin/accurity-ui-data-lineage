@@ -5,21 +5,20 @@ import _ from 'underscore';
 const DataGenerator = {
 
     randomData(nodes, width, height) {
-        var oldNodes = nodes;
+        const oldNodes = nodes;
         // generate some data randomly
-        nodes = _.chain(_.range(_.random(10, 30)))
+        nodes = _.chain(_.range(_.random(10, 100)))
             .map(function() {
-                var node = {};
-                node.key = _.random(0, 30);
-                node.size = _.random(4, 10);
-
+                const node = {};
+                node.group = _.random(1, 10);
+                node.id = "Node: " + node.group;
                 return node;
             }).uniq(function(node) {
                 return node.key;
             }).value();
 
         if (oldNodes) {
-            var add = _.initial(oldNodes, _.random(0, oldNodes.length));
+            let add = _.initial(oldNodes, _.random(0, oldNodes.length));
             add = _.rest(add, _.random(0, add.length));
 
             nodes = _.chain(nodes)
@@ -28,14 +27,13 @@ const DataGenerator = {
                 }).value();
         }
 
-        let links = _.chain(_.range(_.random(15, 35)))
+        let links = _.chain(_.range(_.random(15, 100)))
             .map(function () {
-                var link = {};
+                const link = {};
                 link.source = _.random(0, nodes.length - 1);
                 link.target = _.random(0, nodes.length - 1);
-                link.key = link.source + ',' + link.target;
-                link.size = _.random(1, 3);
-
+                link.value = _.random(1, 10);
+                link.id = "Link: " + link.source + '>' + link.target + "(" + link.value + ")";
                 return link;
             }).uniq((link) => link.key)
             .value();
@@ -46,7 +44,7 @@ const DataGenerator = {
     },
 
     maintainNodePositions(oldNodes, nodes, width, height) {
-        var kv = {};
+        const kv = {};
         _.each(oldNodes, function (d) {
             kv[d.key] = d;
         });
