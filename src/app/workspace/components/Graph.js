@@ -24,9 +24,10 @@ class Graph extends React.Component {
             .attr('height', height)
             .attr('fill', 'white');
 
+        //adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody())
+            .force("link", d3.forceLink().distance(0).strength(0.1).id(function(d) { return d.id; }))
+            .force("charge", d3.forceManyBody().strength(-75))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
             .on("tick", ticked);
@@ -62,6 +63,25 @@ class Graph extends React.Component {
                 .on("drag", dragged)
                 .on("end", dragended));
 
+        const text = svg.selectAll("text")
+            .data(graph.nodes)
+            .enter()
+            .append("text");
+
+        const textLabels = text
+            .attr("x", function (d) {
+                return d.x;
+            })
+            .attr("y", function (d) {
+                return d.y;
+            })
+            .text(function (d) {
+                return d.name
+            })
+            .attr("font-family", "roboto-medium")
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+
         simulation
             .nodes(graph.nodes)
             .on("tick", ticked);
@@ -79,6 +99,11 @@ class Graph extends React.Component {
             node
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; })
+                .attr("transform", function(d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
+
+            text
                 .attr("transform", function(d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
