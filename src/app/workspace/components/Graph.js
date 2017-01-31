@@ -1,8 +1,9 @@
 import React from 'react';
 import * as d3 from 'd3';
 
-let width = window.innerWidth;
-let height = window.innerHeight;
+const padding = 50;
+let width = window.innerWidth - padding;
+let height = window.innerHeight - padding;
 
 class Graph extends React.Component {
 
@@ -12,13 +13,14 @@ class Graph extends React.Component {
         const color = d3.scaleOrdinal(d3.schemeCategory20);
 
         function zoomFunction() {
-            const transform = d3.zoomTransform(this);
-            d3.select(".graph")
-                .attr("transform", "translate(" + transform.x + "," + transform.y + ") scale(" + transform.k + ")");
+            let transform = d3.zoomTransform(this);
+            svg.attr("transform", transform);
         }
 
         const zoom = d3.zoom()
-            .scaleExtent([0.2, 10])
+            .extent([[0, 0], [width, height]])
+            .scaleExtent([0.5, 5])
+            .translateExtent([[0, 0], [width, height]])
             .on("zoom", zoomFunction);
 
         const svg = d3.select(this.refs.mountPoint)
@@ -75,12 +77,13 @@ class Graph extends React.Component {
                 .on("drag", dragged)
                 .on("end", dragended));
 
-        const text = svg.selectAll("text")
+        const text = svg.selectAll(".label")
+            .append('g')
             .data(graph.nodes)
-            .enter()
-            .append("text");
-
-        const textLabels = text
+            .enter().append("text")
+            .attr('class', 'label')
+            .attr("stroke", "#999")
+            .attr("stroke-opacity", "0.6")
             .attr("x", function (d) {
                 return d.x;
             })
