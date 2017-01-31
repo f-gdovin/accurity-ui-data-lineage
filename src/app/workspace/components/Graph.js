@@ -1,28 +1,37 @@
 import React from 'react';
 import * as d3 from 'd3';
-/*import Node from 'Node';
-import Link from 'Link';*/
+
+let width = window.innerWidth;
+let height = window.innerHeight;
 
 class Graph extends React.Component {
 
     componentDidMount() {
-        const { width, height } = this.props;
         const graph = this.props.graph;
 
         const color = d3.scaleOrdinal(d3.schemeCategory20);
 
-        // init svg
-        const outer = d3.select(this.refs.mountPoint)
+        function zoomFunction() {
+            const transform = d3.zoomTransform(this);
+            d3.select(".graph")
+                .attr("transform", "translate(" + transform.x + "," + transform.y + ") scale(" + transform.k + ")");
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.2, 10])
+            .on("zoom", zoomFunction);
+
+        const svg = d3.select(this.refs.mountPoint)
             .append("svg:svg")
             .attr("width", width)
             .attr("height", height)
-            .attr("pointer-events", "all");
-
-        const svg = outer
+            .attr("pointer-events", "all")
             .append('svg:g')
-            .attr('width', width)
-            .attr('height', height)
-            .attr('fill', 'white');
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "graph")
+            .attr('fill', 'white')
+            .call(zoom);
 
         //adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
@@ -32,16 +41,19 @@ class Graph extends React.Component {
             .nodes(graph.nodes)
             .on("tick", ticked);
 
-        const link = svg.append("svg")
-            .attr("class", "link")
-            .selectAll(".link")
+        const link = svg.selectAll(".link")
+            .append('g')
             .data(graph.links)
-            .enter().append("line")
+            .enter().append('line')
+            .attr('class', 'link')
+            .attr("stroke", "#999")
+            .attr("stroke-opacity", "0.6")
             .attr("stroke-width", function (d) {
                 return Math.sqrt(d.value);
             });
 
         const node = svg.selectAll(".node")
+            .append('g')
             .data(graph.nodes)
             .enter().append("path")
             .attr("class", "node")
@@ -89,6 +101,17 @@ class Graph extends React.Component {
         simulation.force("link")
             .links(graph.links);
 
+        svg.call(zoom);
+
+        d3.select(".reset-zoom")
+            .on("click", resetZoom);
+
+        function resetZoom() {
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity);
+        }
+
         function ticked() {
             link
                 .attr("x1", function(d) { return d.source.x; })
@@ -126,28 +149,12 @@ class Graph extends React.Component {
             d.fx = null;
             d.fy = null;
         }
-
-        function mousedown() {
-            // allow panning if nothing is selected
-            svg.call(d3.zoom().on("zoom"), rescale);
-        }
-
-        // rescale g
-        function rescale() {
-            // let trans = d3.event.translate;
-            // let scale = d3.event.scale;
-            //
-            // svg.attr("transform",
-            //     "translate(" + trans + ")"
-            //     + " scale(" + scale + ")");
-        }
     }
 
     render() {
-        const { width, height } = this.props;
         const style = {
-            width,
-            height,
+            width: '100%',
+            height: '100%',
             border : '1px solid #323232',
         };
 
@@ -169,8 +176,6 @@ Graph.propTypes = {
             value: React.PropTypes.number.isRequired,
             id: React.PropTypes.string.isRequired
         }),
-    }),
-    width: React.PropTypes.number.isRequired,
-    height: React.PropTypes.number.isRequired
+    })
 };
 export default Graph;
