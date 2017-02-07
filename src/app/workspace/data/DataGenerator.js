@@ -1,6 +1,7 @@
 import _ from 'underscore';
 /**
  * DataGenerator class provides a randomly-generated data to populate graphs with.
+ * TODO: make this generate valid data again
  */
 const DataGenerator = {
 

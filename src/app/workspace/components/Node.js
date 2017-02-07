@@ -1,5 +1,6 @@
 import React from 'react';
 
+//NOT USED YET, BUT PROBABLY BETTER IF WE DECIDE TO STICK STRICTLY WITH REACT
 class Node extends React.Component {
 
     render() {

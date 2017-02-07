@@ -1,6 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 
+//NOT USED YET, BUT PROBABLY BETTER IF WE DECIDE TO STICK STRICTLY WITH REACT
 color = d3.scaleOrdinal(d3.schemeCategory20);
 
 export const Node = React.createClass({

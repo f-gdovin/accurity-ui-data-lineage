@@ -1,5 +1,6 @@
 import React from 'react';
 
+//NOT USED YET, BUT PROBABLY BETTER IF WE DECIDE TO STICK STRICTLY WITH REACT
 class Link extends React.Component {
 
     render() {
