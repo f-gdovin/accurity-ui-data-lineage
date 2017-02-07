@@ -1,5 +1,6 @@
 import React from "react";
 import Graph from "../components/Graph";
+import NodeSearcher from "../components/NodeSearcher";
 
 const DataGenerator = require('../data/DataGenerator');
 const staticData = require('json!../data/miserables.json');
@@ -20,6 +21,7 @@ class GraphScreen extends React.Component {
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <button className="reset-zoom">Reset zoom</button>
+                <NodeSearcher nodes={staticData.nodes}/>
                 <Graph graph={staticData}/>
             </div>
         );

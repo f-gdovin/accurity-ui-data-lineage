@@ -17,7 +17,7 @@ class Graph extends React.Component {
 
         const color = d3.scaleOrdinal(d3.schemeCategory20);
 
-        //Create an array logging what is connected to what
+        //highlighting of adjacent nodes
         let linkedByIndex = {};
         for (let i = 0; i < graph.nodes.length; i++) {
             linkedByIndex[i + "," + i] = 1;
@@ -50,6 +50,7 @@ class Graph extends React.Component {
             }
         }
 
+        //collision detection & avoidance
         function collide(alpha) {
             const quadtree = d3.quadtree(graph.nodes);
             return function(d) {
@@ -76,6 +77,30 @@ class Graph extends React.Component {
             };
         }
 
+        function searchNode() {
+            //find the node
+            const selectedVal = document.getElementById('searchInput').value;
+            const nodes = svg.selectAll(".node");
+            if (selectedVal == "none") {
+                nodes.style("stroke", "white").style("stroke-width", "1");
+            } else {
+                const selected = nodes.filter(function (node, i) {
+                    return node.name != selectedVal;
+                });
+                selected.style("opacity", "0");
+                const links = svg.selectAll(".link");
+                links.style("opacity", "0");
+                d3.selectAll(".node, .link").transition()
+                    .duration(5000)
+                    .style("opacity", 1);
+            }
+        }
+
+        //"Reset zoom" button
+        d3.select(".find-node")
+            .on("click", searchNode);
+
+        //zooming
         function zoomFunction() {
             let transform = d3.zoomTransform(this);
             svg.attr("transform", transform);
@@ -87,6 +112,7 @@ class Graph extends React.Component {
             .translateExtent([[0, 0], [width, height]])
             .on("zoom", zoomFunction);
 
+        //graph itself
         const svg = d3.select(this.refs.mountPoint)
             .append("svg:svg")
             .attr("width", width)
@@ -107,6 +133,7 @@ class Graph extends React.Component {
             .nodes(graph.nodes)
             .on("tick", ticked);
 
+        //links
         const link = svg.selectAll(".link")
             .append('g')
             .data(graph.links)
@@ -118,6 +145,7 @@ class Graph extends React.Component {
                 return Math.sqrt(d.value);
             });
 
+        //nodes
         const node = svg.selectAll(".node")
             .append('g')
             .data(graph.nodes)
@@ -142,6 +170,7 @@ class Graph extends React.Component {
                 .on("end", dragended))
             .on('dblclick', connectedNodes);
 
+        //labels
         const text = svg.selectAll(".label")
             .append('g')
             .data(graph.nodes)
@@ -169,8 +198,10 @@ class Graph extends React.Component {
         simulation.force("link")
             .links(graph.links);
 
+        //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
         svg.call(zoom).on("dblclick.zoom", null);
 
+        //"Reset zoom" button
         d3.select(".reset-zoom")
             .on("click", resetZoom);
 
@@ -180,6 +211,7 @@ class Graph extends React.Component {
                 .call(zoom.transform, d3.zoomIdentity);
         }
 
+        //update function, let D3 handle this instead of React
         function ticked() {
             link
                 .attr("x1", function(d) { return d.source.x; })
@@ -220,6 +252,7 @@ class Graph extends React.Component {
         }
     }
 
+    //let React do the first render
     render() {
         const style = {
             width: '100%',
