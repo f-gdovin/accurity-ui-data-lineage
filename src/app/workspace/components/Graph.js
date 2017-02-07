@@ -1,9 +1,14 @@
 import React from 'react';
 import * as d3 from 'd3';
+import * as d from "d";
 
 const padding = 50;
+const interNodePadding = 2;
 let width = window.innerWidth - padding;
 let height = window.innerHeight - padding;
+
+//Toggle stores whether the highlighting is on
+let toggle = 0;
 
 class Graph extends React.Component {
 
@@ -11,6 +16,65 @@ class Graph extends React.Component {
         const graph = this.props.graph;
 
         const color = d3.scaleOrdinal(d3.schemeCategory20);
+
+        //Create an array logging what is connected to what
+        let linkedByIndex = {};
+        for (let i = 0; i < graph.nodes.length; i++) {
+            linkedByIndex[i + "," + i] = 1;
+        }
+        graph.links.forEach(function (d) {
+            linkedByIndex[Number(d.source) + "," + Number(d.target)] = 1;
+        });
+
+        function neighboring(a, b) {
+            return linkedByIndex[a.index + "," + b.index];
+        }
+        function connectedNodes() {
+            let d;
+            if (toggle == 0) {
+                //Reduce the opacity of all but the neighbouring nodes
+                d = d3.select(this).node().__data__;
+                node.style("opacity", function (o) {
+                    return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+                });
+                link.style("stroke-opacity", function (o) {
+                    return d.index == o.source.index | d.index == o.target.index ? 0.6 : 0.1;
+                });
+                //Reduce the op
+                toggle = 1;
+            } else {
+                //Put them back to opacity=1
+                node.style("opacity", 1);
+                link.style("stroke-opacity", 0.6);
+                toggle = 0;
+            }
+        }
+
+        function collide(alpha) {
+            const quadtree = d3.quadtree(graph.nodes);
+            return function(d) {
+                const rb = 2 * d.size + interNodePadding,
+                    nx1 = d.x - rb,
+                    nx2 = d.x + rb,
+                    ny1 = d.y - rb,
+                    ny2 = d.y + rb;
+                quadtree.visit(function(quad, x1, y1, x2, y2) {
+                    if (quad.point && (quad.point !== d)) {
+                        let x = d.x - quad.point.x,
+                            y = d.y - quad.point.y,
+                            l = Math.sqrt(x * x + y * y);
+                        if (l < rb) {
+                            l = (l - rb) / l * alpha;
+                            d.x -= x *= l;
+                            d.y -= y *= l;
+                            quad.point.x += x;
+                            quad.point.y += y;
+                        }
+                    }
+                    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+                });
+            };
+        }
 
         function zoomFunction() {
             let transform = d3.zoomTransform(this);
@@ -75,7 +139,8 @@ class Graph extends React.Component {
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
-                .on("end", dragended));
+                .on("end", dragended))
+            .on('dblclick', connectedNodes);
 
         const text = svg.selectAll(".label")
             .append('g')
@@ -104,7 +169,7 @@ class Graph extends React.Component {
         simulation.force("link")
             .links(graph.links);
 
-        svg.call(zoom);
+        svg.call(zoom).on("dblclick.zoom", null);
 
         d3.select(".reset-zoom")
             .on("click", resetZoom);
@@ -133,6 +198,7 @@ class Graph extends React.Component {
                 .attr("transform", function(d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
+            node.each(collide(0.5)); //Added
         }
 
         //dragging stuff
