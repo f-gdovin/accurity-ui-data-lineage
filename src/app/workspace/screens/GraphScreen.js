@@ -20,7 +20,8 @@ class GraphScreen extends React.Component {
         const data = DataGenerator.randomData(this.state.data.nodes, this.props.width, this.props.height);
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <button className="reset-zoom">Reset zoom</button>
+                <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
+                <button style={{float: 'left'}} className="toggle-labels">Toggle labels</button>
                 <NodeSearcher nodes={staticData.nodes}/>
                 <Graph graph={staticData}/>
             </div>

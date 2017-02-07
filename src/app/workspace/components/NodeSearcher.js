@@ -8,7 +8,21 @@ class NodePicker extends React.Component {
         this.gc = [];
         this.setState({
             node: ''
-        })
+        });
+
+        const nodes = this.props.nodes;
+
+        //searching for nodes
+        let optArray = [];
+        for (let i = 0; i < nodes.length - 1; i++) {
+            optArray.push(nodes[i].name);
+        }
+
+        optArray = optArray.sort();
+
+        this.setState({
+            nodes: optArray
+        });
     }
     componentWillUnmount () {
         this.gc.forEach((widget) => widget.destroy())
@@ -21,20 +35,10 @@ class NodePicker extends React.Component {
             return
         }
 
-        const nodes = this.props.nodes;
-
-        //searching for nodes
-        let optArray = [];
-        for (let i = 0; i < nodes.length - 1; i++) {
-            optArray.push(nodes[i].name);
-        }
-
-        optArray = optArray.sort();
-
         let autocomplete = new Autocomplete({
-            source: optArray,
+            source: this.state.nodes,
             change: (event) => this.handleChange(event)
-        }, event.currentTarget)
+        }, event.currentTarget);
         this.gc.push(autocomplete)
     }
 
@@ -42,7 +46,8 @@ class NodePicker extends React.Component {
     render() {
         return <div className="widgets">
             <input id='searchInput' type='text' onFocus={this.initAutocomplete.bind(this)} onChange={this.handleChange.bind(this)} />
-            <button className="find-node">Search</button>
+            <button className="search-nodes">Search</button>
+            <button className="reset-search">Reset</button>
         </div>;
     }
 }

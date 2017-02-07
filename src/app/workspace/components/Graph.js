@@ -4,6 +4,7 @@ import * as d from "d";
 
 const padding = 50;
 const interNodePadding = 2;
+let labelsVisible = false;
 let width = window.innerWidth - padding;
 let height = window.innerHeight - padding;
 
@@ -37,7 +38,7 @@ class Graph extends React.Component {
                 node.style("opacity", function (o) {
                     return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
                 });
-                link.style("stroke-opacity", function (o) {
+                link.style("opacity", function (o) {
                     return d.index == o.source.index | d.index == o.target.index ? 0.6 : 0.1;
                 });
                 //Reduce the op
@@ -45,7 +46,7 @@ class Graph extends React.Component {
             } else {
                 //Put them back to opacity=1
                 node.style("opacity", 1);
-                link.style("stroke-opacity", 0.6);
+                link.style("opacity", 0.6);
                 toggle = 0;
             }
         }
@@ -77,28 +78,63 @@ class Graph extends React.Component {
             };
         }
 
+        //take value on input field and show nodes whose name contains such substring (case insensitive)
         function searchNode() {
-            //find the node
             const selectedVal = document.getElementById('searchInput').value;
             const nodes = svg.selectAll(".node");
             if (selectedVal == "none") {
                 nodes.style("stroke", "white").style("stroke-width", "1");
             } else {
-                const selected = nodes.filter(function (node, i) {
-                    return node.name != selectedVal;
+                nodes.style("opacity", "0");
+
+                //make only the matching nodes visible
+                const matchedNodes = nodes.filter(function (node, i) {
+                    return node.name.toUpperCase().includes(selectedVal.toUpperCase());
                 });
-                selected.style("opacity", "0");
+                matchedNodes.style("opacity", "1");
+
                 const links = svg.selectAll(".link");
                 links.style("opacity", "0");
-                d3.selectAll(".node, .link").transition()
-                    .duration(5000)
-                    .style("opacity", 1);
             }
         }
 
+        //change opacity of labels
+        function toggleLabels() {
+            //TODO: solve this, we don't have "style" property on node
+            /*labelsVisible = !labelsVisible;
+            const visibleNodes = d3.selectAll(".node").filter(node => node.style.opacity > 0).map(node => node.name);
+            d3.selectAll(".label").filter(label => visibleNodes.includes(label)).transition()
+                .style("opacity", labelsVisible ? 0.8 : 0);*/
+        }
+
+        //change opacity of everything back to default after X milliseconds
+        function resetSearch(duration = 0) {
+            d3.selectAll(".node").transition()
+                .duration(duration)
+                .style("opacity", 1);
+            d3.selectAll(".link").transition()
+                .duration(duration)
+                .style("opacity", 0.6);
+            d3.selectAll(".label").transition()
+                .duration(duration)
+                .style("opacity", 0);
+        }
+
         //"Reset zoom" button
-        d3.select(".find-node")
+        d3.select(".reset-zoom")
+            .on("click", resetZoom);
+
+        //"Toggle labels" button
+        d3.select(".toggle-labels")
+            .on("click", toggleLabels);
+
+        //"Search nodes" button
+        d3.select(".search-nodes")
             .on("click", searchNode);
+
+        //"Reset search" button
+        d3.select(".reset-search")
+            .on("click", resetSearch);
 
         //zooming
         function zoomFunction() {
@@ -178,12 +214,7 @@ class Graph extends React.Component {
             .attr('class', 'label')
             .attr("stroke", "#999")
             .attr("stroke-opacity", "0.6")
-            .attr("x", function (d) {
-                return d.x;
-            })
-            .attr("y", function (d) {
-                return d.y;
-            })
+            .attr("opacity", "0")
             .text(function (d) {
                 return d.name
             })
@@ -200,10 +231,6 @@ class Graph extends React.Component {
 
         //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
         svg.call(zoom).on("dblclick.zoom", null);
-
-        //"Reset zoom" button
-        d3.select(".reset-zoom")
-            .on("click", resetZoom);
 
         function resetZoom() {
             svg.transition()
@@ -230,7 +257,7 @@ class Graph extends React.Component {
                 .attr("transform", function(d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
-            node.each(collide(0.5)); //Added
+            node.each(collide(0.5));
         }
 
         //dragging stuff
