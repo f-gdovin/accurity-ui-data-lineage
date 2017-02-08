@@ -1,36 +1,51 @@
 import React from "react";
-import Graph from "../components/Graph";
+import ForceGraph from "../components/ForceGraph";
+import RadialTidyGraph from "../components/RadialTidyGraph";
 import NodeSearcher from "../components/NodeSearcher";
 
-const DataGenerator = require('../data/DataGenerator');
-const staticData = require('json!../data/miserables.json');
-
-const defaultProps = { width: 800, height: 600 };
+const forceGraphStaticData = require('json!../data/force.json');
+const radialTidyGraphStaticData = require('json!../data/radialTidy.json');
 
 class GraphScreen extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            data: []
-        };
     }
 
     render() {
-        const data = DataGenerator.randomData(this.state.data.nodes, this.props.width, this.props.height);
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
-                <button style={{float: 'left'}} className="toggle-labels">Toggle labels</button>
-                <NodeSearcher nodes={staticData.nodes}/>
-                <Graph graph={staticData}/>
-            </div>
-        );
+        const width = this.props.width;
+        const height = this.props.height;
+        switch (this.props.graphType) {
+            case "force-graph": {
+                return (
+                    <div style={{width: width, height: height, border : '2px solid #323232',}}>
+                        <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
+                        <NodeSearcher nodes={forceGraphStaticData.nodes}/>
+                        <ForceGraph graph={forceGraphStaticData}/>
+                    </div>
+                );
+            }
+            case "radial-tidy-graph": {
+                return (
+                    <div style={{width: width, height: height, border : '2px solid #323232',}}>
+                        <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
+                        <RadialTidyGraph graph={radialTidyGraphStaticData}/>
+                    </div>
+                );
+            }
+            default: {
+                return (
+                    <div style={{width: width, height: height}}>
+                    </div>
+                );
+            }
+        }
     }
 }
 GraphScreen.propTypes = {
-    width: React.PropTypes.number.isRequired,
-    height: React.PropTypes.number.isRequired
+    width: React.PropTypes.string.isRequired,
+    height: React.PropTypes.string.isRequired,
+    graphType: React.PropTypes.string.isRequired
 };
 
 export default GraphScreen;

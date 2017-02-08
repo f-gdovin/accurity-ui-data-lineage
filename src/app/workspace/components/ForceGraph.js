@@ -1,17 +1,19 @@
 import React from 'react';
 import * as d3 from 'd3';
 import * as d from "d";
+import d3Tip from 'd3-tip';
 
-const padding = 50;
+const horizontalPadding = 50;
+const verticalPadding = 100;
 const interNodePadding = 2;
-let labelsVisible = false;
-let width = window.innerWidth - padding;
-let height = window.innerHeight - padding;
+
+let width = window.innerWidth - horizontalPadding;
+let height = window.innerHeight - verticalPadding;
 
 //Toggle stores whether the highlighting is on
 let toggle = 0;
 
-class Graph extends React.Component {
+class ForceGraph extends React.Component {
 
     componentDidMount() {
         const graph = this.props.graph;
@@ -41,12 +43,9 @@ class Graph extends React.Component {
                 link.style("opacity", function (o) {
                     return d.index == o.source.index | d.index == o.target.index ? 0.6 : 0.1;
                 });
-                //Reduce the op
                 toggle = 1;
             } else {
-                //Put them back to opacity=1
-                node.style("opacity", 1);
-                link.style("opacity", 0.6);
+                resetSearch(0);
                 toggle = 0;
             }
         }
@@ -85,7 +84,7 @@ class Graph extends React.Component {
             if (selectedVal == "none") {
                 nodes.style("stroke", "white").style("stroke-width", "1");
             } else {
-                nodes.style("opacity", "0");
+                nodes.style("opacity", "0.1");
 
                 //make only the matching nodes visible
                 const matchedNodes = nodes.filter(function (node, i) {
@@ -94,17 +93,8 @@ class Graph extends React.Component {
                 matchedNodes.style("opacity", "1");
 
                 const links = svg.selectAll(".link");
-                links.style("opacity", "0");
+                links.style("opacity", "0.1");
             }
-        }
-
-        //change opacity of labels
-        function toggleLabels() {
-            //TODO: solve this, we don't have "style" property on node
-            /*labelsVisible = !labelsVisible;
-            const visibleNodes = d3.selectAll(".node").filter(node => node.style.opacity > 0).map(node => node.name);
-            d3.selectAll(".label").filter(label => visibleNodes.includes(label)).transition()
-                .style("opacity", labelsVisible ? 0.8 : 0);*/
         }
 
         //change opacity of everything back to default after X milliseconds
@@ -115,18 +105,17 @@ class Graph extends React.Component {
             d3.selectAll(".link").transition()
                 .duration(duration)
                 .style("opacity", 0.6);
-            d3.selectAll(".label").transition()
-                .duration(duration)
-                .style("opacity", 0);
+        }
+
+        function resetZoom() {
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity);
         }
 
         //"Reset zoom" button
         d3.select(".reset-zoom")
             .on("click", resetZoom);
-
-        //"Toggle labels" button
-        d3.select(".toggle-labels")
-            .on("click", toggleLabels);
 
         //"Search nodes" button
         d3.select(".search-nodes")
@@ -161,13 +150,14 @@ class Graph extends React.Component {
             .attr('fill', 'white')
             .call(zoom);
 
-        //adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
-        const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.1).id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody().strength(-75))
-            .force("center", d3.forceCenter(width / 2, height / 2))
-            .nodes(graph.nodes)
-            .on("tick", ticked);
+        //tooltips
+        const tip = d3Tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function (d) {
+                return  d.name + "";
+            });
+        svg.call(tip);
 
         //links
         const link = svg.selectAll(".link")
@@ -204,25 +194,15 @@ class Graph extends React.Component {
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended))
-            .on('dblclick', connectedNodes);
+            .on('dblclick', connectedNodes)
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
 
-        //labels
-        const text = svg.selectAll(".label")
-            .append('g')
-            .data(graph.nodes)
-            .enter().append("text")
-            .attr('class', 'label')
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", "0.6")
-            .attr("opacity", "0")
-            .text(function (d) {
-                return d.name
-            })
-            .attr("font-family", "roboto-medium")
-            .attr("font-size", "10px")
-            .attr("fill", "black");
-
-        simulation
+        //adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().distance(0).strength(0.1).id(function(d) { return d.id; }))
+            .force("charge", d3.forceManyBody().strength(-75))
+            .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
             .on("tick", ticked);
 
@@ -231,12 +211,6 @@ class Graph extends React.Component {
 
         //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
         svg.call(zoom).on("dblclick.zoom", null);
-
-        function resetZoom() {
-            svg.transition()
-                .duration(750)
-                .call(zoom.transform, d3.zoomIdentity);
-        }
 
         //update function, let D3 handle this instead of React
         function ticked() {
@@ -249,11 +223,6 @@ class Graph extends React.Component {
             node
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; })
-                .attr("transform", function(d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                });
-
-            text
                 .attr("transform", function(d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
@@ -290,7 +259,7 @@ class Graph extends React.Component {
         return <div style={style} ref="mountPoint" />;
     }
 }
-Graph.propTypes = {
+ForceGraph.propTypes = {
     graph: React.PropTypes.shape({
         nodes: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired,
@@ -307,4 +276,4 @@ Graph.propTypes = {
         }),
     })
 };
-export default Graph;
+export default ForceGraph;
