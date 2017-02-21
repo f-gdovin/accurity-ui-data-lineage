@@ -23,11 +23,19 @@ class Main extends React.Component {
     disableFirstButton() {
         ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       true;
         ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
+        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
     }
 
     disableSecondButton() {
         ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
         ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  true;
+        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
+    }
+
+    disableThirdButton() {
+        ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
+        ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
+        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  true;
     }
 
     render() {
@@ -39,6 +47,9 @@ class Main extends React.Component {
                 <button ref={"radialTidyGraph"}
                         style={{float: 'left'}}
                         onClick={(event) => {this.setGraphType("radial-tidy-graph"); this.disableSecondButton()}}>Radial tidy graph</button>
+                <button ref={"collapsibleTree"}
+                        style={{float: 'left'}}
+                        onClick={(event) => {this.setGraphType("collapsible-tree"); this.disableThirdButton()}}>Collapsible tree</button>
 
                 <div className="separator" style={{clear: "both"}}/>
 

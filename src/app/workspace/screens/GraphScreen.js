@@ -1,6 +1,7 @@
 import React from "react";
 import ForceGraph from "../components/ForceGraph";
 import RadialTidyGraph from "../components/RadialTidyGraph";
+import CollapsibleTree from "../components/CollapsibleTree";
 import NodeSearcher from "../components/NodeSearcher";
 
 const forceGraphStaticData = require('json!../data/force.json');
@@ -28,8 +29,14 @@ class GraphScreen extends React.Component {
             case "radial-tidy-graph": {
                 return (
                     <div style={{width: width, height: height, border : '2px solid #323232',}}>
-                        <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
                         <RadialTidyGraph graph={radialTidyGraphStaticData}/>
+                    </div>
+                );
+            }
+            case "collapsible-tree": {
+                return (
+                    <div style={{width: width, height: height, border : '2px solid #323232',}}>
+                        <CollapsibleTree graph={radialTidyGraphStaticData}/>
                     </div>
                 );
             }
