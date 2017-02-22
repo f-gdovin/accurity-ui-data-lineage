@@ -24,18 +24,28 @@ class Main extends React.Component {
         ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       true;
         ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
         ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
+        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       false;
     }
 
     disableSecondButton() {
         ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
         ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  true;
         ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
+        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       false;
     }
 
     disableThirdButton() {
         ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
         ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
         ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  true;
+        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       false;
+    }
+
+    disableFourthButton() {
+        ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
+        ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
+        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
+        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       true;
     }
 
     render() {
@@ -50,6 +60,10 @@ class Main extends React.Component {
                 <button ref={"collapsibleTree"}
                         style={{float: 'left'}}
                         onClick={(event) => {this.setGraphType("collapsible-tree"); this.disableThirdButton()}}>Collapsible tree</button>
+                <button ref={"fluidGraph"}
+                        style={{float: 'left'}}
+                        onClick={(event) => {this.setGraphType("fluid-graph"); this.disableFourthButton()}}>Fluid graph</button>
+
 
                 <div className="separator" style={{clear: "both"}}/>
 

@@ -2,6 +2,7 @@ import React from "react";
 import ForceGraph from "../components/ForceGraph";
 import RadialTidyGraph from "../components/RadialTidyGraph";
 import CollapsibleTree from "../components/CollapsibleTree";
+import FluidGraph from "../components/FluidGraph";
 import NodeSearcher from "../components/NodeSearcher";
 
 const forceGraphStaticData = require('json!../data/force.json');
@@ -37,6 +38,17 @@ class GraphScreen extends React.Component {
                 return (
                     <div style={{width: width, height: height, border : '2px solid #323232',}}>
                         <CollapsibleTree graph={radialTidyGraphStaticData}/>
+                    </div>
+                );
+            }
+            case "fluid-graph": {
+                return (
+                    <div style={{width: width, height: height, border : '2px solid #323232',}}>
+                        <label><input type="radio" name="mode" className="radial-tree"/>Radial Tree</label>
+                        <label><input type="radio" name="mode" className="radial-cluster"/>Radial Cluster</label>
+                        <label><input type="radio" name="mode" className="tree"/>Tree</label>
+                        <label><input type="radio" name="mode" className="cluster" defaultChecked="true"/>Cluster</label>
+                        <FluidGraph graph={radialTidyGraphStaticData}/>
                     </div>
                 );
             }
