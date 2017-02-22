@@ -128,10 +128,10 @@ class FluidGraph extends React.Component {
             .text(function (d) { return d.name; });
 
         // Collapse after the second level
-        root.children.forEach(this.collapse);
+        // root.children.forEach(this.collapse);
 
         //by default, show Cluster
-        this.layoutChanged("transitionToCluster");
+        this.layoutChanged("cluster");
 
         //"Radial Tree" button
         d3.select(".radial-tree")
@@ -156,8 +156,6 @@ class FluidGraph extends React.Component {
             .on("click", () => {
                 this.layoutChanged("cluster")
             });
-
-        this.redraw(root);
     }
 
     layoutChanged(graphType) {
@@ -196,6 +194,11 @@ class FluidGraph extends React.Component {
                 break;
             }
         }
+        this.redraw(root);
+    }
+
+    redraw(source) {
+        // necessary tweaks after layout changed
         svg.transition().duration(translateDuration)
             .attr("transform", isCircle ? svgRadialTransform : svgTransform);
 
@@ -220,13 +223,11 @@ class FluidGraph extends React.Component {
             .transition()
             .duration(translateDuration)
             .style("stroke", nodeStroke);
-    }
 
-    redraw(source) {
         // Normalize for fixed-depth.
         // nodes.forEach(function(d){ d.y = d.depth * 180});
 
-        // Enter any new modes at the parent's previous position.
+        /*// Enter any new modes at the parent's previous position.
         const nodeEnter = node.enter().append('g')
             .attr('class', 'node')
             .attr("transform", function (d) {
@@ -319,7 +320,7 @@ class FluidGraph extends React.Component {
         nodes.forEach(function(d){
             d.x0 = d.x;
             d.y0 = d.y;
-        });
+        });*/
     }
 
     click(d) {
