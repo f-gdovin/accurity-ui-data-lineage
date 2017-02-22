@@ -227,21 +227,22 @@ class FluidGraph extends React.Component {
         // Normalize for fixed-depth.
         // nodes.forEach(function(d){ d.y = d.depth * 180});
 
-        /*// Enter any new modes at the parent's previous position.
+        // Enter any new modes at the parent's previous position.
         const nodeEnter = node.enter().append('g')
             .attr('class', 'node')
-            .attr("transform", function (d) {
-                return "translate(" + source.y0 + "," + source.x0 + ")";
+            .attr("transform", function(d) {
+                if (isCircle) {
+                    return "rotate(" + (source.x0 - 90) + ")translate(" + source.y0 + ")";
+                } else {
+                    return "translate(" + source.y0 + "," + source.x0 + ")";
+                }
             })
             .on('click', this.click);
 
         // Add Circle for the nodes
         nodeEnter.append('circle')
             .attr('class', 'node')
-            .attr('r', 1e-6)
-            .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
-            });
+            .attr('r', 1e-6);
 
         // Add labels for the nodes
         nodeEnter.append('text')
@@ -261,23 +262,28 @@ class FluidGraph extends React.Component {
         nodeUpdate.transition()
             .duration(duration)
             .attr("transform", function(d) {
-                return "translate(" + d.y + "," + d.x + ")";
+                if (isCircle) {
+                    return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
+                } else {
+                    return "translate(" + d.y + "," + d.x + ")";
+                }
             });
 
         // Update the node attributes and style
         nodeUpdate.select('circle.node')
-            .attr('r', 10)
-            .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
-            })
+            .attr('r', 4.5)
             .attr('cursor', 'pointer');
 
 
         // Remove any exiting nodes
         const nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function (d) {
-                return "translate(" + source.y + "," + source.x + ")";
+            .attr("transform", function(d) {
+                if (isCircle) {
+                    return "rotate(" + (source.x - 90) + ")translate(" + source.y + ")";
+                } else {
+                    return "translate(" + source.y + "," + source.x + ")";
+                }
             })
             .remove();
 
@@ -320,7 +326,7 @@ class FluidGraph extends React.Component {
         nodes.forEach(function(d){
             d.x0 = d.x;
             d.y0 = d.y;
-        });*/
+        });
     }
 
     click(d) {
