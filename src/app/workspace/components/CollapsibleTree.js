@@ -12,8 +12,6 @@ let width = window.innerWidth - horizontalPadding;
 let height = window.innerHeight - verticalPadding;
 let index = 0;
 
-const diameter = Math.max(height, width);
-
 class CollapsibleTree extends React.Component {
 
     constructor(props, context) {
@@ -27,24 +25,22 @@ class CollapsibleTree extends React.Component {
     componentDidMount() {
         const graph = this.props.graph;
 
-        width = diameter;
-        height = diameter;
-
         svg = d3.select(this.refs.mountPoint)
             .append("svg")
             .attr("width", width)
             .attr("height", height)
-            .append("g")
-            .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+            .append("g");
 
         tree = d3.tree()
             .size([height, width]);
 
         root = d3.hierarchy(graph);
+        root.x0 = height / 2;
+        root.y0 = 0;
 
         root.each(function (d) {
-            d.name = d.data.name; //transferring name to a name variable
-            d.id = index; //Assigning numerical Ids
+            d.name = d.data.name;
+            d.id = index;
             index++;
         });
 
@@ -60,48 +56,63 @@ class CollapsibleTree extends React.Component {
         const links = nodes.slice(1);
 
         // Normalize for fixed-depth.
-        nodes.forEach(function(d) { d.y = d.depth * 180; });
+        nodes.forEach(function(d){ d.y = d.depth * 180});
 
-        // Update the nodes…
-        const node = svg.selectAll("g.node")
+        // ****************** Nodes section ***************************
+
+        // Update the nodes...
+        const node = svg.selectAll('g.node')
             .data(nodes, function (d) {
-                return d.id
+                return d.id;
             });
 
-        // Enter any new nodes at the parent's previous position.
-        const nodeEnter = node.enter().append("g")
-            .attr("class", "node")
+        // Enter any new modes at the parent's previous position.
+        const nodeEnter = node.enter().append('g')
+            .attr('class', 'node')
             .attr("transform", function (d) {
                 return "translate(" + source.y0 + "," + source.x0 + ")";
             })
-            .on("click", this.click);
+            .on('click', this.click);
 
-        nodeEnter.append("circle")
-            .attr("r", 2.5)
-            .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+        // Add Circle for the nodes
+        nodeEnter.append('circle')
+            .attr('class', 'node')
+            .attr('r', 1e-6)
+            .style("fill", function(d) {
+                return d._children ? "lightsteelblue" : "#fff";
+            });
 
-        nodeEnter.append("text")
-            .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+        // Add labels for the nodes
+        nodeEnter.append('text')
             .attr("dy", ".35em")
-            .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-            .text(function(d) { return d.name; })
-            .style("fill-opacity", 2.5);
+            .attr("x", function(d) {
+                return d.children || d._children ? -13 : 13;
+            })
+            .attr("text-anchor", function(d) {
+                return d.children || d._children ? "end" : "start";
+            })
+            .text(function(d) { return d.name; });
 
-        // Transition nodes to their new position.
-        const nodeUpdate = node.transition()
+        // UPDATE
+        const nodeUpdate = nodeEnter.merge(node);
+
+        // Transition to the proper position for the node
+        nodeUpdate.transition()
             .duration(duration)
-            .attr("transform", function (d) {
+            .attr("transform", function(d) {
                 return "translate(" + d.y + "," + d.x + ")";
             });
 
-        nodeUpdate.select("circle")
-            .attr("r", 5)
-            .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+        // Update the node attributes and style
+        nodeUpdate.select('circle.node')
+            .attr('r', 10)
+            .style("fill", function(d) {
+                return d._children ? "lightsteelblue" : "#fff";
+            })
+            .attr('cursor', 'pointer');
 
-        nodeUpdate.select("text")
-            .style("fill-opacity", 1);
 
-        // Transition exiting nodes to the parent's new position.
+        // Remove any exiting nodes
         const nodeExit = node.exit().transition()
             .duration(duration)
             .attr("transform", function (d) {
@@ -109,56 +120,62 @@ class CollapsibleTree extends React.Component {
             })
             .remove();
 
-        nodeExit.select("circle")
-            .attr("r", 2.5);
+        // On exit reduce the node circles size to 0
+        nodeExit.select('circle')
+            .attr('r', 1e-6);
 
-        nodeExit.select("text")
-            .style("fill-opacity", 2.5);
+        // On exit reduce the opacity of text labels
+        nodeExit.select('text')
+            .style('fill-opacity', 1e-6);
 
-        // Update the links…
-        const link = svg.selectAll("path.link")
+        // ****************** links section ***************************
+
+        // Update the links...
+        const link = svg.selectAll('path.link')
             .data(links, function (d) {
-                return d.parent.id;
+                return d.id;
             });
 
         // Enter any new links at the parent's previous position.
-        link.enter().insert("path", "g")
+        const linkEnter = link.enter().insert('path', "g")
             .attr("class", "link")
-            .attr("d", function(d) {
+            .attr('d', function (d) {
                 const o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
+                return diagonal(o, o)
             });
 
-        // Transition links to their new position.
-        link.transition()
-            .duration(duration)
-            .attr("d", diagonal);
+        // UPDATE
+        const linkUpdate = linkEnter.merge(link);
 
-        // Transition exiting nodes to the parent's new position.
-        link.exit().transition()
+        // Transition back to the parent element position
+        linkUpdate.transition()
             .duration(duration)
-            .attr("d", function(d) {
+            .attr('d', function(d){ return diagonal(d, d.parent) });
+
+        // Remove any exiting links
+        const linkExit = link.exit().transition()
+            .duration(duration)
+            .attr('d', function (d) {
                 const o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
+                return diagonal(o, o)
             })
             .remove();
 
-        // Stash the old positions for transition.
-        nodes.forEach(function(d) {
+        // Store the old positions for transition.
+        nodes.forEach(function(d){
             d.x0 = d.x;
             d.y0 = d.y;
         });
 
-        function project(x, y) {
-            const angle = (x - 90) / 180 * Math.PI, radius = y;
-            return [radius * Math.cos(angle), radius * Math.sin(angle)];
-        }
+        // Creates a curved (diagonal) path from parent to the child nodes
+        function diagonal(s, d) {
+            const path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+              ${(s.y + d.y) / 2} ${d.x},
+              ${d.y} ${d.x}`;
 
-        function diagonal(d) {
-            return "M" + project(d.source.x, d.source.y)
-                + "C" + project(d.source.x, (d.source.y + d.target.y) / 2)
-                + " " + project(d.target.x, (d.source.y + d.target.y) / 2)
-                + " " + project(d.target.x, d.target.y);
+            console.log("Path is " + path);
+            return path
         }
     }
 
@@ -173,7 +190,7 @@ class CollapsibleTree extends React.Component {
         this.redraw(d);
     }
 
-// Collapse nodes
+    //Collapse nodes
     collapse(d) {
         if (d.children) {
             d._children = d.children;
