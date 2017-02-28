@@ -3,10 +3,12 @@ import ForceGraph from "../components/ForceGraph";
 import RadialTidyGraph from "../components/RadialTidyGraph";
 import CollapsibleTree from "../components/CollapsibleTree";
 import FluidGraph from "../components/FluidGraph";
+import SankeyGraph from "../components/SankeyGraph";
 import NodeSearcher from "../components/NodeSearcher";
 
 const forceGraphStaticData = require('json!../data/force.json');
 const radialTidyGraphStaticData = require('json!../data/radialTidy.json');
+const sankeyGraphStaticData = require('json!../data/sankey.json');
 
 class GraphScreen extends React.Component {
 
@@ -49,6 +51,13 @@ class GraphScreen extends React.Component {
                         <label><input type="radio" name="mode" className="tree"/>Tree</label>
                         <label><input type="radio" name="mode" className="cluster" defaultChecked="true"/>Cluster</label>
                         <FluidGraph graph={radialTidyGraphStaticData}/>
+                    </div>
+                );
+            }
+            case "sankey-graph": {
+                return (
+                    <div style={{width: width, height: height, border : '2px solid #323232',}}>
+                        <SankeyGraph graph={sankeyGraphStaticData}/>
                     </div>
                 );
             }

@@ -2,6 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import GraphScreen from './workspace/screens/GraphScreen';
 
+let forceGraphButton,
+    radialTidyGraphButton,
+    collapsibleTreeButton,
+    fluidGraphButton,
+    sankeyGraphButton;
+
 class Main extends React.Component {
 
     constructor(props, context) {
@@ -14,38 +20,28 @@ class Main extends React.Component {
         });
     }
 
+    componentDidMount() {
+        forceGraphButton       = ReactDOM.findDOMNode(this.refs.forceGraph);
+        radialTidyGraphButton  = ReactDOM.findDOMNode(this.refs.radialTidyGraph);
+        collapsibleTreeButton  = ReactDOM.findDOMNode(this.refs.collapsibleTree);
+        fluidGraphButton       = ReactDOM.findDOMNode(this.refs.fluidGraph);
+        sankeyGraphButton      = ReactDOM.findDOMNode(this.refs.sankeyGraph);
+    }
+
     setGraphType(type) {
         this.setState({
             graphType: type
         });
     }
 
-    disableFirstButton() {
-        ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       true;
-        ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
-        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
-        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       false;
-    }
+    disableButton(button) {
+        forceGraphButton.disabled       = false;
+        radialTidyGraphButton.disabled  = false;
+        collapsibleTreeButton.disabled  = false;
+        fluidGraphButton.disabled       = false;
+        sankeyGraphButton.disabled      = false;
 
-    disableSecondButton() {
-        ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
-        ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  true;
-        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
-        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       false;
-    }
-
-    disableThirdButton() {
-        ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
-        ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
-        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  true;
-        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       false;
-    }
-
-    disableFourthButton() {
-        ReactDOM.findDOMNode(this.refs.forceGraph).disabled =       false;
-        ReactDOM.findDOMNode(this.refs.radialTidyGraph).disabled =  false;
-        ReactDOM.findDOMNode(this.refs.collapsibleTree).disabled =  false;
-        ReactDOM.findDOMNode(this.refs.fluidGraph).disabled =       true;
+        button.disabled = true;
     }
 
     render() {
@@ -53,16 +49,19 @@ class Main extends React.Component {
             <div>
                 <button ref={"forceGraph"}
                         style={{float: 'left'}}
-                        onClick={(event) => {this.setGraphType("force-graph"); this.disableFirstButton()}}>Force graph</button>
+                        onClick={() => {this.setGraphType("force-graph"); this.disableButton(forceGraphButton)}}>Force graph</button>
                 <button ref={"radialTidyGraph"}
                         style={{float: 'left'}}
-                        onClick={(event) => {this.setGraphType("radial-tidy-graph"); this.disableSecondButton()}}>Radial tidy graph</button>
+                        onClick={() => {this.setGraphType("radial-tidy-graph"); this.disableButton(radialTidyGraphButton)}}>Radial tidy graph</button>
                 <button ref={"collapsibleTree"}
                         style={{float: 'left'}}
-                        onClick={(event) => {this.setGraphType("collapsible-tree"); this.disableThirdButton()}}>Collapsible tree</button>
+                        onClick={() => {this.setGraphType("collapsible-tree"); this.disableButton(collapsibleTreeButton)}}>Collapsible tree</button>
                 <button ref={"fluidGraph"}
                         style={{float: 'left'}}
-                        onClick={(event) => {this.setGraphType("fluid-graph"); this.disableFourthButton()}}>Fluid graph</button>
+                        onClick={() => {this.setGraphType("fluid-graph"); this.disableButton(fluidGraphButton)}}>Fluid graph</button>
+                <button ref={"sankeyGraph"}
+                        style={{float: 'left'}}
+                        onClick={() => {this.setGraphType("sankey-graph"); this.disableButton(sankeyGraphButton)}}>Sankey graph</button>
 
 
                 <div className="separator" style={{clear: "both"}}/>
