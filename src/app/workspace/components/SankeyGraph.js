@@ -18,8 +18,31 @@ class SankeyGraph extends React.Component {
             },
             color = d3.scaleOrdinal(d3.schemeCategory20);
 
+        function resetZoom() {
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity);
+        }
+
+        //"Reset zoom" button
+        d3.select(".reset-zoom")
+            .on("click", resetZoom);
+
+        //zooming
+        function zoomFunction() {
+            let transform = d3.zoomTransform(this);
+            svg.attr("transform", transform);
+        }
+
+        const zoom = d3.zoom()
+            .extent([[0, 0], [width, height]])
+            .scaleExtent([0.5, 5])
+            .translateExtent([[0, 0], [width, height]])
+            .on("zoom", zoomFunction);
+
         // append the svg canvas to the page
         const svg = d3.select(this.refs.mountPoint)
+            .call(zoom).on("dblclick.zoom", null)
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -62,6 +85,7 @@ class SankeyGraph extends React.Component {
             .attr("transform", function (d) {
                 return "translate(" + d.x + "," + d.y + ")";
             })
+            .on("click", highlightLinks)
             .call(d3.drag()
                 .subject(function (d) {
                     return d;
@@ -113,6 +137,51 @@ class SankeyGraph extends React.Component {
                 ) + ")");
             sankey.relayout();
             link.attr("d", path);
+        }
+
+        function highlightLinks(node, i) {
+
+            let remainingNodes=[],
+                nextNodes=[];
+
+            let stroke_opacity = 0;
+            if (d3.select(this).attr("data-clicked") == "1") {
+                d3.select(this).attr("data-clicked","0");
+                stroke_opacity = 0.2;
+            } else {
+                d3.select(this).attr("data-clicked","1");
+                stroke_opacity = 0.8;
+            }
+
+            const traverse = [{
+                linkType: "sourceLinks",
+                nodeType: "target"
+            }, {
+                linkType: "targetLinks",
+                nodeType: "source"
+            }];
+
+            traverse.forEach(function(step){
+                node[step.linkType].forEach(function(link) {
+                    remainingNodes.push(link[step.nodeType]);
+                    highlightLink(link.id, stroke_opacity);
+                });
+
+                while (remainingNodes.length) {
+                    nextNodes = [];
+                    remainingNodes.forEach(function(node) {
+                        node[step.linkType].forEach(function(link) {
+                            nextNodes.push(link[step.nodeType]);
+                            highlightLink(link.id, stroke_opacity);
+                        });
+                    });
+                    remainingNodes = nextNodes;
+                }
+            });
+        }
+
+        function highlightLink(id, opacity) {
+            d3.select("#link-"+id).style("stroke-opacity", opacity);
         }
     }
 
