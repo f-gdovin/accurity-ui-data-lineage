@@ -32,16 +32,17 @@ class ForceGraph extends React.Component {
         function neighboring(a, b) {
             return linkedByIndex[a.index + "," + b.index];
         }
+
         function connectedNodes() {
             let d;
-            if (toggle == 0) {
+            if (toggle === 0) {
                 //Reduce the opacity of all but the neighbouring nodes
                 d = d3.select(this).node().__data__;
                 node.style("opacity", function (o) {
-                    return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+                    return neighboring(d, o) || neighboring(o, d) ? 1 : 0.1;
                 });
                 link.style("opacity", function (o) {
-                    return d.index == o.source.index | d.index == o.target.index ? 0.6 : 0.1;
+                    return d.index === o.source.index || d.index === o.target.index ? 0.6 : 0.1;
                 });
                 toggle = 1;
             } else {
@@ -53,13 +54,13 @@ class ForceGraph extends React.Component {
         //collision detection & avoidance
         function collide(alpha) {
             const quadtree = d3.quadtree(graph.nodes);
-            return function(d) {
+            return function (d) {
                 const rb = 2 * d.size + interNodePadding,
                     nx1 = d.x - rb,
                     nx2 = d.x + rb,
                     ny1 = d.y - rb,
                     ny2 = d.y + rb;
-                quadtree.visit(function(quad, x1, y1, x2, y2) {
+                quadtree.visit(function (quad, x1, y1, x2, y2) {
                     if (quad.point && (quad.point !== d)) {
                         let x = d.x - quad.point.x,
                             y = d.y - quad.point.y,
@@ -81,7 +82,7 @@ class ForceGraph extends React.Component {
         function searchNode() {
             const selectedVal = document.getElementById('searchInput').value;
             const nodes = svg.selectAll(".node");
-            if (selectedVal == "none") {
+            if (selectedVal === "none") {
                 nodes.style("stroke", "white").style("stroke-width", "1");
             } else {
                 nodes.style("opacity", "0.1");
@@ -139,7 +140,7 @@ class ForceGraph extends React.Component {
 
         //graph itself
         const svg = d3.select(this.refs.mountPoint)
-            //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
+        //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
             .call(zoom).on("dblclick.zoom", null)
             .append("svg:svg")
             .attr("width", width)
@@ -156,14 +157,16 @@ class ForceGraph extends React.Component {
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function (d) {
-                return  d.name + "";
+                return d.name + "";
             });
         svg.call(tip);
 
         //links
         const link = svg.selectAll(".link")
             .append('g')
-            .data(graph.links)
+            .data(graph.links, function (d) {
+                return "#{d.source.id}_#{d.target.id}";
+            })
             .enter().append('line')
             .attr('class', 'link')
             .attr("stroke", "#999")
@@ -172,25 +175,31 @@ class ForceGraph extends React.Component {
                 return Math.sqrt(d.value);
             });
 
-        //nodes
-        const node = svg.selectAll(".node")
-            .append('g')
-            .data(graph.nodes)
-            .enter().append("path")
+        //Nodes
+
+        // Update the nodes…
+        const node = svg.selectAll("g.node")
+            .data(graph.nodes, function (d) {
+                return d._uuid;
+            });
+
+        // Enter any new nodes.
+        const nodeEnter = node.enter().append("svg:g")
             .attr("class", "node")
-            .attr("d", d3.symbol()
-                .size(function(d) { return 50 + d.size * 30; } )
-                .type(function(d) {
-                    if (d.type === "circle") {
-                        return d3.symbolCircle;
-                    } else if (d.type === "square") {
-                        return d3.symbolSquare;
-                    } else {
-                        return d3.symbolDiamond;
-                    }
-                })
-            )
-            .style("fill", function(d) { return color(d.group); })
+            /*.attr("class", function (d) {
+                return "node acc-" + d._type;
+            })*/
+            .style("fill", function (d) {
+                let typeColor = -1;
+                if (d._type === "subjectArea") {
+                    typeColor = 1;
+                } else if (d._type === "entity") {
+                    typeColor = 2;
+                } else {
+                    typeColor = 3;
+                }
+                return color(typeColor);
+            })
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -199,9 +208,35 @@ class ForceGraph extends React.Component {
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
 
+        // Append a circle
+        nodeEnter.append("svg:circle")
+            .attr("r", 10)
+            .style("fill", "#eee");
+
+        // Append images
+        nodeEnter.append("image")
+            .attr("xlink:href", "https://github.com/favicon.ico")
+            .attr("x", -8)
+            .attr("y", -8)
+            .attr("width", 16)
+            .attr("height", 16);
+
+        /*const nodeImage = node.append('text')
+         .attr('text-anchor', 'middle')
+         .attr('dominant-baseline', 'central')
+         .attr('font-family', 'accurity')
+         .attr('font-size', '20px')
+         .text(function(d) { return "acc-" + d._type; });*/
+
+
+        // Exit any old nodes.
+        node.exit().remove();
+
         //adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.1).id(function(d) { return d.id; }))
+            .force("link", d3.forceLink().distance(0).strength(0.1).id(function (d) {
+                return d._uuid;
+            }))
             .force("charge", d3.forceManyBody().strength(-75))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
@@ -213,15 +248,27 @@ class ForceGraph extends React.Component {
         //update function, let D3 handle this instead of React
         function ticked() {
             link
-                .attr("x1", function(d) { return d.source.x; })
-                .attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) { return d.target.y; });
+                .attr("x1", function (d) {
+                    return d.source.x;
+                })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
 
             node
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; })
-                .attr("transform", function(d) {
+                .attr("cx", function (d) {
+                    return d.x;
+                })
+                .attr("cy", function (d) {
+                    return d.y;
+                })
+                .attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
             node.each(collide(0.5));
@@ -251,20 +298,18 @@ class ForceGraph extends React.Component {
         const style = {
             width: '100%',
             height: '100%',
-            border : '1px solid #323232',
+            border: '1px solid #323232',
         };
 
-        return <div style={style} ref="mountPoint" />;
+        return <div style={style} ref="mountPoint"/>;
     }
 }
 ForceGraph.propTypes = {
     graph: React.PropTypes.shape({
         nodes: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired,
-            size: React.PropTypes.number.isRequired,
-            type: React.PropTypes.string.isRequired,
-            group: React.PropTypes.number.isRequired,
-            id: React.PropTypes.string.isRequired
+            _type: React.PropTypes.string.isRequired,
+            _uuid: React.PropTypes.string.isRequired
         }),
         links: React.PropTypes.arrayOf({
             source: React.PropTypes.number.isRequired,
