@@ -2,13 +2,12 @@ import React from 'react';
 import * as d3 from 'd3';
 import * as d from "d";
 
-const horizontalPadding = 50;
-const verticalPadding = 100;
 const duration = 500;
 const translateDuration = 200;
 
-let width = window.innerWidth - horizontalPadding;
-let height = window.innerHeight - verticalPadding;
+const margin = {top: 10, right: 40, bottom: 40, left: 10};
+let width = window.innerWidth - margin.left - margin.right;
+let height = window.innerHeight - margin.top - margin.bottom;
 const diameter = Math.min(height, width);
 let index = 0;
 
