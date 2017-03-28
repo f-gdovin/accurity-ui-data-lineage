@@ -57,6 +57,7 @@ class GraphScreen extends React.Component {
             case "sankey-graph": {
                 return (
                     <div style={{width: width, height: height, border : '2px solid #323232',}}>
+                        <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
                         <SankeyGraph graph={sankeyGraphStaticData}/>
                     </div>
                 );

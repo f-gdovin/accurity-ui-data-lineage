@@ -139,6 +139,8 @@ class ForceGraph extends React.Component {
 
         //graph itself
         const svg = d3.select(this.refs.mountPoint)
+            //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
+            .call(zoom).on("dblclick.zoom", null)
             .append("svg:svg")
             .attr("width", width)
             .attr("height", height)
@@ -147,8 +149,7 @@ class ForceGraph extends React.Component {
             .attr("width", width)
             .attr("height", height)
             .attr("class", "graph")
-            .attr('fill', 'white')
-            .call(zoom);
+            .attr('fill', 'white');
 
         //tooltips
         const tip = d3Tip()
@@ -208,9 +209,6 @@ class ForceGraph extends React.Component {
 
         simulation.force("link")
             .links(graph.links);
-
-        //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
-        svg.call(zoom).on("dblclick.zoom", null);
 
         //update function, let D3 handle this instead of React
         function ticked() {
