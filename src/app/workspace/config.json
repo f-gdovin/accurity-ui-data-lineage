@@ -1,0 +1,182 @@
+{
+  "objectTypes": [
+    {
+      "requirement": {
+        "label": "Requirements",
+        "api": "requirements",
+        "relation_to": []
+      },
+      "subjectArea": {
+        "label": "Subject Areas",
+        "api": "subject-areas",
+        "relation_to": []
+      },
+      "entity": {
+        "label": "Entities",
+        "api": "entities",
+        "relation_to": [
+          {
+            "subjectArea": {
+              "key": "subjectArea._uuid"
+            }
+          },
+          {
+            "entity": {
+              "key": "parentEntity._uuid"
+            }
+          }
+        ]
+      },
+      "attributeDefinition": {
+        "label": "Attribute Definitions",
+        "api": "attribute-definitions",
+        "relation_to": [
+          {
+            "attributeDefinition": {
+              "key": "parent._uuid",
+              "label": "Parent"
+            }
+          },
+          {
+            "attributeDefinition": {
+              "key": "componentOf._uuid",
+              "label": "Component of"
+            }
+          },
+          {
+            "attributeType": {
+              "key": "attributeType._uuid"
+            }
+          },
+          {
+            "attributeComponent": {
+              "key": "componentType._uuid"
+            }
+          },
+          {
+            "entity": {
+              "key": "entity._uuid",
+              "label": "References"
+            }
+          }
+        ]
+      },
+      "attribute": {
+        "label": "Attributes",
+        "api": "attributes",
+        "relation_to": [
+          {
+            "attributeDefinition": {
+              "key": "attributeDefinition._uuid"
+            }
+          },
+          {
+            "attributeType": {
+              "key": "attributeType.uuid"
+            }
+          },
+          {
+            "dataSet": {
+              "key": "dataSetsProperty",
+              "comment": "1:M relationship"
+            }
+          },
+          {
+            "requirement": {
+              "key": "requirementsProperty",
+              "comment": "1:M relationship"
+            }
+          },
+          {
+            "entity": {
+              "key": "entity._uuid",
+              "label": "References"
+            }
+          },
+          {
+            "attribute": {
+              "key": "inheritanceParent._uuid",
+              "label": "References"
+            }
+          }
+        ]
+      },
+      "dataSet": {
+        "label": "Data Sets",
+        "api": "data-sets",
+        "relation_to": []
+      },
+      "dataStructure": {
+        "label": "Data Structures",
+        "api": "data-structures",
+        "relation_to": [
+          {
+            "dataSet": {
+              "key": "dataSet._uuid"
+            }
+          }
+        ]
+      },
+      "dataField": {
+        "label": "Data Fields",
+        "api": "data-fields",
+        "relation_to": [
+          {
+            "dataSet": {
+              "key": "dataSet._uuid"
+            }
+          },
+          {
+            "dataStructure": {
+              "key": "dataStructure._uuid"
+            }
+          }
+        ]
+      },
+      "mapping": {
+        "label": "Mappings",
+        "api": "mappings",
+        "relation_to": [
+          {
+            "entity": {
+              "key": "entity._uuid"
+            }
+          },
+          {
+            "attributeDefinition": {
+              "key": "attributeDefinition._uuid"
+            }
+          },
+          {
+            "dataSet": {
+              "key": "dataSet._uuid"
+            }
+          }
+        ]
+      },
+      "attributeType": {
+        "label": "Attribute Types",
+        "api": "attribute-types",
+        "relation_to": [
+          {
+            "attributeComponent": {
+              "key": "components",
+              "comment": "1:M relationship"
+            }
+          }
+        ]
+      },
+      "attributeComponent": {
+        "label": "Attribute Components",
+        "api": "attribute-components",
+        "relation_to": [
+          {
+            "attributeType": {
+              "key": "attributeType"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import axios from "axios-es6";
 import ForceGraph from "../components/ForceGraph";
 import RadialTidyGraph from "../components/RadialTidyGraph";
@@ -16,6 +17,9 @@ const axiosGetter = axios.create({
     timeout: 4000,
     headers: {'Authorization': 'Basic c3VwZXJhZG1pbjoxMjM0'} //superadmin 1234
 });
+
+let loadDataButton;
+
 const requestParams = {
     startFrom: 0,
     maxResults: 12,
@@ -35,7 +39,12 @@ class GraphScreen extends React.Component {
         super(props);
     }
 
+    componentDidMount() {
+        loadDataButton = ReactDOM.findDOMNode(this.refs.loadDataButton);
+    }
+
     loadRealData() {
+        loadDataButton.disabled = true;
         readDataLoaded = false;
         let nodes = [];
         let links = [];
@@ -43,7 +52,7 @@ class GraphScreen extends React.Component {
             axiosGetter.get('subject-areas/'),
             axiosGetter.get('entities/')
         ])
-            .then(axios.spread((subjectAreas, entities)=> {
+            .then(axios.spread((subjectAreas, entities) => {
                 nodes = nodes.concat(subjectAreas.data.rows, entities.data.rows);
                 links = this.createLinks(nodes);
                 // console.log("Received " + JSON.stringify(nodes, null, 2));
@@ -53,19 +62,20 @@ class GraphScreen extends React.Component {
                     "links": links
                 };
                 readDataLoaded = true;
+                loadDataButton.disabled = false;
             }))
             .catch(error => console.log(error));
     }
 
     createLinks(nodes: []): [] {
-        const subjectAreaNodes = nodes.filter(x=> x._type === "subjectArea");
-        const entityNodes = nodes.filter(x=> x._type === "entity");
+        const subjectAreaNodes = nodes.filter(x => x._type === "subjectArea");
+        const entityNodes = nodes.filter(x => x._type === "entity");
         const SA_ENT_Links = [];
         let index = 0;
 
         for (let i = 0; i < entityNodes.length; i++) {
             let entity = entityNodes[i];
-            let usedSubjectArea = subjectAreaNodes.find(x=> x._uuid === entity.subjectArea._uuid);
+            let usedSubjectArea = subjectAreaNodes.find(x => x._uuid === entity.subjectArea._uuid);
 
             if (usedSubjectArea && usedSubjectArea._uuid) {
                 SA_ENT_Links.push({"id": index, "source": usedSubjectArea._uuid, "target": entity._uuid, "value": 1});
@@ -141,7 +151,7 @@ class GraphScreen extends React.Component {
 
         return (
             <div>
-                <button ref={"forceGraph"}
+                <button ref={"loadDataButton"}
                         style={{float: 'left'}}
                         onClick={() => {
                             this.loadRealData()

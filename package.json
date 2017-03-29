@@ -45,6 +45,7 @@
     "json-loader": "^0.5.4",
     "react": "15.3.2",
     "react-dom": "15.3.2",
+    "react-dropdown-multiselect": "^1.0.0",
     "underscore": "^1.8.3"
   }
 }
