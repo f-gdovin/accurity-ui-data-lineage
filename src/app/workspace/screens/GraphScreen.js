@@ -8,6 +8,8 @@ import FluidGraph from "../components/FluidGraph";
 import SankeyGraph from "../components/SankeyGraph";
 import NodeSearcher from "../components/NodeSearcher";
 
+const objectRelationships = require('json!../config.json');
+
 const forceGraphStaticData = require('json!../data/force.json');
 const radialTidyGraphStaticData = require('json!../data/radialTidy.json');
 const sankeyGraphStaticData = require('json!../data/sankey.json');
@@ -43,13 +45,16 @@ class GraphScreen extends React.Component {
         loadDataButton = ReactDOM.findDOMNode(this.refs.loadDataButton);
     }
 
+    generateRequest(objectType: String): Function {
+        return new Function('objectType', "axiosGetter.get(\'objectType\');")();
+    }
+
     loadRealData() {
         loadDataButton.disabled = true;
         readDataLoaded = false;
         let nodes = [];
         let links = [];
-        axios.all([
-            axiosGetter.get('subject-areas/'),
+        axios.all([this.generateRequest("subject-areas"),
             axiosGetter.get('entities/')
         ])
             .then(axios.spread((subjectAreas, entities) => {
@@ -151,12 +156,7 @@ class GraphScreen extends React.Component {
 
         return (
             <div>
-                <button ref={"loadDataButton"}
-                        style={{float: 'left'}}
-                        onClick={() => {
-                            this.loadRealData()
-                        }}>Load data
-                </button>
+                <button ref={"loadDataButton"} style={{float: 'left'}} onClick={() => {this.loadRealData()}}>Load data</button>
                 {graph}
             </div>
 
