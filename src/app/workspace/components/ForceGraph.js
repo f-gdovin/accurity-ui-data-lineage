@@ -188,31 +188,8 @@ class ForceGraph extends React.Component {
             });
 
         // Enter any new nodes
-        const nodeEnter = node.enter().append("path")
+        const nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            .attr("d", d3.symbol()
-                .size(50)
-                .type(function(d) {
-                    if (d.type === "subjectArea") {
-                        return d3.symbolCircle;
-                    } else if (d.type === "entity") {
-                        return d3.symbolSquare;
-                    } else {
-                        return d3.symbolDiamond;
-                    }
-                })
-            )
-            .style("fill", function (d) {
-                let typeColor = -1;
-                if (d._type === "subjectArea") {
-                    typeColor = 1;
-                } else if (d._type === "entity") {
-                    typeColor = 2;
-                } else {
-                    typeColor = 3;
-                }
-                return color(typeColor);
-            })
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -222,7 +199,7 @@ class ForceGraph extends React.Component {
             .on('mouseout', tip.hide);
 
 
-        /*// Append a circle
+        // Append a circle
         nodeEnter.append("svg:circle")
             .attr("r", 10)
             .style("fill", "#eee");
@@ -231,11 +208,13 @@ class ForceGraph extends React.Component {
         // Append an image
         nodeEnter.append("svg:image")
             .attr("xlink:href", "https://github.com/favicon.ico")
-            .attr("x", -15)
-            .attr("y", -15)
-            .attr("height", 30)
-            .attr("width", 30);
+            .attr("x", -10)
+            .attr("y", -10)
+            .attr("height", 20)
+            .attr("width", 20);
 
+        /*
+        // Append a label (commented out because we have tooltips)
         nodeEnter.append("text")
             .attr("class", "nodetext")
             .attr("x", 15)
