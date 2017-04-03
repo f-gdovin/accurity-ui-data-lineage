@@ -47,7 +47,7 @@ class GraphScreen extends React.Component {
                     }
 
                 }
-                links = JSONConfigurer.generateLinks(nodes);
+                links = JSONConfigurer.generateLinks(nodes, selectedObjectTypes);
                 console.log("Received " + JSON.stringify(nodes, null, 2));
                 console.log("Computed links " + JSON.stringify(links, null, 2));
                 realData = {
