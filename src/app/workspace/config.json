@@ -26,7 +26,7 @@
         },
         {
           "entity": {
-            "key": "parentEntity._uuid"
+            "key": "parent._uuid"
           }
         }
       ]
