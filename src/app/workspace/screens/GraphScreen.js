@@ -48,14 +48,13 @@ class GraphScreen extends React.Component {
 
                 }
                 links = JSONConfigurer.generateLinks(nodes, selectedObjectTypes);
-                console.log("Received " + JSON.stringify(nodes, null, 2));
-                console.log("Computed links " + JSON.stringify(links, null, 2));
                 realData = {
                     "nodes": nodes,
                     "links": links
                 };
                 readDataLoaded = true;
                 loadDataButton.disabled = false;
+                alert("Real data loaded as requested, draw graph")
             })
             .catch(error => console.log(error));
     }

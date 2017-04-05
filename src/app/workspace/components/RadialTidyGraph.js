@@ -4,7 +4,6 @@ import * as d from "d";
 
 const horizontalPadding = 50;
 const verticalPadding = 100;
-const duration = 500;
 
 let svg, tree, root;
 
@@ -39,14 +38,12 @@ class RadialTidyGraph extends React.Component {
 
         tree = d3.tree()
             .size([360, diameter / 2 - 80])
-            .separation(function (a, b) {
-                return (a.parent == b.parent ? 1 : 10) / a.depth;
-            });
+            .separation((a, b) => (a.parent === b.parent ? 1 : 10) / a.depth);
 
         root = d3.hierarchy(graph);
         tree(root);
 
-        root.each(function (d) {
+        root.each((d) => {
             d.name = d.data.name;   //transferring name to a name variable
             d.id = index;           //Assigning numerical Ids
             index++;
@@ -67,29 +64,23 @@ class RadialTidyGraph extends React.Component {
             .data(links)
             .enter().append("path")
             .attr("class", "link")
-            .attr("d", function (d) {
-                return diagonal(d);
-            });
+            .attr("d", (d) => diagonal(d));
 
         const node = svg.selectAll(".node")
             .data(nodes)
             .enter().append("g")
-            .attr("class", function (d) {
-                return "node" + (d.children ? " node--internal" : " node--leaf");
-            })
-            .attr("transform", function (d) {
-                return "translate(" + project(d.x, d.y) + ")";
-            });
+            .attr("class", (d) => "node" + (d.children ? " node--internal" : " node--leaf"))
+            .attr("transform", (d) => "translate(" + project(d.x, d.y) + ")");
 
         node.append("circle")
             .attr("r", 2.5);
 
         node.append("text")
             .attr("dy", ".31em")
-            .attr("x", function(d) { return d.x < 180 === !d.children ? 6 : -6; })
-            .style("text-anchor", function(d) { return d.x < 180 === !d.children ? "start" : "end"; })
-            .attr("transform", function(d) { return "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")"; })
-            .text(function(d) { return d.name });
+            .attr("x", (d)=> d.x < 180 === !d.children ? 6 : -6)
+            .style("text-anchor", (d) => d.x < 180 === !d.children ? "start" : "end")
+            .attr("transform", (d) => "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")")
+            .text((d) => d.name);
 
         function project(x, y) {
             const angle = (x - 90) / 180 * Math.PI, radius = y;

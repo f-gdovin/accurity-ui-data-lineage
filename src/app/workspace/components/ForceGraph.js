@@ -25,9 +25,7 @@ class ForceGraph extends React.Component {
         for (let i = 0; i < graph.nodes.length; i++) {
             linkedByIndex[i + "," + i] = 1;
         }
-        graph.links.forEach(function (d) {
-            linkedByIndex[Number(d.source) + "," + Number(d.target)] = 1;
-        });
+        graph.links.forEach((d) => linkedByIndex[Number(d.source) + "," + Number(d.target)] = 1);
 
         function neighboring(a, b) {
             return linkedByIndex[a.index + "," + b.index];
@@ -38,12 +36,8 @@ class ForceGraph extends React.Component {
             if (toggle === 0) {
                 //Reduce the opacity of all but the neighbouring nodes
                 d = d3.select(this).node().__data__;
-                node.style("opacity", function (o) {
-                    return neighboring(d, o) || neighboring(o, d) ? 1 : 0.1;
-                });
-                link.style("opacity", function (o) {
-                    return d.index === o.source.index || d.index === o.target.index ? 0.6 : 0.1;
-                });
+                node.style("opacity", (o) => neighboring(d, o) || neighboring(o, d) ? 1 : 0.1);
+                link.style("opacity", (o) => d.index === o.source.index || d.index === o.target.index ? 0.6 : 0.1);
                 toggle = 1;
             } else {
                 resetSearch(0);
@@ -54,13 +48,13 @@ class ForceGraph extends React.Component {
         // Collision detection & avoidance
         function collide(alpha) {
             const quadtree = d3.quadtree(graph.nodes);
-            return function (d) {
+            return (d) => {
                 const rb = 2 * d.size + interNodePadding,
                     nx1 = d.x - rb,
                     nx2 = d.x + rb,
                     ny1 = d.y - rb,
                     ny2 = d.y + rb;
-                quadtree.visit(function (quad, x1, y1, x2, y2) {
+                quadtree.visit((quad, x1, y1, x2, y2) => {
                     if (quad.point && (quad.point !== d)) {
                         let x = d.x - quad.point.x,
                             y = d.y - quad.point.y,
@@ -88,9 +82,7 @@ class ForceGraph extends React.Component {
                 nodes.style("opacity", "0.1");
 
                 //make only the matching nodes visible
-                const matchedNodes = nodes.filter(function (node, i) {
-                    return node.name.toUpperCase().includes(selectedVal.toUpperCase());
-                });
+                const matchedNodes = nodes.filter((node, i) => node.name.toUpperCase().includes(selectedVal.toUpperCase()));
                 matchedNodes.style("opacity", "1");
 
                 const links = svg.selectAll(".link");
@@ -156,25 +148,20 @@ class ForceGraph extends React.Component {
         const tip = d3Tip()
             .attr('class', 'd3-tip')
             .offset([-10, 0])
-            .html(function (d) {
-                return d.name + "";
-            });
+            .html((d) => d.name + "");
         svg.call(tip);
 
         // Links
         // Update the links
         let link = svg.selectAll(".link")
-            .data(graph.links, function (d) {
-                return "#{d.source}_#{d.target}";
-            });
+            .data(graph.links, (d) => "#{d.source}_#{d.target}");
 
         link.enter().append('svg:line')
             .attr('class', 'link')
-            .attr("stroke", "#999")
+            .attr("stroke", "#6f6d6d")
             .attr("stroke-opacity", "0.6")
-            .attr("stroke-width", function (d) {
-                return Math.sqrt(d.value);
-            });
+            .attr("stroke-width", "3px");
+            // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
         link.exit().remove();
@@ -183,9 +170,7 @@ class ForceGraph extends React.Component {
         // Nodes
         // Update the nodes
         let node = svg.selectAll(".node")
-            .data(graph.nodes, function (d) {
-                return d._uuid;
-            });
+            .data(graph.nodes, (d) => d._uuid);
 
         // Enter any new nodes
         const nodeEnter = node.enter().append("g")
@@ -208,20 +193,14 @@ class ForceGraph extends React.Component {
         // Append an icon
         nodeEnter.append("text")
             .attr("class", "nodetext")
-            .attr("x", function (d) {
-                return d.cx;
-            })
-            .attr("y", function (d) {
-                return d.cy;
-            })
+            .attr("x", (d) => d.cx)
+            .attr("y", (d) => d.cy)
             .attr("font-family", "accurity")
             .attr("font-size", "20px")
             .attr("fill", "#130C0E")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
-            .text(function (d) {
-                return JSONConfigurer.getObjectByItsType(d._type).icon;
-            });
+            .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);
 
         // Exit any old nodes
         node.exit().remove();
@@ -231,9 +210,7 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.1).id(function (d) {
-                return d._uuid;
-            }))
+            .force("link", d3.forceLink().distance(0).strength(0.1).id((d) => d._uuid))
             .force("charge", d3.forceManyBody().strength(-75))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
@@ -245,29 +222,15 @@ class ForceGraph extends React.Component {
         // Update function, let D3 handle this instead of React
         function ticked() {
             link
-                .attr("x1", function (d) {
-                    return d.source.x;
-                })
-                .attr("y1", function (d) {
-                    return d.source.y;
-                })
-                .attr("x2", function (d) {
-                    return d.target.x;
-                })
-                .attr("y2", function (d) {
-                    return d.target.y;
-                });
+                .attr("x1", (d) => d.source.x)
+                .attr("y1", (d) => d.source.y)
+                .attr("x2", (d) => d.target.x)
+                .attr("y2", (d) => d.target.y);
 
             node
-                .attr("cx", function (d) {
-                    return d.x;
-                })
-                .attr("cy", function (d) {
-                    return d.y;
-                })
-                .attr("transform", function (d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                });
+                .attr("cx", (d) => d.x)
+                .attr("cy", (d) => d.y)
+                .attr("transform", (d) => "translate(" + d.x + "," + d.y + ")");
             node.each(collide(0.5));
         }
 

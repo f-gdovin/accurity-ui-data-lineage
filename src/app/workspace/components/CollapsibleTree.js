@@ -38,7 +38,7 @@ class CollapsibleTree extends React.Component {
         root.x0 = height / 2;
         root.y0 = 0;
 
-        root.each(function (d) {
+        root.each((d) => {
             d.name = d.data.name;
             d.id = index;
             index++;
@@ -56,42 +56,32 @@ class CollapsibleTree extends React.Component {
         const links = nodes.slice(1);
 
         // Normalize for fixed-depth.
-        nodes.forEach(function(d){ d.y = d.depth * 180});
+        nodes.forEach((d) => d.y = d.depth * 180);
 
         // ****************** Nodes section ***************************
 
         // Update the nodes...
         const node = svg.selectAll('g.node')
-            .data(nodes, function (d) {
-                return d.id;
-            });
+            .data(nodes, (d) => d.id);
 
         // Enter any new modes at the parent's previous position.
         const nodeEnter = node.enter().append('g')
             .attr('class', 'node')
-            .attr("transform", function (d) {
-                return "translate(" + source.y0 + "," + source.x0 + ")";
-            })
+            .attr("transform", () => "translate(" + source.y0 + "," + source.x0 + ")")
             .on('click', this.click);
 
         // Add Circle for the nodes
         nodeEnter.append('circle')
             .attr('class', 'node')
             .attr('r', 1e-6)
-            .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
-            });
+            .style("fill", (d) => d._children ? "lightsteelblue" : "#fff");
 
         // Add labels for the nodes
         nodeEnter.append('text')
             .attr("dy", ".35em")
-            .attr("x", function(d) {
-                return d.children || d._children ? -13 : 13;
-            })
-            .attr("text-anchor", function(d) {
-                return d.children || d._children ? "end" : "start";
-            })
-            .text(function(d) { return d.name; });
+            .attr("x", (d) => d.children || d._children ? -13 : 13)
+            .attr("text-anchor", (d) => d.children || d._children ? "end" : "start")
+            .text((d) => d.name);
 
         // UPDATE
         const nodeUpdate = nodeEnter.merge(node);
@@ -99,25 +89,19 @@ class CollapsibleTree extends React.Component {
         // Transition to the proper position for the node
         nodeUpdate.transition()
             .duration(duration)
-            .attr("transform", function(d) {
-                return "translate(" + d.y + "," + d.x + ")";
-            });
+            .attr("transform", (d) => "translate(" + d.y + "," + d.x + ")");
 
         // Update the node attributes and style
         nodeUpdate.select('circle.node')
             .attr('r', 10)
-            .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
-            })
+            .style("fill", (d) => d._children ? "lightsteelblue" : "#fff")
             .attr('cursor', 'pointer');
 
 
         // Remove any exiting nodes
         const nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function (d) {
-                return "translate(" + source.y + "," + source.x + ")";
-            })
+            .attr("transform", (d) => "translate(" + source.y + "," + source.x + ")")
             .remove();
 
         // On exit reduce the node circles size to 0
@@ -132,14 +116,12 @@ class CollapsibleTree extends React.Component {
 
         // Update the links...
         const link = svg.selectAll('path.link')
-            .data(links, function (d) {
-                return d.id;
-            });
+            .data(links, (d) => d.id);
 
         // Enter any new links at the parent's previous position.
         const linkEnter = link.enter().insert('path', "g")
             .attr("class", "link")
-            .attr('d', function (d) {
+            .attr('d', () => {
                 const o = {x: source.x0, y: source.y0};
                 return diagonal(o, o)
             });
@@ -150,32 +132,29 @@ class CollapsibleTree extends React.Component {
         // Transition back to the parent element position
         linkUpdate.transition()
             .duration(duration)
-            .attr('d', function(d){ return diagonal(d, d.parent) });
+            .attr('d', (d) => diagonal(d, d.parent));
 
         // Remove any exiting links
         const linkExit = link.exit().transition()
             .duration(duration)
-            .attr('d', function (d) {
+            .attr('d', () => {
                 const o = {x: source.x, y: source.y};
                 return diagonal(o, o)
             })
             .remove();
 
         // Store the old positions for transition.
-        nodes.forEach(function(d){
+        nodes.forEach((d) => {
             d.x0 = d.x;
             d.y0 = d.y;
         });
 
         // Creates a curved (diagonal) path from parent to the child nodes
         function diagonal(s, d) {
-            const path = `M ${s.y} ${s.x}
+            return `M ${s.y} ${s.x}
             C ${(s.y + d.y) / 2} ${s.x},
               ${(s.y + d.y) / 2} ${d.x},
               ${d.y} ${d.x}`;
-
-            console.log("Path is " + path);
-            return path
         }
     }
 
