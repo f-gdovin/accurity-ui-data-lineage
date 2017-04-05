@@ -48,7 +48,8 @@ const JSONConfigurer = {
                 options.push(
                     {
                         value: objectType,
-                        label: object.label
+                        label: object.label,
+                        selected: false
                     }
                 )
             }
@@ -56,7 +57,7 @@ const JSONConfigurer = {
         return options;
     },
 
-    //TODO: make this generic and use config
+    //TODO: 1:M and M:N relationships
     generateLinks(nodes: [], selectedObjectTypes: []): [] {
         const links = [];
 

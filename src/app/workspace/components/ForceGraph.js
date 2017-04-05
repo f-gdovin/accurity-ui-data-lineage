@@ -1,7 +1,9 @@
-import React from 'react';
-import * as d3 from 'd3';
-import d3Tip from 'd3-tip';
-import JSONConfigurer from '../data/JSONConfigurer';
+import React from "react";
+import * as d3 from "d3";
+import d3Tip from "d3-tip";
+import JSONConfigurer from "../data/JSONConfigurer";
+import DataLoader from "../utils/DataActions";
+import DataStore from "../utils/DataStore";
 
 const horizontalPadding = 50;
 const verticalPadding = 100;
@@ -15,10 +17,20 @@ let toggle = 0;
 
 class ForceGraph extends React.Component {
 
-    componentDidMount() {
-        const graph = this.props.graph;
+    constructor(props) {
+        super(props);
 
-        const color = d3.scaleOrdinal(d3.schemeCategory20);
+        this.state = {
+            graph: DataStore.getState().modelData
+        };
+    }
+
+    componentDidMount() {
+        this.draw();
+    }
+
+    draw() {
+        const graph = this.state.graph;
 
         // Highlighting of adjacent nodes
         let linkedByIndex = {};
@@ -106,10 +118,6 @@ class ForceGraph extends React.Component {
                 .call(zoom.transform, d3.zoomIdentity);
         }
 
-        // "Reset zoom" button
-        d3.select(".reset-zoom")
-            .on("click", resetZoom);
-
         // "Search nodes" button
         d3.select(".search-nodes")
             .on("click", searchNode);
@@ -161,7 +169,7 @@ class ForceGraph extends React.Component {
             .attr("stroke", "#6f6d6d")
             .attr("stroke-opacity", "0.6")
             .attr("stroke-width", "3px");
-            // .attr("stroke-width", (d) => Math.sqrt(d.value));
+        // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
         link.exit().remove();
@@ -253,6 +261,19 @@ class ForceGraph extends React.Component {
         }
     }
 
+    redraw() {
+        const newData = DataStore.getModelData();
+        this.setState({
+            graph: newData
+        }, () => {
+            //Clear the canvas and redraw
+            d3.selectAll('div > svg').remove();
+            this.draw();
+        });
+
+
+    }
+
     // Let React do the first render
     render() {
         const style = {
@@ -261,7 +282,28 @@ class ForceGraph extends React.Component {
             border: '1px solid #323232',
         };
 
-        return <div style={style} ref="mountPoint"/>;
+        return (
+            <div>
+                <div className="dataLoader">
+                    <DataLoader isModelData={true}/>
+                    <button style={{float: 'left'}} className="redraw-graph" onClick={() => {
+                        this.redraw()
+                    }}>Redraw
+                    </button>
+                </div>
+
+                <div className="zoomer">
+                    <button style={{float: 'left'}} className="reset-zoom" onClick={() => {
+                        this.resetZoom()
+                    }}>Reset zoom
+                    </button>
+                </div>
+
+                <div className="nodeSearcher">
+                    {/*<NodeSearcher nodes={this.state.graph.nodes}/>*/}
+                </div>
+                <div className="mountPoint" style={style} ref="mountPoint"/>
+            </div>);
     }
 }
 ForceGraph.propTypes = {
