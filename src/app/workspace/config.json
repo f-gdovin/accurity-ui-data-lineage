@@ -1,0 +1,197 @@
+{
+  "baseURL": "http://localhost:8086/v1/",
+  "timeout": 4000,
+  "headers": {
+    "Authorization": "Basic c3VwZXJhZG1pbjoxMjM0"
+  },
+  "objectTypes": {
+    "requirement": {
+      "label": "Requirements",
+      "api": "requirements",
+      "icon": "\ue941",
+      "relation_to": []
+    },
+    "subjectArea": {
+      "label": "Subject Areas",
+      "api": "subject-areas",
+      "icon": "\ue956",
+      "relation_to": []
+    },
+    "entity": {
+      "label": "Entities",
+      "api": "entities",
+      "icon": "\ue91f",
+      "relation_to": [
+        {
+          "subjectArea": {
+            "key": "subjectArea._uuid"
+          }
+        },
+        {
+          "entity": {
+            "key": "parent._uuid"
+          }
+        }
+      ]
+    },
+    "attributeDefinition": {
+      "label": "Attribute Definitions",
+      "api": "attribute-definitions",
+      "icon": "\ue905",
+      "icon2": "\ue906 < not sure which of them",
+      "relation_to": [
+        {
+          "attributeDefinition": {
+            "key": "parent._uuid",
+            "label": "Parent"
+          }
+        },
+        {
+          "attributeDefinition": {
+            "key": "componentOf._uuid",
+            "label": "Component of"
+          }
+        },
+        {
+          "attributeType": {
+            "key": "attributeType._uuid"
+          }
+        },
+        {
+          "attributeComponent": {
+            "key": "componentType._uuid"
+          }
+        },
+        {
+          "entity": {
+            "key": "entity._uuid",
+            "label": "References"
+          }
+        }
+      ]
+    },
+    "attribute": {
+      "label": "Attributes",
+      "api": "attributes",
+      "icon": "\ue903",
+      "relation_to": [
+        {
+          "attributeDefinition": {
+            "key": "attributeDefinition._uuid"
+          }
+        },
+        {
+          "attributeType": {
+            "key": "attributeType.uuid"
+          }
+        },
+        {
+          "dataSet": {
+            "key": "dataSetsProperty",
+            "comment": "1:M relationship"
+          }
+        },
+        {
+          "requirement": {
+            "key": "requirementsProperty",
+            "comment": "1:M relationship"
+          }
+        },
+        {
+          "entity": {
+            "key": "entity._uuid",
+            "label": "References"
+          }
+        },
+        {
+          "attribute": {
+            "key": "inheritanceParent._uuid",
+            "label": "References"
+          }
+        }
+      ]
+    },
+    "dataSet": {
+      "label": "Data Sets",
+      "api": "data-sets",
+      "icon": "\ue918",
+      "relation_to": []
+    },
+    "dataStructure": {
+      "label": "Data Structures",
+      "api": "data-structures",
+      "icon": "\ue919",
+      "relation_to": [
+        {
+          "dataSet": {
+            "key": "dataSet._uuid"
+          }
+        }
+      ]
+    },
+    "dataField": {
+      "label": "Data Fields",
+      "api": "data-fields",
+      "icon": "\ue916",
+      "relation_to": [
+        {
+          "dataSet": {
+            "key": "dataSet._uuid"
+          }
+        },
+        {
+          "dataStructure": {
+            "key": "dataStructure._uuid"
+          }
+        }
+      ]
+    },
+    "mapping": {
+      "label": "Mappings",
+      "api": "mappings",
+      "icon": "\ue92d",
+      "relation_to": [
+        {
+          "entity": {
+            "key": "entity._uuid"
+          }
+        },
+        {
+          "attributeDefinition": {
+            "key": "attributeDefinition._uuid"
+          }
+        },
+        {
+          "dataSet": {
+            "key": "dataSet._uuid"
+          }
+        }
+      ]
+    },
+    "attributeType": {
+      "label": "Attribute Types",
+      "api": "attribute-types",
+      "icon": "\ue907",
+      "relation_to": [
+        {
+          "attributeComponent": {
+            "key": "components",
+            "comment": "1:M relationship"
+          }
+        }
+      ]
+    },
+    "attributeComponent": {
+      "label": "Attribute Components",
+      "api": "attribute-components",
+      "icon": "\ue904",
+      "relation_to": [
+        {
+          "attributeType": {
+            "key": "attributeType"
+          }
+        }
+      ]
+    }
+  }
+}

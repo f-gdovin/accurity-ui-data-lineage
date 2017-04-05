@@ -1,7 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
-import * as d from "d";
 import d3Tip from 'd3-tip';
+import JSONConfigurer from '../data/JSONConfigurer';
 
 const horizontalPadding = 50;
 const verticalPadding = 100;
@@ -10,7 +10,7 @@ const interNodePadding = 2;
 let width = window.innerWidth - horizontalPadding;
 let height = window.innerHeight - verticalPadding;
 
-//Toggle stores whether the highlighting is on
+// Toggle whether the highlighting is on
 let toggle = 0;
 
 class ForceGraph extends React.Component {
@@ -20,7 +20,7 @@ class ForceGraph extends React.Component {
 
         const color = d3.scaleOrdinal(d3.schemeCategory20);
 
-        //highlighting of adjacent nodes
+        // Highlighting of adjacent nodes
         let linkedByIndex = {};
         for (let i = 0; i < graph.nodes.length; i++) {
             linkedByIndex[i + "," + i] = 1;
@@ -32,16 +32,17 @@ class ForceGraph extends React.Component {
         function neighboring(a, b) {
             return linkedByIndex[a.index + "," + b.index];
         }
+
         function connectedNodes() {
             let d;
-            if (toggle == 0) {
+            if (toggle === 0) {
                 //Reduce the opacity of all but the neighbouring nodes
                 d = d3.select(this).node().__data__;
                 node.style("opacity", function (o) {
-                    return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+                    return neighboring(d, o) || neighboring(o, d) ? 1 : 0.1;
                 });
                 link.style("opacity", function (o) {
-                    return d.index == o.source.index | d.index == o.target.index ? 0.6 : 0.1;
+                    return d.index === o.source.index || d.index === o.target.index ? 0.6 : 0.1;
                 });
                 toggle = 1;
             } else {
@@ -50,16 +51,16 @@ class ForceGraph extends React.Component {
             }
         }
 
-        //collision detection & avoidance
+        // Collision detection & avoidance
         function collide(alpha) {
             const quadtree = d3.quadtree(graph.nodes);
-            return function(d) {
+            return function (d) {
                 const rb = 2 * d.size + interNodePadding,
                     nx1 = d.x - rb,
                     nx2 = d.x + rb,
                     ny1 = d.y - rb,
                     ny2 = d.y + rb;
-                quadtree.visit(function(quad, x1, y1, x2, y2) {
+                quadtree.visit(function (quad, x1, y1, x2, y2) {
                     if (quad.point && (quad.point !== d)) {
                         let x = d.x - quad.point.x,
                             y = d.y - quad.point.y,
@@ -77,11 +78,11 @@ class ForceGraph extends React.Component {
             };
         }
 
-        //take value on input field and show nodes whose name contains such substring (case insensitive)
+        // Take value on input field and show nodes whose name contains such substring (case insensitive)
         function searchNode() {
             const selectedVal = document.getElementById('searchInput').value;
             const nodes = svg.selectAll(".node");
-            if (selectedVal == "none") {
+            if (selectedVal === "none") {
                 nodes.style("stroke", "white").style("stroke-width", "1");
             } else {
                 nodes.style("opacity", "0.1");
@@ -97,7 +98,7 @@ class ForceGraph extends React.Component {
             }
         }
 
-        //change opacity of everything back to default after X milliseconds
+        // Change opacity of everything back to default after X milliseconds
         function resetSearch(duration = 0) {
             d3.selectAll(".node").transition()
                 .duration(duration)
@@ -113,19 +114,19 @@ class ForceGraph extends React.Component {
                 .call(zoom.transform, d3.zoomIdentity);
         }
 
-        //"Reset zoom" button
+        // "Reset zoom" button
         d3.select(".reset-zoom")
             .on("click", resetZoom);
 
-        //"Search nodes" button
+        // "Search nodes" button
         d3.select(".search-nodes")
             .on("click", searchNode);
 
-        //"Reset search" button
+        // "Reset search" button
         d3.select(".reset-search")
             .on("click", resetSearch);
 
-        //zooming
+        // Zooming
         function zoomFunction() {
             let transform = d3.zoomTransform(this);
             svg.attr("transform", transform);
@@ -137,9 +138,9 @@ class ForceGraph extends React.Component {
             .translateExtent([[0, 0], [width, height]])
             .on("zoom", zoomFunction);
 
-        //graph itself
+        // Graph itself
         const svg = d3.select(this.refs.mountPoint)
-            //enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
+        // Enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
             .call(zoom).on("dblclick.zoom", null)
             .append("svg:svg")
             .attr("width", width)
@@ -151,20 +152,23 @@ class ForceGraph extends React.Component {
             .attr("class", "graph")
             .attr('fill', 'white');
 
-        //tooltips
+        // Tooltips
         const tip = d3Tip()
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function (d) {
-                return  d.name + "";
+                return d.name + "";
             });
         svg.call(tip);
 
-        //links
-        const link = svg.selectAll(".link")
-            .append('g')
-            .data(graph.links)
-            .enter().append('line')
+        // Links
+        // Update the links
+        let link = svg.selectAll(".link")
+            .data(graph.links, function (d) {
+                return "#{d.source}_#{d.target}";
+            });
+
+        link.enter().append('svg:line')
             .attr('class', 'link')
             .attr("stroke", "#999")
             .attr("stroke-opacity", "0.6")
@@ -172,25 +176,20 @@ class ForceGraph extends React.Component {
                 return Math.sqrt(d.value);
             });
 
-        //nodes
-        const node = svg.selectAll(".node")
-            .append('g')
-            .data(graph.nodes)
-            .enter().append("path")
+        // Exit any old paths
+        link.exit().remove();
+
+
+        // Nodes
+        // Update the nodes
+        let node = svg.selectAll(".node")
+            .data(graph.nodes, function (d) {
+                return d._uuid;
+            });
+
+        // Enter any new nodes
+        const nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            .attr("d", d3.symbol()
-                .size(function(d) { return 50 + d.size * 30; } )
-                .type(function(d) {
-                    if (d.type === "circle") {
-                        return d3.symbolCircle;
-                    } else if (d.type === "square") {
-                        return d3.symbolSquare;
-                    } else {
-                        return d3.symbolDiamond;
-                    }
-                })
-            )
-            .style("fill", function(d) { return color(d.group); })
             .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
@@ -199,9 +198,42 @@ class ForceGraph extends React.Component {
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
 
-        //adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
+
+        // Append a circle
+        nodeEnter.append("svg:circle")
+            .attr("r", 10)
+            .style("stroke", "gray")
+            .style("fill", "white");
+
+        // Append an icon
+        nodeEnter.append("text")
+            .attr("class", "nodetext")
+            .attr("x", function (d) {
+                return d.cx;
+            })
+            .attr("y", function (d) {
+                return d.cy;
+            })
+            .attr("font-family", "accurity")
+            .attr("font-size", "20px")
+            .attr("fill", "#130C0E")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .text(function (d) {
+                return JSONConfigurer.getObjectByItsType(d._type).icon;
+            });
+
+        // Exit any old nodes
+        node.exit().remove();
+
+        link = svg.selectAll(".link");
+        node = svg.selectAll(".node");
+
+        // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.1).id(function(d) { return d.id; }))
+            .force("link", d3.forceLink().distance(0).strength(0.1).id(function (d) {
+                return d._uuid;
+            }))
             .force("charge", d3.forceManyBody().strength(-75))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
@@ -210,24 +242,36 @@ class ForceGraph extends React.Component {
         simulation.force("link")
             .links(graph.links);
 
-        //update function, let D3 handle this instead of React
+        // Update function, let D3 handle this instead of React
         function ticked() {
             link
-                .attr("x1", function(d) { return d.source.x; })
-                .attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) { return d.target.y; });
+                .attr("x1", function (d) {
+                    return d.source.x;
+                })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
 
             node
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; })
-                .attr("transform", function(d) {
+                .attr("cx", function (d) {
+                    return d.x;
+                })
+                .attr("cy", function (d) {
+                    return d.y;
+                })
+                .attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
             node.each(collide(0.5));
         }
 
-        //dragging stuff
+        // Dragging stuff
         function dragstarted(d) {
             if (!d3.event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
@@ -246,25 +290,23 @@ class ForceGraph extends React.Component {
         }
     }
 
-    //let React do the first render
+    // Let React do the first render
     render() {
         const style = {
             width: '100%',
             height: '100%',
-            border : '1px solid #323232',
+            border: '1px solid #323232',
         };
 
-        return <div style={style} ref="mountPoint" />;
+        return <div style={style} ref="mountPoint"/>;
     }
 }
 ForceGraph.propTypes = {
     graph: React.PropTypes.shape({
         nodes: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired,
-            size: React.PropTypes.number.isRequired,
-            type: React.PropTypes.string.isRequired,
-            group: React.PropTypes.number.isRequired,
-            id: React.PropTypes.string.isRequired
+            _type: React.PropTypes.string.isRequired,
+            _uuid: React.PropTypes.string.isRequired
         }),
         links: React.PropTypes.arrayOf({
             source: React.PropTypes.number.isRequired,

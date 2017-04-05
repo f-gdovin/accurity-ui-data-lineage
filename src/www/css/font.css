@@ -1,0 +1,383 @@
+@font-face {
+    font-family: 'accurity';
+    src:  url('fonts/accurity_13_10/accurity.eot?leqh0g');
+    src:  url('fonts/accurity_13_10/accurity.eot?leqh0g#iefix') format('embedded-opentype'),
+    url('fonts/accurity_13_10/accurity.ttf?leqh0g') format('truetype'),
+    url('fonts/accurity_13_10/accurity.woff?leqh0g') format('woff'),
+    url('fonts/accurity_13_10/accurity.svg?leqh0g#accurity') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="acc-"], [class*=" acc-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'accurity' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.acc-companies:before {
+    content: "\e972";
+}
+.acc-accept:before {
+    content: "\e900";
+}
+.acc-aggregateCheck:before {
+    content: "\e901";
+}
+.acc-analysisGroup:before {
+    content: "\e902";
+}
+.acc-architecture:before {
+    content: "\e95d";
+}
+.acc-attribute:before {
+    content: "\e903";
+}
+.acc-attributeComponent:before {
+    content: "\e904";
+}
+.acc-attributeDefinition:before {
+    content: "\e905";
+}
+.acc-attributeDefinition2:before {
+    content: "\e906";
+}
+.acc-attributeType:before {
+    content: "\e907";
+}
+.acc-basel3:before {
+    content: "\e95e";
+}
+.acc-basicMeasurement:before {
+    content: "\e908";
+}
+.acc-bcbs239:before {
+    content: "\e95f";
+}
+.acc-bim:before {
+    content: "\e909";
+}
+.acc-bird:before {
+    content: "\e960";
+}
+.acc-book:before {
+    content: "\e90a";
+}
+.acc-businessArea:before {
+    content: "\e961";
+}
+.acc-businessRule:before, .acc-dataIntegrityRule:before {
+    content: "\e90b";
+}
+.acc-cancel:before {
+    content: "\e90c";
+}
+.acc-clip:before {
+    content: "\e90d";
+}
+.acc-clone:before {
+    content: "\e90e";
+}
+.acc-cog:before {
+    content: "\e90f";
+}
+.acc-cogClose:before {
+    content: "\e910";
+}
+.acc-commandLine:before {
+    content: "\e911";
+}
+.acc-componentAttribute:before {
+    content: "\e912";
+}
+.acc-compositeAttribute:before {
+    content: "\e913";
+}
+.acc-connection:before {
+    content: "\e914";
+}
+.acc-consulting:before {
+    content: "\e962";
+}
+.acc-dashboard:before {
+    content: "\e915";
+}
+.acc-dashboard2:before {
+    content: "\e963";
+}
+.acc-dataField:before {
+    content: "\e916";
+}
+.acc-dataGovernance:before {
+    content: "\e964";
+}
+.acc-dataIntegrityCheck:before, .acc-dataIntegrityAnalysis:before {
+    content: "\e917";
+}
+.acc-dataModeling:before {
+    content: "\e965";
+}
+.acc-dataSet:before {
+    content: "\e918";
+}
+.acc-dataStructure:before {
+    content: "\e919";
+}
+.acc-diffType:before {
+    content: "\e91a";
+}
+.acc-dna:before {
+    content: "\e91b";
+}
+.acc-down:before {
+    content: "\e91c";
+}
+.acc-duration:before {
+    content: "\e91d";
+}
+.acc-emptyLink:before {
+    content: "\e91e";
+}
+.acc-entity:before {
+    content: "\e91f";
+}
+.acc-export:before {
+    content: "\e920";
+}
+.acc-fatca:before {
+    content: "\e966";
+}
+.acc-favorite:before {
+    content: "\e967";
+}
+.acc-filter:before {
+    content: "\e921";
+}
+.acc-fingerprint:before {
+    content: "\e922";
+}
+.acc-flashlight:before {
+    content: "\e923";
+}
+.acc-gear:before {
+    content: "\e968";
+}
+.acc-getLatest:before {
+    content: "\e924";
+}
+.acc-global:before {
+    content: "\e925";
+}
+.acc-graphLine:before {
+    content: "\e926";
+}
+.acc-ifrs9:before {
+    content: "\e969";
+}
+.acc-inherited:before {
+    content: "\e927";
+}
+.acc-input:before {
+    content: "\e928";
+}
+.acc-input2:before {
+    content: "\e929";
+}
+.acc-layer:before {
+    content: "\e96a";
+}
+.acc-listAdd:before {
+    content: "\e92a";
+}
+.acc-lock:before {
+    content: "\e92b";
+}
+.acc-login:before {
+    content: "\e92c";
+}
+.acc-mapping:before {
+    content: "\e92d";
+}
+.acc-mappings:before {
+    content: "\e92e";
+}
+.acc-maze:before {
+    content: "\e92f";
+}
+.acc-mdm:before {
+    content: "\e96b";
+}
+.acc-merged:before {
+    content: "\e930";
+}
+.acc-message:before {
+    content: "\e931";
+}
+.acc-message2:before {
+    content: "\e932";
+}
+.acc-messageAlert:before {
+    content: "\e933";
+}
+.acc-messageError:before {
+    content: "\e934";
+}
+.acc-messageInfo:before {
+    content: "\e935";
+}
+.acc-mifid2:before {
+    content: "\e96c";
+}
+.acc-more:before {
+    content: "\e936";
+}
+.acc-nonInherited:before {
+    content: "\e937";
+}
+.acc-opened:before {
+    content: "\e938";
+}
+.acc-organizationalUnit:before {
+    content: "\e96d";
+}
+.acc-parameter:before {
+    content: "\e939";
+}
+.acc-parameterGlobal:before {
+    content: "\e93a";
+}
+.acc-pin:before {
+    content: "\e93b";
+}
+.acc-plus:before {
+    content: "\e93c";
+}
+.acc-refresh:before {
+    content: "\e93d";
+}
+.acc-release:before {
+    content: "\e93e";
+}
+.acc-reminder:before {
+    content: "\e93f";
+}
+.acc-remove:before {
+    content: "\e940";
+}
+.acc-requirement:before {
+    content: "\e941";
+}
+.acc-reset:before {
+    content: "\e942";
+}
+.acc-result:before {
+    content: "\e943";
+}
+.acc-resultError:before {
+    content: "\e944";
+}
+.acc-resultError2:before {
+    content: "\e945";
+}
+.acc-resultFailed:before {
+    content: "\e946";
+}
+.acc-resultNoResult:before {
+    content: "\e947";
+}
+.acc-resultPassed:before {
+    content: "\e948";
+}
+.acc-resultPassed2:before {
+    content: "\e949";
+}
+.acc-resultPassed3:before {
+    content: "\e94a";
+}
+.acc-resultWarning:before {
+    content: "\e94b";
+}
+.acc-revert:before {
+    content: "\e94c";
+}
+.acc-rocket:before {
+    content: "\e94d";
+}
+.acc-role:before {
+    content: "\e94e";
+}
+.acc-run:before {
+    content: "\e94f";
+}
+.acc-save:before {
+    content: "\e950";
+}
+.acc-search:before {
+    content: "\e951";
+}
+.acc-selections:before {
+    content: "\e952";
+}
+.acc-shield:before {
+    content: "\e96e";
+}
+.acc-solvency2:before {
+    content: "\e96f";
+}
+.acc-status:before {
+    content: "\e953";
+}
+.acc-stop:before {
+    content: "\e954";
+}
+.acc-stopwatch:before {
+    content: "\e955";
+}
+.acc-subjectArea:before {
+    content: "\e956";
+}
+.acc-support:before {
+    content: "\e970";
+}
+.acc-task:before {
+    content: "\e957";
+}
+.acc-trash:before {
+    content: "\e958";
+}
+.acc-trendArrow:before {
+    content: "\e971";
+}
+.acc-unlimited:before {
+    content: "\e959";
+}
+.acc-user:before {
+    content: "\e95a";
+}
+.acc-customProperty:before {
+    content: "\e95b";
+}
+.acc-userProfile:before {
+    content: "\e95c";
+}
+.acc-businessArea:before {
+    content: "\e961";
+}
+.acc-organizationalUnit:before {
+    content: "\e96d";
+}
+.acc-tenant:before {
+    content: "\e972";
+}
+.acc-enumeration:before {
+    content: "\e943";
+}
