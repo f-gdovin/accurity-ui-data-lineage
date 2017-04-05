@@ -46,6 +46,7 @@
     "react": "15.3.2",
     "react-dom": "15.3.2",
     "react-dropdown-multiselect": "^1.0.0",
+    "svg.js": "^2.5.1",
     "underscore": "^1.8.3"
   }
 }

@@ -34,9 +34,15 @@ const JSONConfigurer = {
         return jsonConfig.objectTypes.filter(objType => selectedKeys.includes(objType));
     },
 
-    generateOptions(): [] {
+    generateOptions(selectedOptions: [] = null): [] {
         const options = [];
-        Object.keys(jsonConfig.objectTypes).map(
+        let sourceArray = [];
+        if (selectedOptions) {
+            sourceArray = selectedOptions;
+        } else {
+            sourceArray = Object.keys(jsonConfig.objectTypes);
+        }
+        sourceArray.map(
             (objectType) => {
                 let object = this.getObjectByItsType(objectType);
                 options.push(

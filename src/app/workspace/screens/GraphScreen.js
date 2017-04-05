@@ -130,7 +130,7 @@ class GraphScreen extends React.Component {
 
         return (
             <div>
-                <Dropdown options={JSONConfigurer.generateOptions()} onChange={this.onObjectTypeSelect.bind(this)} placeholder="Select an option" />
+                <Dropdown options={JSONConfigurer.generateOptions()} selected={JSONConfigurer.generateOptions(selectedObjectTypes)} onChange={this.onObjectTypeSelect.bind(this)} placeholder="Select an option" />
                 <button ref={"loadDataButton"} style={{float: 'left'}} onClick={() => {this.loadRealData()}}>Load data</button>
                 {graph}
             </div>

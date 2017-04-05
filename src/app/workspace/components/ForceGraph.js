@@ -1,7 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
-import * as d from "d";
 import d3Tip from 'd3-tip';
+import JSONConfigurer from '../data/JSONConfigurer';
 
 const horizontalPadding = 50;
 const verticalPadding = 100;
@@ -10,7 +10,7 @@ const interNodePadding = 2;
 let width = window.innerWidth - horizontalPadding;
 let height = window.innerHeight - verticalPadding;
 
-// Toggle stores whether the highlighting is on
+// Toggle whether the highlighting is on
 let toggle = 0;
 
 class ForceGraph extends React.Component {
@@ -202,25 +202,26 @@ class ForceGraph extends React.Component {
         // Append a circle
         nodeEnter.append("svg:circle")
             .attr("r", 10)
-            .style("fill", "#eee");
+            .style("stroke", "gray")
+            .style("fill", "white");
 
-
-        // Append an image
-        nodeEnter.append("svg:image")
-            .attr("xlink:href", "https://github.com/favicon.ico")
-            .attr("x", -10)
-            .attr("y", -10)
-            .attr("height", 20)
-            .attr("width", 20);
-
-        /*
-        // Append a label (commented out because we have tooltips)
+        // Append an icon
         nodeEnter.append("text")
             .attr("class", "nodetext")
-            .attr("x", 15)
-            .attr("y", 15)
+            .attr("x", function (d) {
+                return d.cx;
+            })
+            .attr("y", function (d) {
+                return d.cy;
+            })
+            .attr("font-family", "accurity")
+            .attr("font-size", "20px")
             .attr("fill", "#130C0E")
-            .text(function(d) { return d.name; });*/
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .text(function (d) {
+                return JSONConfigurer.getObjectByItsType(d._type).icon;
+            });
 
         // Exit any old nodes
         node.exit().remove();
