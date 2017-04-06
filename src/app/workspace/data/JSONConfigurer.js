@@ -36,24 +36,21 @@ const JSONConfigurer = {
         return jsonConfig.objectTypes.filter(objType => selectedKeys.includes(objType));
     },
 
-    generateOptions(selectedOptions: [] = null): [] {
+    generateOptions(generateBusinessModel: boolean = true): [] {
         const options = [];
-        let sourceArray = [];
-        if (selectedOptions) {
-            sourceArray = selectedOptions;
-        } else {
-            sourceArray = Object.keys(jsonConfig.objectTypes);
-        }
-        sourceArray.map(
+        Object.keys(jsonConfig.objectTypes).map(
             (objectType) => {
                 let object = this.getObjectByItsType(objectType);
-                options.push(
-                    {
-                        value: objectType,
-                        label: object.label,
-                        selected: false
-                    }
-                )
+                //TODO: triple-check this when dealing with Non-business models
+                if (generateBusinessModel === object.partOfBusinessModel) {
+                    options.push(
+                        {
+                            value: objectType,
+                            label: object.label,
+                            selected: false
+                        }
+                    )
+                }
             }
         );
         return options;
@@ -125,7 +122,12 @@ const JSONConfigurer = {
             let relatedObject = relatedObjects[i];
 
             if (relatedObject && relatedObject._uuid) {
-                links.push({"id": (index + tempIndex), "source": currentObject._uuid, "target": relatedObject._uuid, "value": 1});
+                links.push({
+                    "id": (index + tempIndex),
+                    "source": currentObject._uuid,
+                    "target": relatedObject._uuid,
+                    "value": 1
+                });
                 tempIndex++;
             }
         }

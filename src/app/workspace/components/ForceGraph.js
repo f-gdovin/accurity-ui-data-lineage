@@ -172,7 +172,7 @@ class ForceGraph extends React.Component {
             .attr('class', 'link')
             .attr("stroke", "#6f6d6d")
             .attr("stroke-opacity", "0.6")
-            .attr("stroke-width", "3px");
+            .attr("stroke-width", "5px");
         // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
@@ -200,7 +200,7 @@ class ForceGraph extends React.Component {
         nodeEnter.append("svg:circle")
             .attr("r", 10)
             .style("stroke", "gray")
-            .style("fill", "white");
+            .style("fill", (d) => JSONConfigurer.getObjectByItsType(d._type).color);
 
         // Append an icon
         nodeEnter.append("text")
@@ -209,7 +209,7 @@ class ForceGraph extends React.Component {
             .attr("y", (d) => d.cy)
             .attr("font-family", "accurity")
             .attr("font-size", "20px")
-            .attr("fill", "#130C0E")
+            .attr("fill", "white")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
             .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);
@@ -222,7 +222,7 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.1).id((d) => d._uuid))
+            .force("link", d3.forceLink().distance(0).strength(0.5).id((d) => d._uuid))
             .force("charge", d3.forceManyBody().strength(-75))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
