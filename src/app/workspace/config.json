@@ -87,14 +87,16 @@
         },
         {
           "dataSet": {
-            "key": "dataSetsProperty",
-            "comment": "1:M relationship"
+            "key": "dataSetsProperty.value",
+            "isAnArray": true,
+            "innerKey": "thisItem._uuid"
           }
         },
         {
           "requirement": {
-            "key": "requirementsProperty",
-            "comment": "1:M relationship"
+            "key": "requirementsProperty.value",
+            "isAnArray": true,
+            "innerKey": "thisItem._uuid"
           }
         },
         {
@@ -176,7 +178,8 @@
         {
           "attributeComponent": {
             "key": "components",
-            "comment": "1:M relationship"
+            "isAnArray": true,
+            "innerKey": "thisItem._uuid"
           }
         }
       ]

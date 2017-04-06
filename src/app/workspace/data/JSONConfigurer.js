@@ -26,7 +26,9 @@ const JSONConfigurer = {
         const to = this.getObjectName(object);
         return {
             to: to,
-            key: object[to].key
+            isAnArray: object[to].isAnArray,
+            key: object[to].key,
+            innerKey: object[to].innerKey
         }
     },
 
@@ -76,7 +78,7 @@ const JSONConfigurer = {
             let objectRelationships = this.getObjectByItsType(key)['relation_to'];
 
             //only keep those which are relevant to selected object types
-            objectRelationships.filter(relation => selectedObjectTypes.includes(relation));
+            objectRelationships = objectRelationships.filter(relation => selectedObjectTypes.includes(this.getObjectName(relation)));
 
             //iterate current values, which are nodes of currently processed object type
             for (let j = 0; j < value.length; j++) {
@@ -86,17 +88,36 @@ const JSONConfigurer = {
                 for (let i = 0; i < objectRelationships.length; i++) {
                     let currentObjectRelationship = this.getRelationship(objectRelationships[i]);
 
-                    let relatedObject = sortedNodes.get(currentObjectRelationship.to)
-                        .find(x => x._uuid === this.getDottedValue(currentObject, currentObjectRelationship.key));
-                    if (relatedObject && relatedObject._uuid) {
-                        links.push({"id": index, "source": currentObject._uuid, "target": relatedObject._uuid, "value": 1});
-                        index++;
+                    if (currentObjectRelationship.isAnArray) {
+                        const relatedObjects = [];
+                        const arrayProperty = this.getDottedValue(currentObject, currentObjectRelationship.key);
+                        for (let i = 0; i < arrayProperty.length; i++) {
+                            let relatedObject = sortedNodes.get(currentObjectRelationship.to)
+                                .find(x => x._uuid === this.getDottedValue(arrayProperty[i], currentObjectRelationship.innerKey));
+                            relatedObjects.push(relatedObject);
+                        }
+                        this.createLinks(links, index, currentObject, relatedObjects);
+                    } else {
+                        let relatedObject = sortedNodes.get(currentObjectRelationship.to)
+                            .find(x => x._uuid === this.getDottedValue(currentObject, currentObjectRelationship.key));
+                        this.createLinks(links, index, currentObject, [relatedObject]);
                     }
                 }
             }
         });
 
         return links;
+    },
+
+    createLinks(links: [], index: number, currentObject: Object, relatedObjects: []) {
+        for (let i = 0; i < relatedObjects.length; i++) {
+            let relatedObject = relatedObjects[i];
+
+            if (relatedObject && relatedObject._uuid) {
+                links.push({"id": index, "source": currentObject._uuid, "target": relatedObject._uuid, "value": 1});
+                index++;
+            }
+        }
     },
 
     generateRequest(objectTypes: []): [] {
