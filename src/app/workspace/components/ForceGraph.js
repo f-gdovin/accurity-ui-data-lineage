@@ -21,7 +21,11 @@ class ForceGraph extends React.Component {
         super(props);
 
         this.state = {
-            graph: DataStore.getState().modelData
+            graph: {
+                nodes: DataStore.getState().modelData.nodes,
+                links: []
+            },
+            graphDrawn: true
         };
     }
 
@@ -261,14 +265,22 @@ class ForceGraph extends React.Component {
         }
     }
 
+    // Get nodes from store, compute links to them and draw it
     redraw() {
+        this.setState({graphDrawn: false});
         const newData = DataStore.getModelData();
+        const links = JSONConfigurer.generateLinks(newData.nodes, newData.selectedItems);
+        console.log("Links loaded");
         this.setState({
-            graph: newData
+            graph: {
+                nodes: newData.nodes,
+                links: links
+            }
         }, () => {
             //Clear the canvas and redraw
             d3.selectAll('div > svg').remove();
             this.draw();
+            this.setState({graphDrawn: true});
         });
 
 
@@ -286,7 +298,7 @@ class ForceGraph extends React.Component {
             <div>
                 <div className="dataLoader">
                     <DataLoader isModelData={true}/>
-                    <button style={{float: 'left'}} className="redraw-graph" onClick={() => {
+                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="redraw-graph" onClick={() => {
                         this.redraw()
                     }}>Redraw
                     </button>

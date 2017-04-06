@@ -21,8 +21,8 @@ class DataLoader extends React.Component {
     }
 
     loadData() {
+        this.setState({dataLoaded: false});
         let nodes = [];
-        let links = [];
         let promiseArray = JSONConfigurer.generateRequest(this.getSelectedValues()).map(url => axiosGetter.get(url));
         axios.all(promiseArray)
             .then((results) => {
@@ -31,17 +31,16 @@ class DataLoader extends React.Component {
                     if (result && result.data) {
                         nodes = nodes.concat(result.data.rows);
                     }
-
                 }
-                links = JSONConfigurer.generateLinks(nodes, this.getSelectedValues());
                 _dispatcher.dispatch({
                     type: "set-" + (this.props.isModelData ? "model" : "data-lineage") + "-data",
                     data: {
                         "nodes": nodes,
-                        "links": links
+                        "selectedItems": this.getSelectedValues()
                     }
                 });
-                alert("Real data loaded as requested, draw graph")
+                console.log("Nodes loaded");
+                this.setState({dataLoaded: true});
             })
             .catch(error => console.log(error));
     }

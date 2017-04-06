@@ -4,7 +4,7 @@ const _dispatcher = require('./DataDispatcher');
 const _initialState = {
     modelData: {
         nodes: [],
-        links: []
+        selectedItems: []
     },
     dataLineageData: {}
 };
