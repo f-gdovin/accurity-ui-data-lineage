@@ -1,7 +1,9 @@
-import React from 'react';
-import * as d3 from 'd3';
-import d3Tip from 'd3-tip';
-import JSONConfigurer from '../data/JSONConfigurer';
+import React from "react";
+import * as d3 from "d3";
+import d3Tip from "d3-tip";
+import JSONConfigurer from "../data/JSONConfigurer";
+import DataLoader from "../utils/DataActions";
+import DataStore from "../utils/DataStore";
 
 const horizontalPadding = 50;
 const verticalPadding = 100;
@@ -15,10 +17,24 @@ let toggle = 0;
 
 class ForceGraph extends React.Component {
 
-    componentDidMount() {
-        const graph = this.props.graph;
+    constructor(props) {
+        super(props);
 
-        const color = d3.scaleOrdinal(d3.schemeCategory20);
+        this.state = {
+            graph: {
+                nodes: DataStore.getState().modelData.nodes,
+                links: []
+            },
+            graphDrawn: true
+        };
+    }
+
+    componentDidMount() {
+        this.draw();
+    }
+
+    draw() {
+        const graph = this.state.graph;
 
         // Highlighting of adjacent nodes
         let linkedByIndex = {};
@@ -106,10 +122,6 @@ class ForceGraph extends React.Component {
                 .call(zoom.transform, d3.zoomIdentity);
         }
 
-        // "Reset zoom" button
-        d3.select(".reset-zoom")
-            .on("click", resetZoom);
-
         // "Search nodes" button
         d3.select(".search-nodes")
             .on("click", searchNode);
@@ -160,8 +172,8 @@ class ForceGraph extends React.Component {
             .attr('class', 'link')
             .attr("stroke", "#6f6d6d")
             .attr("stroke-opacity", "0.6")
-            .attr("stroke-width", "3px");
-            // .attr("stroke-width", (d) => Math.sqrt(d.value));
+            .attr("stroke-width", "5px");
+        // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
         link.exit().remove();
@@ -188,7 +200,7 @@ class ForceGraph extends React.Component {
         nodeEnter.append("svg:circle")
             .attr("r", 10)
             .style("stroke", "gray")
-            .style("fill", "white");
+            .style("fill", (d) => JSONConfigurer.getObjectByItsType(d._type).color);
 
         // Append an icon
         nodeEnter.append("text")
@@ -197,7 +209,7 @@ class ForceGraph extends React.Component {
             .attr("y", (d) => d.cy)
             .attr("font-family", "accurity")
             .attr("font-size", "20px")
-            .attr("fill", "#130C0E")
+            .attr("fill", "white")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
             .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);
@@ -210,7 +222,7 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.1).id((d) => d._uuid))
+            .force("link", d3.forceLink().distance(0).strength(0.5).id((d) => d._uuid))
             .force("charge", d3.forceManyBody().strength(-75))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
@@ -253,6 +265,27 @@ class ForceGraph extends React.Component {
         }
     }
 
+    // Get nodes from store, compute links to them and draw it
+    redraw() {
+        this.setState({graphDrawn: false});
+        const newData = DataStore.getModelData();
+        const links = JSONConfigurer.generateLinks(newData.nodes, newData.selectedItems);
+        console.log("Links loaded");
+        this.setState({
+            graph: {
+                nodes: newData.nodes,
+                links: links
+            }
+        }, () => {
+            //Clear the canvas and redraw
+            d3.selectAll('div > svg').remove();
+            this.draw();
+            this.setState({graphDrawn: true});
+        });
+
+
+    }
+
     // Let React do the first render
     render() {
         const style = {
@@ -261,7 +294,28 @@ class ForceGraph extends React.Component {
             border: '1px solid #323232',
         };
 
-        return <div style={style} ref="mountPoint"/>;
+        return (
+            <div>
+                <div className="dataLoader">
+                    <DataLoader isModelData={true}/>
+                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="redraw-graph" onClick={() => {
+                        this.redraw()
+                    }}>Redraw
+                    </button>
+                </div>
+
+                <div className="zoomer">
+                    <button style={{float: 'left'}} className="reset-zoom" onClick={() => {
+                        this.resetZoom()
+                    }}>Reset zoom
+                    </button>
+                </div>
+
+                <div className="nodeSearcher">
+                    {/*<NodeSearcher nodes={this.state.graph.nodes}/>*/}
+                </div>
+                <div className="mountPoint" style={style} ref="mountPoint"/>
+            </div>);
     }
 }
 ForceGraph.propTypes = {

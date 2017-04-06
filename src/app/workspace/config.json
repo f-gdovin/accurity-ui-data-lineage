@@ -1,6 +1,6 @@
 {
   "baseURL": "http://localhost:8086/v1/",
-  "timeout": 4000,
+  "timeout": 10000,
   "headers": {
     "Authorization": "Basic c3VwZXJhZG1pbjoxMjM0"
   },
@@ -9,18 +9,24 @@
       "label": "Requirements",
       "api": "requirements",
       "icon": "\ue941",
+      "color": "#f14a4a",
+      "partOfBusinessModel": true,
       "relation_to": []
     },
     "subjectArea": {
       "label": "Subject Areas",
       "api": "subject-areas",
       "icon": "\ue956",
+      "color": "#e056a1",
+      "partOfBusinessModel": true,
       "relation_to": []
     },
     "entity": {
       "label": "Entities",
       "api": "entities",
       "icon": "\ue91f",
+      "color": "#9ccf53",
+      "partOfBusinessModel": true,
       "relation_to": [
         {
           "subjectArea": {
@@ -39,6 +45,8 @@
       "api": "attribute-definitions",
       "icon": "\ue905",
       "icon2": "\ue906 < not sure which of them",
+      "color": "#05c1ad",
+      "partOfBusinessModel": true,
       "relation_to": [
         {
           "attributeDefinition": {
@@ -74,6 +82,8 @@
       "label": "Attributes",
       "api": "attributes",
       "icon": "\ue903",
+      "color": "#ead561",
+      "partOfBusinessModel": true,
       "relation_to": [
         {
           "attributeDefinition": {
@@ -87,14 +97,16 @@
         },
         {
           "dataSet": {
-            "key": "dataSetsProperty",
-            "comment": "1:M relationship"
+            "key": "dataSetsProperty.value",
+            "isAnArray": true,
+            "innerKey": "thisItem._uuid"
           }
         },
         {
           "requirement": {
-            "key": "requirementsProperty",
-            "comment": "1:M relationship"
+            "key": "requirementsProperty.value",
+            "isAnArray": true,
+            "innerKey": "thisItem._uuid"
           }
         },
         {
@@ -115,12 +127,16 @@
       "label": "Data Sets",
       "api": "data-sets",
       "icon": "\ue918",
+      "color": "#795548",
+      "partOfBusinessModel": true,
       "relation_to": []
     },
     "dataStructure": {
       "label": "Data Structures",
       "api": "data-structures",
       "icon": "\ue919",
+      "color": "#8bc34a",
+      "partOfBusinessModel": false,
       "relation_to": [
         {
           "dataSet": {
@@ -133,6 +149,8 @@
       "label": "Data Fields",
       "api": "data-fields",
       "icon": "\ue916",
+      "color": "#cddc39",
+      "partOfBusinessModel": false,
       "relation_to": [
         {
           "dataSet": {
@@ -150,6 +168,8 @@
       "label": "Mappings",
       "api": "mappings",
       "icon": "\ue92d",
+      "color": "#607d8b",
+      "partOfBusinessModel": true,
       "relation_to": [
         {
           "entity": {
@@ -172,11 +192,14 @@
       "label": "Attribute Types",
       "api": "attribute-types",
       "icon": "\ue907",
+      "color": "#03a9f4",
+      "partOfBusinessModel": false,
       "relation_to": [
         {
           "attributeComponent": {
             "key": "components",
-            "comment": "1:M relationship"
+            "isAnArray": true,
+            "innerKey": "thisItem._uuid"
           }
         }
       ]
@@ -185,6 +208,8 @@
       "label": "Attribute Components",
       "api": "attribute-components",
       "icon": "\ue904",
+      "color": "#03a9f4",
+      "partOfBusinessModel": false,
       "relation_to": [
         {
           "attributeType": {
