@@ -1,5 +1,5 @@
-import React from 'react';
-import * as d3 from 'd3';
+import React from "react";
+import * as d3 from "d3";
 import * as d from "d";
 
 const duration = 500;
@@ -17,7 +17,7 @@ let linkStroke = "#8da0cb",
     isCircle = false;
 
 const svgTransform = "translate(40,0)";
-const svgRadialTransform = "translate(" + (width/2) + "," + (height/2) + ")";
+const svgRadialTransform = "translate(" + (width / 2) + "," + (height / 2) + ")";
 
 class FluidGraph extends React.Component {
 
@@ -37,14 +37,14 @@ class FluidGraph extends React.Component {
         //diagonals
 
         // Creates a curved (diagonal) path from parent to the child nodes
-        diagonal = function(d, s = d) {
+        diagonal = function (d, s = d) {
             return "M" + d.y + "," + d.x
                 + "C" + (d.y + d.parent.y) / 2 + "," + d.x
                 + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
                 + " " + d.parent.y + "," + d.parent.x;
         };
 
-        radialDiagonal = function(d) {
+        radialDiagonal = function (d) {
             function project(x, y) {
                 const angle = (x - 90) / 180 * Math.PI, radius = y;
                 return [radius * Math.cos(angle), radius * Math.sin(angle)];
@@ -61,15 +61,15 @@ class FluidGraph extends React.Component {
             .size([height, width - 160]);
 
         radialTree = d3.tree()
-            .size([360, diameter / 2 ])
-            .separation(function(a, b) {
-                return (a.parent == b.parent ? 1 : 2) / a.depth;
+            .size([360, diameter / 2])
+            .separation(function (a, b) {
+                return (a.parent === b.parent ? 1 : 2) / a.depth;
             });
 
         radialCluster = d3.cluster()
-            .size([360, diameter / 2 ])
-            .separation(function(a, b) {
-                return (a.parent == b.parent ? 1 : 2) / a.depth;
+            .size([360, diameter / 2])
+            .separation(function (a, b) {
+                return (a.parent === b.parent ? 1 : 2) / a.depth;
             });
 
         svg = d3.select(this.refs.mountPoint)
@@ -108,7 +108,7 @@ class FluidGraph extends React.Component {
             .enter()
             .append("g")
             .attr("class", "node")
-            .attr("transform", function(d) {
+            .attr("transform", function (d) {
                 if (isCircle) {
                     return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
                 } else {
@@ -121,40 +121,22 @@ class FluidGraph extends React.Component {
             .style("stroke", nodeStroke);
 
         node.append("text")
-            .attr("dx", function (d) { return d.children ? -8 : 8; })
+            .attr("dx", function (d) {
+                return d.children ? -8 : 8;
+            })
             .attr("dy", 3)
-            .style("text-anchor", function (d) { return d.children ? "end" : "start"; })
-            .text(function (d) { return d.name; });
+            .style("text-anchor", function (d) {
+                return d.children ? "end" : "start";
+            })
+            .text(function (d) {
+                return d.name;
+            });
 
         // Collapse after the second level
         // root.children.forEach(this.collapse);
 
         //by default, show Cluster
         this.layoutChanged("cluster");
-
-        //"Radial Tree" button
-        d3.select(".radial-tree")
-            .on("click", () => {
-                this.layoutChanged("radial-tree")
-            });
-
-        //"Radial Cluster" button
-        d3.select(".radial-cluster")
-            .on("click", () => {
-                this.layoutChanged("radial-cluster")
-            });
-
-        //"Tree" button
-        d3.select(".tree")
-            .on("click", () => {
-                this.layoutChanged("tree")
-            });
-
-        //"Cluster" button
-        d3.select(".cluster")
-            .on("click", () => {
-                this.layoutChanged("cluster")
-            });
     }
 
     layoutChanged(graphType) {
@@ -210,7 +192,7 @@ class FluidGraph extends React.Component {
         node.data(nodes)
             .transition()
             .duration(translateDuration)
-            .attr("transform", function(d) {
+            .attr("transform", function (d) {
                 if (isCircle) {
                     return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
                 } else {
@@ -229,7 +211,7 @@ class FluidGraph extends React.Component {
         // Enter any new modes at the parent's previous position.
         const nodeEnter = node.enter().append('g')
             .attr('class', 'node')
-            .attr("transform", function(d) {
+            .attr("transform", function (d) {
                 if (isCircle) {
                     return "rotate(" + (source.x0 - 90) + ")translate(" + source.y0 + ")";
                 } else {
@@ -246,13 +228,15 @@ class FluidGraph extends React.Component {
         // Add labels for the nodes
         nodeEnter.append('text')
             .attr("dy", ".35em")
-            .attr("x", function(d) {
+            .attr("x", function (d) {
                 return d.children || d._children ? -13 : 13;
             })
-            .attr("text-anchor", function(d) {
+            .attr("text-anchor", function (d) {
                 return d.children || d._children ? "end" : "start";
             })
-            .text(function(d) { return d.name; });
+            .text(function (d) {
+                return d.name;
+            });
 
         // UPDATE
         const nodeUpdate = nodeEnter.merge(node);
@@ -260,7 +244,7 @@ class FluidGraph extends React.Component {
         // Transition to the proper position for the node
         nodeUpdate.transition()
             .duration(duration)
-            .attr("transform", function(d) {
+            .attr("transform", function (d) {
                 if (isCircle) {
                     return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
                 } else {
@@ -277,7 +261,7 @@ class FluidGraph extends React.Component {
         // Remove any exiting nodes
         const nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function(d) {
+            .attr("transform", function (d) {
                 if (isCircle) {
                     return "rotate(" + (source.x - 90) + ")translate(" + source.y + ")";
                 } else {
@@ -310,7 +294,9 @@ class FluidGraph extends React.Component {
         // Transition back to the parent element position
         linkUpdate.transition()
             .duration(duration)
-            .attr('d', function(d){ return isCircle ? radialDiagonal(d, d.parent) : diagonal(d, d.parent) });
+            .attr('d', function (d) {
+                return isCircle ? radialDiagonal(d, d.parent) : diagonal(d, d.parent)
+            });
 
         // Remove any exiting links
         const linkExit = link.exit().transition()
@@ -322,7 +308,7 @@ class FluidGraph extends React.Component {
             .remove();
 
         // Store the old positions for transition.
-        nodes.forEach(function(d){
+        nodes.forEach(function (d) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
@@ -350,13 +336,25 @@ class FluidGraph extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return (
+            <div>
+                <div className="layoutPicker">
+                    <label><input type="radio" name="mode" onClick={() => {
+                        this.layoutChanged("radial-tree")
+                    }}/>Radial Tree</label>
+                    <label><input type="radio" name="mode" onClick={() => {
+                        this.layoutChanged("radial-cluster")
+                    }}/>Radial Cluster</label>
+                    <label><input type="radio" name="mode" onClick={() => {
+                        this.layoutChanged("tree")
+                    }}/>Tree</label>
+                    <label><input type="radio" name="mode" onClick={() => {
+                        this.layoutChanged("cluster")
+                    }} defaultChecked="true"/>Cluster</label>
+                </div>
+                <div ref="mountPoint"/>
+            </div>
+        );
     }
 }
 FluidGraph.propTypes = {

@@ -2,7 +2,8 @@ import React from "react";
 import axios from "axios-es6";
 import _ from "underscore";
 import Multiselect from "react-bootstrap-multiselect";
-import JSONConfigurer from "../data/JSONConfigurer";
+import JSONConfigurer from "./JSONConfigurer";
+import LoadingOverlay from "../ui/LoadingOverlay";
 
 const _dispatcher = require('./DataDispatcher');
 
@@ -57,12 +58,13 @@ class DataLoader extends React.Component {
 
     render() {
         return <div className="dataLoader">
+            <LoadingOverlay spinnerSize={"320px"} text={"Fetching requested data, please wait..."} show={!this.state.dataLoaded}/>
             <Multiselect style={{float: 'left'}}
                          buttonClass="btn btn-danger"
                          data={this.state.options}
                          onChange={this.handleChange.bind(this)}
                          multiple/>
-            <button disabled={!this.state.dataLoaded} style={{float: 'left'}} onClick={() => {
+            <button className="btn btn-warning" disabled={!this.state.dataLoaded} style={{float: 'left'}} onClick={() => {
                 this.loadData()
             }}>Load data
             </button>

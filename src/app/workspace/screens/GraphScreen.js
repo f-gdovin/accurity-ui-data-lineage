@@ -22,47 +22,31 @@ class GraphScreen extends React.Component {
         switch (this.props.graphType) {
             case "force-graph": {
                 graph = (
-                    <div style={{width: width, height: height, border: '2px solid #323232',}}>
-                        <ForceGraph/>
-                    </div>
+                    <ForceGraph/>
                 );
                 break;
             }
             case "radial-tidy-graph": {
                 graph = (
-                    <div style={{width: width, height: height, border: '2px solid #323232',}}>
-                        <RadialTidyGraph graph={radialTidyGraphStaticData}/>
-                    </div>
+                    <RadialTidyGraph graph={radialTidyGraphStaticData}/>
                 );
                 break;
             }
             case "collapsible-tree": {
                 graph = (
-                    <div style={{width: width, height: height, border: '2px solid #323232',}}>
-                        <CollapsibleTree graph={radialTidyGraphStaticData}/>
-                    </div>
+                    <CollapsibleTree graph={radialTidyGraphStaticData}/>
                 );
                 break;
             }
             case "fluid-graph": {
                 graph = (
-                    <div style={{width: width, height: height, border: '2px solid #323232',}}>
-                        <label><input type="radio" name="mode" className="radial-tree"/>Radial Tree</label>
-                        <label><input type="radio" name="mode" className="radial-cluster"/>Radial Cluster</label>
-                        <label><input type="radio" name="mode" className="tree"/>Tree</label>
-                        <label><input type="radio" name="mode" className="cluster"
-                                      defaultChecked="true"/>Cluster</label>
-                        <FluidGraph graph={radialTidyGraphStaticData}/>
-                    </div>
+                    <FluidGraph graph={radialTidyGraphStaticData}/>
                 );
                 break;
             }
             case "sankey-graph": {
                 graph = (
-                    <div style={{width: width, height: height, border: '2px solid #323232',}}>
-                        <button style={{float: 'left'}} className="reset-zoom">Reset zoom</button>
-                        <SankeyGraph graph={sankeyGraphStaticData}/>
-                    </div>
+                    <SankeyGraph graph={sankeyGraphStaticData}/>
                 );
                 break;
             }
@@ -76,7 +60,7 @@ class GraphScreen extends React.Component {
         }
 
         return (
-            <div>
+            <div className="graph" style={{width: width, height: height, border: '2px solid #323232'}}>
                 {graph}
             </div>
 

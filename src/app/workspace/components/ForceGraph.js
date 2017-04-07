@@ -1,13 +1,13 @@
 import React from "react";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
-import JSONConfigurer from "../data/JSONConfigurer";
+import JSONConfigurer from "../utils/JSONConfigurer";
 import DataLoader from "../utils/DataActions";
 import DataStore from "../utils/DataStore";
+import LoadingOverlay from "../ui/LoadingOverlay";
 
 const horizontalPadding = 50;
 const verticalPadding = 100;
-const interNodePadding = 2;
 
 let width = window.innerWidth - horizontalPadding;
 let height = window.innerHeight - verticalPadding;
@@ -23,7 +23,8 @@ class ForceGraph extends React.Component {
         this.state = {
             graph: {
                 nodes: DataStore.getState().modelData.nodes,
-                links: []
+                links: [],
+                neighboursMatrix: [,]
             },
             graphDrawn: true
         };
@@ -34,102 +35,6 @@ class ForceGraph extends React.Component {
     }
 
     draw() {
-        const graph = this.state.graph;
-
-        // Highlighting of adjacent nodes
-        let linkedByIndex = {};
-        for (let i = 0; i < graph.nodes.length; i++) {
-            linkedByIndex[i + "," + i] = 1;
-        }
-        graph.links.forEach((d) => linkedByIndex[Number(d.source) + "," + Number(d.target)] = 1);
-
-        function neighboring(a, b) {
-            return linkedByIndex[a.index + "," + b.index];
-        }
-
-        function connectedNodes() {
-            let d;
-            if (toggle === 0) {
-                //Reduce the opacity of all but the neighbouring nodes
-                d = d3.select(this).node().__data__;
-                node.style("opacity", (o) => neighboring(d, o) || neighboring(o, d) ? 1 : 0.1);
-                link.style("opacity", (o) => d.index === o.source.index || d.index === o.target.index ? 0.6 : 0.1);
-                toggle = 1;
-            } else {
-                resetSearch(0);
-                toggle = 0;
-            }
-        }
-
-        // Collision detection & avoidance
-        function collide(alpha) {
-            const quadtree = d3.quadtree(graph.nodes);
-            return (d) => {
-                const rb = 2 * d.size + interNodePadding,
-                    nx1 = d.x - rb,
-                    nx2 = d.x + rb,
-                    ny1 = d.y - rb,
-                    ny2 = d.y + rb;
-                quadtree.visit((quad, x1, y1, x2, y2) => {
-                    if (quad.point && (quad.point !== d)) {
-                        let x = d.x - quad.point.x,
-                            y = d.y - quad.point.y,
-                            l = Math.sqrt(x * x + y * y);
-                        if (l < rb) {
-                            l = (l - rb) / l * alpha;
-                            d.x -= x *= l;
-                            d.y -= y *= l;
-                            quad.point.x += x;
-                            quad.point.y += y;
-                        }
-                    }
-                    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-                });
-            };
-        }
-
-        // Take value on input field and show nodes whose name contains such substring (case insensitive)
-        function searchNode() {
-            const selectedVal = document.getElementById('searchInput').value;
-            const nodes = svg.selectAll(".node");
-            if (selectedVal === "none") {
-                nodes.style("stroke", "white").style("stroke-width", "1");
-            } else {
-                nodes.style("opacity", "0.1");
-
-                //make only the matching nodes visible
-                const matchedNodes = nodes.filter((node, i) => node.name.toUpperCase().includes(selectedVal.toUpperCase()));
-                matchedNodes.style("opacity", "1");
-
-                const links = svg.selectAll(".link");
-                links.style("opacity", "0.1");
-            }
-        }
-
-        // Change opacity of everything back to default after X milliseconds
-        function resetSearch(duration = 0) {
-            d3.selectAll(".node").transition()
-                .duration(duration)
-                .style("opacity", 1);
-            d3.selectAll(".link").transition()
-                .duration(duration)
-                .style("opacity", 0.6);
-        }
-
-        function resetZoom() {
-            svg.transition()
-                .duration(750)
-                .call(zoom.transform, d3.zoomIdentity);
-        }
-
-        // "Search nodes" button
-        d3.select(".search-nodes")
-            .on("click", searchNode);
-
-        // "Reset search" button
-        d3.select(".reset-search")
-            .on("click", resetSearch);
-
         // Zooming
         function zoomFunction() {
             let transform = d3.zoomTransform(this);
@@ -137,23 +42,24 @@ class ForceGraph extends React.Component {
         }
 
         const zoom = d3.zoom()
-            .extent([[0, 0], [width, height]])
             .scaleExtent([0.5, 5])
-            .translateExtent([[0, 0], [width, height]])
             .on("zoom", zoomFunction);
+
+        const graph = this.state.graph;
 
         // Graph itself
         const svg = d3.select(this.refs.mountPoint)
         // Enable zooming (by default mouse wheel and double-click), then disable double-click for zooming
+            .append("div")
             .call(zoom).on("dblclick.zoom", null)
             .append("svg:svg")
-            .attr("width", width)
-            .attr("height", height)
+            //responsive SVG needs these 2 attributes and no width and height attr
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 1920 860")
+            //class to make it responsive
+
             .attr("pointer-events", "all")
             .append('svg:g')
-            .attr("width", width)
-            .attr("height", height)
-            .attr("class", "graph")
             .attr('fill', 'white');
 
         // Tooltips
@@ -172,12 +78,11 @@ class ForceGraph extends React.Component {
             .attr('class', 'link')
             .attr("stroke", "#6f6d6d")
             .attr("stroke-opacity", "0.6")
-            .attr("stroke-width", "5px");
+            .attr("stroke-width", "10px");
         // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
         link.exit().remove();
-
 
         // Nodes
         // Update the nodes
@@ -188,10 +93,10 @@ class ForceGraph extends React.Component {
         const nodeEnter = node.enter().append("g")
             .attr("class", "node")
             .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
-            .on('dblclick', connectedNodes)
+                .on("start", (d) => this.dragstarted(simulation, d))
+                .on("drag", (d) => this.dragged(d))
+                .on("end", (d) => this.dragended(simulation, d)))
+            .on('dblclick', this.connectedNodes(node, link))
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
 
@@ -243,25 +148,7 @@ class ForceGraph extends React.Component {
                 .attr("cx", (d) => d.x)
                 .attr("cy", (d) => d.y)
                 .attr("transform", (d) => "translate(" + d.x + "," + d.y + ")");
-            node.each(collide(0.5));
-        }
-
-        // Dragging stuff
-        function dragstarted(d) {
-            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-
-        function dragged(d) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-
-        function dragended(d) {
-            if (!d3.event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
+            //TODO: collision avoidance?
         }
     }
 
@@ -270,51 +157,117 @@ class ForceGraph extends React.Component {
         this.setState({graphDrawn: false});
         const newData = DataStore.getModelData();
         const links = JSONConfigurer.generateLinks(newData.nodes, newData.selectedItems);
+
+        // Compute matrix of neighbours
+        const neighboursMatrix = [,];
+        for (let i = 0; i < newData.nodes.length; i++) {
+            neighboursMatrix[i + "," + i] = 1;
+        }
+
         console.log("Links loaded");
         this.setState({
             graph: {
                 nodes: newData.nodes,
-                links: links
+                links: links,
+                neighboursMatrix: neighboursMatrix
             }
         }, () => {
             //Clear the canvas and redraw
-            d3.selectAll('div > svg').remove();
+            d3.selectAll('.mountPoint > div').remove();
             this.draw();
             this.setState({graphDrawn: true});
         });
+    }
 
+    neighboring(a, b) {
+        return this.state.neighboursMatrix[a.index + "," + b.index];
+    }
 
+    // Dragging stuff
+    dragstarted(simulation, d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    dragended(simulation, d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+
+    // Zooming
+    zoomFunction(svg) {
+        let transform = d3.zoomTransform(this);
+        svg.attr("transform", transform);
+    }
+
+    connectedNodes(node, link) {
+        let d;
+        if (toggle === 0) {
+            //Reduce the opacity of all but the neighbouring nodes
+            d = d3.select(this).node().__data__;
+            node.style("opacity", (o) => this.neighboring(d, o) || this.neighboring(o, d) ? 1 : 0.1);
+            link.style("opacity", (o) => d.index === o.source.index || d.index === o.target.index ? 0.6 : 0.1);
+            toggle = 1;
+        } else {
+            this.resetSearch(d3, 0);
+            toggle = 0;
+        }
+    }
+
+    // Take value on input field and show nodes whose name contains such substring (case insensitive)
+    searchNode(svg) {
+        const input = document.getElementById('searchInput');
+        const selectedVal = input ? input.value : "none";
+        const nodes = svg.selectAll(".node");
+        if (selectedVal === "none") {
+            nodes.style("stroke", "white").style("stroke-width", "1");
+        } else {
+            nodes.style("opacity", "0.1");
+
+            //make only the matching nodes visible
+            const matchedNodes = nodes.filter((node, i) => node.name.toUpperCase().includes(selectedVal.toUpperCase()));
+            matchedNodes.style("opacity", "1");
+
+            const links = svg.selectAll(".link");
+            links.style("opacity", "0.1");
+        }
+    }
+
+    // Change opacity of everything back to default after X milliseconds
+    resetSearch(d3, duration = 0) {
+        d3.selectAll(".node").transition()
+            .duration(duration)
+            .style("opacity", 1);
+        d3.selectAll(".link").transition()
+            .duration(duration)
+            .style("opacity", 0.6);
     }
 
     // Let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border: '1px solid #323232',
-        };
-
         return (
             <div>
-                <div className="dataLoader">
+                <LoadingOverlay spinnerSize={"320px"} text={"Computing the links and drawing graph, please wait..."}
+                                show={!this.state.graphDrawn}/>
+                <div className="dataHandler">
                     <DataLoader isModelData={true}/>
-                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="redraw-graph" onClick={() => {
-                        this.redraw()
-                    }}>Redraw
+                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
+                            onClick={() => {
+                                this.redraw()
+                            }}>Redraw
                     </button>
                 </div>
 
-                <div className="zoomer">
-                    <button style={{float: 'left'}} className="reset-zoom" onClick={() => {
-                        this.resetZoom()
-                    }}>Reset zoom
-                    </button>
+                <div style={{float: 'right'}} className="settings">
                 </div>
-
-                <div className="nodeSearcher">
-                    {/*<NodeSearcher nodes={this.state.graph.nodes}/>*/}
-                </div>
-                <div className="mountPoint" style={style} ref="mountPoint"/>
+                <div className="mountPoint" ref="mountPoint"/>
             </div>);
     }
 }

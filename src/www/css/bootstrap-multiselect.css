@@ -97,6 +97,18 @@ span.multiselect-native-select select {
     border-color: #d43f3a;
 }
 
+.btn-warning {
+    color: #fff;
+    background-color: #d97b1f;
+    border-color: #d4620e;
+}
+
+.btn-greenlight {
+    color: #fff;
+    background-color: #41d93f;
+    border-color: #0dd408;
+}
+
 .form-inline .multiselect-container label.checkbox, .form-inline .multiselect-container label.radio {
     padding: 3px 20px 3px 40px
 }

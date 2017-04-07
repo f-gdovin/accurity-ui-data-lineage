@@ -47,6 +47,7 @@
     "react": "15.3.2",
     "react-bootstrap-multiselect": "^2.3.0",
     "react-dom": "15.3.2",
+    "react-loading-overlay": "^0.2.4",
     "svg.js": "^2.5.1",
     "underscore": "^1.8.3"
   }
