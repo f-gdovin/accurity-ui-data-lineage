@@ -81,13 +81,11 @@ const JSONConfigurer = {
             console.log("Object type \"" + key + "\" has links to the [" + objectRelationships.map(relation => this.getObjectName(relation)) + "]");
 
             //iterate current values, which are nodes of currently processed object type
-            let objectTypeLinkCount = 0;
             for (let j = 0; j < value.length; j++) {
                 let currentObject = value[j];
 
                 //iterate relationships and check the Map we have for connection among objects, using the key from config
                 let currentObjectRelationship;
-                let currentObjectObjectTypeLinkCount = 0;
                 for (let i = 0; i < objectRelationships.length; i++) {
                     currentObjectRelationship = this.getRelationship(objectRelationships[i]);
 
@@ -99,39 +97,33 @@ const JSONConfigurer = {
                                 .find(x => x._uuid === this.getDottedValue(arrayProperty[i], currentObjectRelationship.innerKey));
                             relatedObjects.push(relatedObject);
                         }
-                        currentObjectObjectTypeLinkCount += this.createLinks(links, totalLinkCount, currentObject, relatedObjects);
+                        this.createLinks(links, totalLinkCount, currentObject, relatedObjects);
                     } else {
                         let relatedObject = sortedNodes.get(currentObjectRelationship.to)
                             .find(x => x._uuid === this.getDottedValue(currentObject, currentObjectRelationship.key));
-                        currentObjectObjectTypeLinkCount += this.createLinks(links, totalLinkCount, currentObject, [relatedObject]);
+                        this.createLinks(links, totalLinkCount, currentObject, [relatedObject]);
                     }
                 }
-                objectTypeLinkCount += currentObjectObjectTypeLinkCount;
             }
-            totalLinkCount += objectTypeLinkCount;
-            console.log("Computed " + objectTypeLinkCount + " links from the object type \"" + key
-                + "\" to the other object types in total");
         });
         console.log("Computed " + totalLinkCount + " links among all selected object types in total");
         return links;
     },
 
     createLinks(links: [], index: number, currentObject: Object, relatedObjects: []): number {
-        let tempIndex = 0;
         for (let i = 0; i < relatedObjects.length; i++) {
             let relatedObject = relatedObjects[i];
 
             if (relatedObject && relatedObject._uuid) {
                 links.push({
-                    "id": (index + tempIndex),
+                    "id": (index),
                     "source": currentObject._uuid,
                     "target": relatedObject._uuid,
                     "value": 1
                 });
-                tempIndex++;
+                index++;
             }
         }
-        return tempIndex + 1;
     },
 
     generateRequest(objectTypes: []): [] {

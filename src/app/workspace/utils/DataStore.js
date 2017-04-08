@@ -11,14 +11,14 @@ const _initialState = {
 
 const reducers = {
 
-    "set-model-data" : function (state, action): Object {
-        let newState =  Object.assign({}, state);
+    "set-model-data": function (state, action): Object {
+        let newState = Object.assign({}, state);
         newState.modelData = action.data;
         return newState
     },
 
-    "set-data-lineage-data" : function (state, action): Object {
-        let newState =  Object.assign({}, state);
+    "set-data-lineage-data": function (state, action): Object {
+        let newState = Object.assign({}, state);
         newState.dataLineageData = action.data;
         return newState
     }
