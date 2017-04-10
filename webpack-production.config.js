@@ -1,7 +1,5 @@
-const packageJSON = require('./package.json');
 const webpack = require('webpack');
 const path = require('path');
-const buildPath = path.resolve(__dirname, path.join('target', 'classes', 'META-INF', 'resources', 'webjars', packageJSON.name, packageJSON.version));
 const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 const TransferWebpackPlugin = require('transfer-webpack-plugin');
 
@@ -13,11 +11,12 @@ const config = {
         //node_modules: ["web_modules", "node_modules"]  (Default Settings)
     },
     //Render source-map file for final build
-    devtool: 'source-map',
+    devtool: 'cheap-module-source-map',
     //output config
     output: {
-        path: buildPath,    //Path of output file
-        filename: 'app.js',  //Name of output file
+        path: path.join(__dirname, 'dist'),
+        filename: 'app.js',
+        publicPath: '/static/',
     },
     plugins: [
         //Minify the bundle
@@ -33,6 +32,11 @@ const config = {
         new TransferWebpackPlugin([
             {from: 'www'},
         ], path.resolve(__dirname, "src")),
+        new webpack.DefinePlugin({
+            'process.env': {
+                'NODE_ENV': JSON.stringify('production')
+            }
+        })
     ],
     module: {
         loaders: [
