@@ -2,7 +2,8 @@ import React from "react";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import JSONConfigurer from "../utils/JSONConfigurer";
-import DataLoader from "../utils/DataActions";
+import SettingsSetter from "../utils/SettingsSetter";
+import DataLoader from "../utils/DataLoader";
 import DataStore from "../utils/DataStore";
 import LoadingOverlay from "../ui/LoadingOverlay";
 
@@ -26,7 +27,8 @@ class ForceGraph extends React.Component {
                 links: [],
                 neighboursMatrix: [,]
             },
-            graphDrawn: true
+            graphDrawn: true,
+            showSettings: false
         };
     }
 
@@ -264,9 +266,7 @@ class ForceGraph extends React.Component {
                             }}>Redraw
                     </button>
                 </div>
-
-                <div style={{float: 'right'}} className="settings">
-                </div>
+                <SettingsSetter/>
                 <div className="mountPoint" ref="mountPoint"/>
             </div>);
     }

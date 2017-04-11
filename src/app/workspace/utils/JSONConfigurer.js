@@ -1,12 +1,14 @@
-const jsonConfig = require('json!../config.json');
+const jsonConfig = require('json-loader!../config.json');
+import DataStore from "../utils/DataStore";
 
 const JSONConfigurer = {
 
     createMetaInformation(): Object {
+        const settings = DataStore.getSettings();
         return {
-            baseURL: jsonConfig.baseURL,
-            timeout: jsonConfig.timeout,
-            headers: jsonConfig.headers
+            baseURL: settings.baseUrl,
+            timeout: settings.timeout,
+            headers: settings.token
         };
     },
 
