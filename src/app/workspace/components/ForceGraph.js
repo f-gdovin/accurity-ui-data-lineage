@@ -78,8 +78,8 @@ class ForceGraph extends React.Component {
 
         link.enter().append('svg:line')
             .attr('class', 'link')
-            .attr("stroke", "#6f6d6d")
-            .attr("stroke-opacity", "0.6")
+            .attr("stroke", "#504e4e")
+            .attr("stroke-opacity", "2.4")
             .attr("stroke-width", "10px");
         // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
@@ -129,8 +129,8 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.5).id((d) => d._uuid))
-            .force("charge", d3.forceManyBody().strength(-75))
+            .force("link", d3.forceLink().distance(0).strength(0.25).id((d) => d._uuid))
+            .force("charge", d3.forceManyBody().strength(-50))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
             .on("tick", ticked);

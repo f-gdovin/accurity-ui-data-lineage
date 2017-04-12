@@ -47,7 +47,14 @@ class DataLoader extends React.Component {
     }
 
     getSelectedValues() {
-        return Object.keys(this.state.selectedItems);
+        const selected = [];
+        for (const key of Object.keys(this.state.selectedItems)) {
+            const value = this.state.selectedItems[key];
+            if (value === true) {
+                selected.push(key);
+            }
+        }
+        return selected;
     }
 
     handleChange(element, checked) {

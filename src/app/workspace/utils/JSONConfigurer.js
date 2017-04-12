@@ -8,7 +8,9 @@ const JSONConfigurer = {
         return {
             baseURL: settings.baseUrl,
             timeout: settings.timeout,
-            headers: settings.token
+            headers: {
+                authorization: settings.token
+            }
         };
     },
 
