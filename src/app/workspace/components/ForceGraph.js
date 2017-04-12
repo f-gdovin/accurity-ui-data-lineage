@@ -79,8 +79,8 @@ class ForceGraph extends React.Component {
         link.enter().append('svg:line')
             .attr('class', 'link')
             .attr("stroke", "#504e4e")
-            .attr("stroke-opacity", "2.4")
-            .attr("stroke-width", "10px");
+            .attr("stroke-opacity", ".2")
+            .attr("stroke-width", "3.5px");
         // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
