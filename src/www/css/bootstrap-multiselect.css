@@ -139,3 +139,30 @@ span.multiselect-native-select select {
 .open>.dropdown-menu {
     display: block;
 }
+
+/*use these to override multiselect settings*/
+.listItem {
+    display: inline-block;
+    margin-left: 10px;
+    width: 92%;
+}
+
+.confirm-button {
+    float: right;
+    margin-right: 10px;
+    min-height: 1.5em;
+    min-width: 12em;
+}
+
+.listItem > input {
+    float: right;
+}
+
+.float-right {
+    float: right !important;
+}
+
+.right-zero {
+    left: auto;
+    right: 0 !important;
+}

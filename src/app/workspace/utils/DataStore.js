@@ -6,7 +6,12 @@ const _initialState = {
         nodes: [],
         selectedItems: []
     },
-    dataLineageData: {}
+    dataLineageData: {},
+    settings: {
+        baseUrl: "http://localhost:8086/v1/",
+        timeout: 100000,
+        token: "Basic :"
+    }
 };
 
 const reducers = {
@@ -20,6 +25,12 @@ const reducers = {
     "set-data-lineage-data": function (state, action): Object {
         let newState = Object.assign({}, state);
         newState.dataLineageData = action.data;
+        return newState
+    },
+
+    "set-settings": function (state, action): Object {
+        let newState = Object.assign({}, state);
+        newState.settings = action.data;
         return newState
     }
 };
@@ -43,6 +54,11 @@ class DataStore extends ReduceStore {
     getDataLineageData(state) {
         const usedState = state ? state : this.getState();
         return usedState.dataLineageData;
+    }
+
+    getSettings(state) {
+        const usedState = state ? state : this.getState();
+        return usedState.settings;
     }
 }
 

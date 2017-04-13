@@ -2,7 +2,8 @@ import React from "react";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import JSONConfigurer from "../utils/JSONConfigurer";
-import DataLoader from "../utils/DataActions";
+import SettingsSetter from "../utils/SettingsSetter";
+import DataLoader from "../utils/DataLoader";
 import DataStore from "../utils/DataStore";
 import LoadingOverlay from "../ui/LoadingOverlay";
 
@@ -26,7 +27,8 @@ class ForceGraph extends React.Component {
                 links: [],
                 neighboursMatrix: [,]
             },
-            graphDrawn: true
+            graphDrawn: true,
+            showSettings: false
         };
     }
 
@@ -76,9 +78,9 @@ class ForceGraph extends React.Component {
 
         link.enter().append('svg:line')
             .attr('class', 'link')
-            .attr("stroke", "#6f6d6d")
-            .attr("stroke-opacity", "0.6")
-            .attr("stroke-width", "10px");
+            .attr("stroke", "#504e4e")
+            .attr("stroke-opacity", ".2")
+            .attr("stroke-width", "3.5px");
         // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
@@ -127,8 +129,8 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.5).id((d) => d._uuid))
-            .force("charge", d3.forceManyBody().strength(-75))
+            .force("link", d3.forceLink().distance(0).strength(0.25).id((d) => d._uuid))
+            .force("charge", d3.forceManyBody().strength(-50))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
             .on("tick", ticked);
@@ -264,9 +266,7 @@ class ForceGraph extends React.Component {
                             }}>Redraw
                     </button>
                 </div>
-
-                <div style={{float: 'right'}} className="settings">
-                </div>
+                <SettingsSetter/>
                 <div className="mountPoint" ref="mountPoint"/>
             </div>);
     }

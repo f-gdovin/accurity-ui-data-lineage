@@ -5,8 +5,8 @@ import CollapsibleTree from "../components/CollapsibleTree";
 import FluidGraph from "../components/FluidGraph";
 import SankeyGraph from "../components/SankeyGraph";
 
-const radialTidyGraphStaticData = require('json!../data/radialTidy.json');
-const sankeyGraphStaticData = require('json!../data/sankey.json');
+const radialTidyGraphStaticData = require('json-loader!../data/radialTidy.json');
+const sankeyGraphStaticData = require('json-loader!../data/sankey.json');
 
 class GraphScreen extends React.Component {
 

@@ -7,8 +7,6 @@ import LoadingOverlay from "../ui/LoadingOverlay";
 
 const _dispatcher = require('./DataDispatcher');
 
-const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
-
 class DataLoader extends React.Component {
 
     constructor(props) {
@@ -22,6 +20,8 @@ class DataLoader extends React.Component {
     }
 
     loadData() {
+        const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
+
         this.setState({dataLoaded: false});
         let nodes = [];
         let promiseArray = JSONConfigurer.generateRequest(this.getSelectedValues()).map(url => axiosGetter.get(url));
@@ -47,7 +47,14 @@ class DataLoader extends React.Component {
     }
 
     getSelectedValues() {
-        return Object.keys(this.state.selectedItems);
+        const selected = [];
+        for (const key of Object.keys(this.state.selectedItems)) {
+            const value = this.state.selectedItems[key];
+            if (value === true) {
+                selected.push(key);
+            }
+        }
+        return selected;
     }
 
     handleChange(element, checked) {
