@@ -72,5 +72,5 @@ a good idea to remove this directory and do a fresh install.
 
 This command executes the webpack-dev-server which enabled hot reload and files are served from the 'src' folder.
 
-The UI Data Lineage will start on port http://localhost:3000 but will detect a development
+The UI Data Lineage will start on port http://localhost:3001 but will detect a development
 mode and try to connect to your app - see default ports above.
