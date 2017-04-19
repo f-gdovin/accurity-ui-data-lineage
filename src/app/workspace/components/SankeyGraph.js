@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import * as d3 from 'd3';
 import * as d3Sankey from 'd3-sankey';
 
@@ -10,6 +11,8 @@ class SankeyGraph extends React.Component {
 
     componentDidMount() {
         const graph = this.props.graph;
+        const width = this.props.width;
+        const height = this.props.height;
         const units = "Widgets";
 
         const formatNumber = d3.format(",.0f"),    // zero decimal places
@@ -42,8 +45,8 @@ class SankeyGraph extends React.Component {
         const svg = d3.select(this.refs.mountPoint)
             .call(zoom).on("dblclick.zoom", null)
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -168,6 +171,8 @@ SankeyGraph.propTypes = {
         children: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired
         })
-    })
+    }),
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
 };
 export default SankeyGraph;

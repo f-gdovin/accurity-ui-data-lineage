@@ -41,15 +41,17 @@ class DataLoader extends React.Component {
                             "selectedItems": this.getSelectedValues()
                         }
                     });
-                    console.log("Nodes loaded");
+                    msg.success('Nodes loaded');
                     this.setState({dataLoaded: true});
                 })
                 .catch(error => {
-                    console.log(error);
+                    console.log('Loading of nodes failed. Reason: ' + error);
+                    msg.error('Loading of nodes failed. Please check provided URL, credentials and server status.');
                     this.setState({dataLoaded: true});
                 });
         } catch (err) {
-            console.log("Loading of nodes failed. Reason: " + err);
+            console.log('Loading of nodes failed. Reason: ' + JSON.stringify(err));
+            msg.error('Loading of nodes failed. Please check provided URL, credentials and server status.');
             this.setState({dataLoaded: true});
         }
 

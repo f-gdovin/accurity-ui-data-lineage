@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import JSONConfigurer from "../utils/JSONConfigurer";
@@ -6,12 +7,6 @@ import SettingsSetter from "../utils/SettingsSetter";
 import DataLoader from "../utils/DataLoader";
 import DataStore from "../utils/DataStore";
 import LoadingOverlay from "../ui/LoadingOverlay";
-
-const horizontalPadding = 50;
-const verticalPadding = 100;
-
-let width = window.innerWidth - horizontalPadding;
-let height = window.innerHeight - verticalPadding;
 
 // Toggle whether the highlighting is on
 let toggle = 0;
@@ -48,6 +43,8 @@ class ForceGraph extends React.Component {
             .on("zoom", zoomFunction);
 
         const graph = this.state.graph;
+        const width = this.props.width;
+        const height = this.props.height;
 
         // Graph itself
         const svg = d3.select(this.refs.mountPoint)
@@ -57,7 +54,7 @@ class ForceGraph extends React.Component {
             .append("svg:svg")
             //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
-            .attr("viewBox", "0 0 1920 860")
+            .attr("viewBox", "0 0 " + width + " " + height)
             //class to make it responsive
 
             .attr("pointer-events", "all")
@@ -168,7 +165,7 @@ class ForceGraph extends React.Component {
             neighboursMatrix[i + "," + i] = 1;
         }
 
-        console.log("Links loaded");
+        msg.success("Links loaded");
         this.setState({
             graph: {
                 nodes: newData.nodes,
@@ -281,18 +278,7 @@ class ForceGraph extends React.Component {
     }
 }
 ForceGraph.propTypes = {
-    graph: React.PropTypes.shape({
-        nodes: React.PropTypes.arrayOf({
-            name: React.PropTypes.string.isRequired,
-            _type: React.PropTypes.string.isRequired,
-            _uuid: React.PropTypes.string.isRequired
-        }),
-        links: React.PropTypes.arrayOf({
-            source: React.PropTypes.number.isRequired,
-            target: React.PropTypes.number.isRequired,
-            value: React.PropTypes.number.isRequired,
-            id: React.PropTypes.string.isRequired
-        }),
-    })
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
 };
 export default ForceGraph;

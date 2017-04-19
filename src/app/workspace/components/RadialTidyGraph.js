@@ -1,17 +1,11 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import * as d3 from 'd3';
 import * as d from "d";
 
-const horizontalPadding = 50;
-const verticalPadding = 100;
-
 let svg, tree, root;
 
-let width = window.innerWidth - horizontalPadding;
-let height = window.innerHeight - verticalPadding;
 let index = 0;
-
-const diameter = Math.max(height, width);
 
 class RadialTidyGraph extends React.Component {
 
@@ -25,14 +19,15 @@ class RadialTidyGraph extends React.Component {
 
     componentDidMount() {
         const graph = this.props.graph;
+        const width = this.props.width;
+        const height = this.props.height;
 
-        width = diameter;
-        height = diameter;
+        const diameter = Math.max(height, width);
 
         svg = d3.select(this.refs.mountPoint)
             .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")
             .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
@@ -121,11 +116,13 @@ class RadialTidyGraph extends React.Component {
     }
 }
 RadialTidyGraph.propTypes = {
-    graph: React.PropTypes.shape({
+    graph: PropTypes.shape({
         name: React.PropTypes.string.isRequired,
         children: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired
         })
-    })
+    }),
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
 };
 export default RadialTidyGraph;

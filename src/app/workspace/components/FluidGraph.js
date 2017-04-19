@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import * as d3 from "d3";
 import * as d from "d";
 
@@ -33,6 +34,8 @@ class FluidGraph extends React.Component {
 
     componentDidMount() {
         const graph = this.props.graph;
+        const width = this.props.width;
+        const height = this.props.height;
 
         //diagonals
 
@@ -70,8 +73,8 @@ class FluidGraph extends React.Component {
 
         svg = d3.select(this.refs.mountPoint)
             .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")
             .attr("transform", isCircle ? svgRadialTransform : svgTransform);
 
@@ -340,11 +343,13 @@ class FluidGraph extends React.Component {
     }
 }
 FluidGraph.propTypes = {
-    graph: React.PropTypes.shape({
+    graph: PropTypes.shape({
         name: React.PropTypes.string.isRequired,
         children: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired
         })
-    })
+    }),
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
 };
 export default FluidGraph;
