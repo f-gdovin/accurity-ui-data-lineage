@@ -202,12 +202,6 @@ class ForceGraph extends React.Component {
         d.fy = null;
     }
 
-    // Zooming
-    zoomFunction(svg) {
-        let transform = d3.zoomTransform(this);
-        svg.attr("transform", transform);
-    }
-
     connectedNodes(node, link) {
         let d;
         if (toggle === 0) {

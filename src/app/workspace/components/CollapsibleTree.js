@@ -23,12 +23,25 @@ class CollapsibleTree extends React.Component {
     }
 
     componentDidMount() {
+        // Zooming
+        function zoomFunction() {
+            let transform = d3.zoomTransform(this);
+            svg.attr("transform", transform);
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 5])
+            .on("zoom", zoomFunction);
+
         const graph = this.props.graph;
 
         svg = d3.select(this.refs.mountPoint)
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .append("div")
+            .call(zoom).on("dblclick.zoom", null)
+            .append("svg:svg")
+            //responsive SVG needs these 2 attributes and no width and height attr
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g");
 
         tree = d3.tree()

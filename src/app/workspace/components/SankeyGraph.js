@@ -19,32 +19,22 @@ class SankeyGraph extends React.Component {
             format = (d) => formatNumber(d) + " " + units,
             color = d3.scaleOrdinal(d3.schemeCategory20);
 
-        function resetZoom() {
-            svg.transition()
-                .duration(750)
-                .call(zoom.transform, d3.zoomIdentity);
-        }
-
-        //"Reset zoom" button
-        d3.select(".reset-zoom")
-            .on("click", resetZoom);
-
-        //zooming
+        // Zooming
         function zoomFunction() {
             let transform = d3.zoomTransform(this);
             svg.attr("transform", transform);
         }
 
         const zoom = d3.zoom()
-            .extent([[0, 0], [width, height]])
             .scaleExtent([0.5, 5])
-            .translateExtent([[0, 0], [width, height]])
             .on("zoom", zoomFunction);
 
         // append the svg canvas to the page
         const svg = d3.select(this.refs.mountPoint)
+            .append("div")
             .call(zoom).on("dblclick.zoom", null)
-            .append("svg")
+            .append("svg:svg")
+            //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")

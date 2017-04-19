@@ -37,6 +37,15 @@ class FluidGraph extends React.Component {
         const width = this.props.width;
         const height = this.props.height;
 
+        function zoomFunction() {
+            let transform = d3.zoomTransform(this);
+            svg.attr("transform", transform);
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 5])
+            .on("zoom", zoomFunction);
+
         //diagonals
 
         // Creates a curved (diagonal) path from parent to the child nodes
@@ -72,7 +81,10 @@ class FluidGraph extends React.Component {
             .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
 
         svg = d3.select(this.refs.mountPoint)
-            .append("svg")
+            .append("div")
+            .call(zoom).on("dblclick.zoom", null)
+            .append("svg:svg")
+            //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")
