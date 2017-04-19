@@ -117,13 +117,7 @@ class RadialTidyGraph extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return <div className="mountPoint" ref="mountPoint" />;
     }
 }
 RadialTidyGraph.propTypes = {

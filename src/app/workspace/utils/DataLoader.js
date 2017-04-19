@@ -25,25 +25,34 @@ class DataLoader extends React.Component {
         this.setState({dataLoaded: false});
         let nodes = [];
         let promiseArray = JSONConfigurer.generateRequest(this.getSelectedValues()).map(url => axiosGetter.get(url));
-        axios.all(promiseArray)
-            .then((results) => {
-                for (let i = 0; i < results.length; i++) {
-                    let result = results[i];
-                    if (result && result.data) {
-                        nodes = nodes.concat(result.data.rows);
+        try {
+            axios.all(promiseArray)
+                .then((results) => {
+                    for (let i = 0; i < results.length; i++) {
+                        let result = results[i];
+                        if (result && result.data) {
+                            nodes = nodes.concat(result.data.rows);
+                        }
                     }
-                }
-                _dispatcher.dispatch({
-                    type: "set-" + (this.props.isModelData ? "model" : "data-lineage") + "-data",
-                    data: {
-                        "nodes": nodes,
-                        "selectedItems": this.getSelectedValues()
-                    }
+                    _dispatcher.dispatch({
+                        type: "set-" + (this.props.isModelData ? "model" : "data-lineage") + "-data",
+                        data: {
+                            "nodes": nodes,
+                            "selectedItems": this.getSelectedValues()
+                        }
+                    });
+                    console.log("Nodes loaded");
+                    this.setState({dataLoaded: true});
+                })
+                .catch(error => {
+                    console.log(error);
+                    this.setState({dataLoaded: true});
                 });
-                console.log("Nodes loaded");
-                this.setState({dataLoaded: true});
-            })
-            .catch(error => console.log(error));
+        } catch (err) {
+            console.log("Loading of nodes failed. Reason: " + err);
+            this.setState({dataLoaded: true});
+        }
+
     }
 
     getSelectedValues() {
@@ -65,15 +74,17 @@ class DataLoader extends React.Component {
 
     render() {
         return <div className="dataLoader">
-            <LoadingOverlay spinnerSize={"320px"} text={"Fetching requested data, please wait..."} show={!this.state.dataLoaded}/>
+            <LoadingOverlay spinnerSize={"320px"} text={"Fetching requested data, please wait..."}
+                            show={!this.state.dataLoaded}/>
             <Multiselect style={{float: 'left'}}
                          buttonClass="btn btn-danger"
                          data={this.state.options}
                          onChange={this.handleChange.bind(this)}
                          multiple/>
-            <button className="btn btn-warning" disabled={!this.state.dataLoaded} style={{float: 'left'}} onClick={() => {
-                this.loadData()
-            }}>Load data
+            <button className="btn btn-warning" disabled={!this.state.dataLoaded} style={{float: 'left'}}
+                    onClick={() => {
+                        this.loadData()
+                    }}>Load data
             </button>
         </div>
     }

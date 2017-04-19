@@ -37,14 +37,14 @@ class FluidGraph extends React.Component {
         //diagonals
 
         // Creates a curved (diagonal) path from parent to the child nodes
-        diagonal = function (d, s = d) {
+        diagonal = (d) => {
             return "M" + d.y + "," + d.x
                 + "C" + (d.y + d.parent.y) / 2 + "," + d.x
                 + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
                 + " " + d.parent.y + "," + d.parent.x;
         };
 
-        radialDiagonal = function (d) {
+        radialDiagonal = (d) => {
             function project(x, y) {
                 const angle = (x - 90) / 180 * Math.PI, radius = y;
                 return [radius * Math.cos(angle), radius * Math.sin(angle)];
@@ -62,15 +62,11 @@ class FluidGraph extends React.Component {
 
         radialTree = d3.tree()
             .size([360, diameter / 2])
-            .separation(function (a, b) {
-                return (a.parent === b.parent ? 1 : 2) / a.depth;
-            });
+            .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
 
         radialCluster = d3.cluster()
             .size([360, diameter / 2])
-            .separation(function (a, b) {
-                return (a.parent === b.parent ? 1 : 2) / a.depth;
-            });
+            .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
 
         svg = d3.select(this.refs.mountPoint)
             .append("svg")
@@ -86,7 +82,7 @@ class FluidGraph extends React.Component {
         root.x0 = height / 2;
         root.y0 = 90;
 
-        root.each(function (d) {
+        root.each((d) => {
             d.name = d.data.name;
             d.id = index;
             index++;
@@ -108,7 +104,7 @@ class FluidGraph extends React.Component {
             .enter()
             .append("g")
             .attr("class", "node")
-            .attr("transform", function (d) {
+            .attr("transform", (d) => {
                 if (isCircle) {
                     return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
                 } else {
@@ -121,16 +117,10 @@ class FluidGraph extends React.Component {
             .style("stroke", nodeStroke);
 
         node.append("text")
-            .attr("dx", function (d) {
-                return d.children ? -8 : 8;
-            })
+            .attr("dx", (d) => d.children ? -8 : 8)
             .attr("dy", 3)
-            .style("text-anchor", function (d) {
-                return d.children ? "end" : "start";
-            })
-            .text(function (d) {
-                return d.name;
-            });
+            .style("text-anchor", (d) => d.children ? "end" : "start")
+            .text((d) => d.name);
 
         // Collapse after the second level
         // root.children.forEach(this.collapse);
@@ -192,7 +182,7 @@ class FluidGraph extends React.Component {
         node.data(nodes)
             .transition()
             .duration(translateDuration)
-            .attr("transform", function (d) {
+            .attr("transform", (d) => {
                 if (isCircle) {
                     return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
                 } else {
@@ -211,7 +201,7 @@ class FluidGraph extends React.Component {
         // Enter any new modes at the parent's previous position.
         const nodeEnter = node.enter().append('g')
             .attr('class', 'node')
-            .attr("transform", function (d) {
+            .attr("transform", () => {
                 if (isCircle) {
                     return "rotate(" + (source.x0 - 90) + ")translate(" + source.y0 + ")";
                 } else {
@@ -228,15 +218,9 @@ class FluidGraph extends React.Component {
         // Add labels for the nodes
         nodeEnter.append('text')
             .attr("dy", ".35em")
-            .attr("x", function (d) {
-                return d.children || d._children ? -13 : 13;
-            })
-            .attr("text-anchor", function (d) {
-                return d.children || d._children ? "end" : "start";
-            })
-            .text(function (d) {
-                return d.name;
-            });
+            .attr("x", (d) => d.children || d._children ? -13 : 13)
+            .attr("text-anchor", (d) => d.children || d._children ? "end" : "start")
+            .text((d) => d.name);
 
         // UPDATE
         const nodeUpdate = nodeEnter.merge(node);
@@ -244,7 +228,7 @@ class FluidGraph extends React.Component {
         // Transition to the proper position for the node
         nodeUpdate.transition()
             .duration(duration)
-            .attr("transform", function (d) {
+            .attr("transform", (d) => {
                 if (isCircle) {
                     return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
                 } else {
@@ -261,7 +245,7 @@ class FluidGraph extends React.Component {
         // Remove any exiting nodes
         const nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function (d) {
+            .attr("transform", () => {
                 if (isCircle) {
                     return "rotate(" + (source.x - 90) + ")translate(" + source.y + ")";
                 } else {
@@ -283,7 +267,7 @@ class FluidGraph extends React.Component {
         // Enter any new links at the parent's previous position.
         const linkEnter = link.enter().insert('path', "g")
             .attr("class", "link")
-            .attr('d', function (d) {
+            .attr('d', () => {
                 const o = {x: source.x0, y: source.y0};
                 return isCircle ? radialDiagonal(o, o) : diagonal(o, o)
             });
@@ -294,21 +278,19 @@ class FluidGraph extends React.Component {
         // Transition back to the parent element position
         linkUpdate.transition()
             .duration(duration)
-            .attr('d', function (d) {
-                return isCircle ? radialDiagonal(d, d.parent) : diagonal(d, d.parent)
-            });
+            .attr('d', (d) => isCircle ? radialDiagonal(d, d.parent) : diagonal(d, d.parent))
 
         // Remove any exiting links
         const linkExit = link.exit().transition()
             .duration(duration)
-            .attr('d', function (d) {
+            .attr('d', () => {
                 const o = {x: source.x, y: source.y};
                 return isCircle ? radialDiagonal(o, o) : diagonal(o, o)
             })
             .remove();
 
         // Store the old positions for transition.
-        nodes.forEach(function (d) {
+        nodes.forEach((d) => {
             d.x0 = d.x;
             d.y0 = d.y;
         });
@@ -352,7 +334,7 @@ class FluidGraph extends React.Component {
                         this.layoutChanged("cluster")
                     }} defaultChecked="true"/>Cluster</label>
                 </div>
-                <div ref="mountPoint"/>
+                <div className="mountPoint" ref="mountPoint"/>
             </div>
         );
     }

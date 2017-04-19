@@ -33,7 +33,7 @@ class ForceGraph extends React.Component {
     }
 
     componentDidMount() {
-        this.draw();
+        this.redraw();
     }
 
     draw() {
@@ -159,6 +159,8 @@ class ForceGraph extends React.Component {
         this.setState({graphDrawn: false});
         const newData = DataStore.getModelData();
         const links = JSONConfigurer.generateLinks(newData.nodes, newData.selectedItems);
+        
+        // TODO: save links in store as well?
 
         // Compute matrix of neighbours
         const neighboursMatrix = [,];
@@ -256,16 +258,23 @@ class ForceGraph extends React.Component {
     render() {
         return (
             <div>
+                {/*loading overlay*/}
                 <LoadingOverlay spinnerSize={"320px"} text={"Computing the links and drawing graph, please wait..."}
                                 show={!this.state.graphDrawn}/>
-                <div className="dataHandler">
-                    <DataLoader isModelData={true}/>
+
+                {/*left side*/}
+                <DataLoader isModelData={true}/>
+
+                {/*middle*/}
+                <div className="redrawer">
                     <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
                             onClick={() => {
                                 this.redraw()
                             }}>Redraw
                     </button>
                 </div>
+
+                {/*right side*/}
                 <SettingsSetter/>
                 <div className="mountPoint" ref="mountPoint"/>
             </div>);

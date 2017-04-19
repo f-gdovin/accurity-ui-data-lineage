@@ -78,9 +78,7 @@ class SankeyGraph extends React.Component {
             .on("click", highlightLinks)
             .call(d3.drag()
                 .subject((d) => d)
-                .on("start", function () {
-                    this.parentNode.appendChild(this);
-                })
+                .on("start", () => this.parentNode.appendChild(this))
                 .on("drag", dragmove));
 
         node.append("rect")
@@ -119,7 +117,7 @@ class SankeyGraph extends React.Component {
                 nextNodes=[];
 
             let stroke_opacity = 0;
-            if (d3.select(this).attr("data-clicked") == "1") {
+            if (d3.select(this).attr("data-clicked") === "1") {
                 d3.select(this).attr("data-clicked","0");
                 stroke_opacity = 0.2;
             } else {
@@ -161,13 +159,7 @@ class SankeyGraph extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return <div className="mountPoint" ref="mountPoint" />;
     }
 }
 SankeyGraph.propTypes = {

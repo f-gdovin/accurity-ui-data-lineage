@@ -94,6 +94,7 @@ class CollapsibleTree extends React.Component {
         // Update the node attributes and style
         nodeUpdate.select('circle.node')
             .attr('r', 10)
+            .style("stroke", "steelblue")
             .style("fill", (d) => d._children ? "lightsteelblue" : "#fff")
             .attr('cursor', 'pointer');
 
@@ -180,13 +181,7 @@ class CollapsibleTree extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return <div className="mountPoint" ref="mountPoint" />;
     }
 }
 CollapsibleTree.propTypes = {
