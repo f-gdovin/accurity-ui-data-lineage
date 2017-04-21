@@ -86,6 +86,8 @@ class RadialTidyGraph extends React.Component {
         node.append("text")
             .attr("dy", ".31em")
             .attr("x", (d)=> d.x < 180 === !d.children ? 6 : -6)
+            .style("font-size", "9px")
+            .attr("font-family", "roboto-light")
             .style("text-anchor", (d) => d.x < 180 === !d.children ? "start" : "end")
             .attr("transform", (d) => "rotate(" + (d.x < 180 ? d.x - 90 : d.x + 90) + ")")
             .text((d) => d.name);

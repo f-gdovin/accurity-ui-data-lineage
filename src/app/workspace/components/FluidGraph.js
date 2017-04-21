@@ -128,12 +128,14 @@ class FluidGraph extends React.Component {
             });
 
         node.append("circle")
-            .attr("r", 4.5)
+            .attr("r", 2.5)
             .style("stroke", nodeStroke);
 
         node.append("text")
             .attr("dx", (d) => d.children ? -8 : 8)
             .attr("dy", 3)
+            .style("font-size", "9px")
+            .attr("font-family", "roboto-light")
             .style("text-anchor", (d) => d.children ? "end" : "start")
             .text((d) => d.name);
 
@@ -233,6 +235,8 @@ class FluidGraph extends React.Component {
         // Add labels for the nodes
         nodeEnter.append('text')
             .attr("dy", ".35em")
+            .style("font-size", "9px")
+            .attr("font-family", "roboto-light")
             .attr("x", (d) => d.children || d._children ? -13 : 13)
             .attr("text-anchor", (d) => d.children || d._children ? "end" : "start")
             .text((d) => d.name);
@@ -253,7 +257,7 @@ class FluidGraph extends React.Component {
 
         // Update the node attributes and style
         nodeUpdate.select('circle.node')
-            .attr('r', 4.5)
+            .attr('r', 2.5)
             .attr('cursor', 'pointer');
 
 
