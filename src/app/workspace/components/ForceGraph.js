@@ -65,7 +65,9 @@ class ForceGraph extends React.Component {
         const tip = d3Tip()
             .attr('class', 'd3-tip')
             .offset([-10, 0])
-            .html((d) => d.name + "");
+            // uncomment this for tooltips
+            // .html((d) => d.name + "");
+            .html((d) => "");
         svg.call(tip);
 
         // Links
@@ -108,7 +110,7 @@ class ForceGraph extends React.Component {
 
         // Append an icon
         nodeEnter.append("text")
-            .attr("class", "nodetext")
+            .attr("class", "nodeIcon")
             .attr("x", (d) => d.cx)
             .attr("y", (d) => d.cy)
             .attr("font-family", "accurity")
@@ -118,6 +120,20 @@ class ForceGraph extends React.Component {
             .attr("alignment-baseline", "middle")
             .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);
 
+        // Append a label
+        nodeEnter.append("text")
+            .attr("class", "nodeLabel")
+            .attr("x", (d) => d.cx)
+            .attr("y", (d) => d.cy)
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+            .attr("font-family", "roboto-light")
+            .attr("font-size", "9px")
+            .attr("fill", "black")
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .text((d) => d.name);
+
         // Exit any old nodes
         node.exit().remove();
 
@@ -126,7 +142,7 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(0).strength(0.25).id((d) => d._uuid))
+            .force("link", d3.forceLink().distance(2.5).strength(0.075).id((d) => d._uuid))
             .force("charge", d3.forceManyBody().strength(-50))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)

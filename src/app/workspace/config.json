@@ -34,6 +34,13 @@
             "key": "parent._uuid"
           }
         }
+      ],
+      "children": [
+        {
+          "mapping": {
+            "key": "entity._uuid"
+          }
+        }
       ]
     },
     "attributeDefinition": {
@@ -117,6 +124,13 @@
             "label": "References"
           }
         }
+      ],
+      "children": [
+        {
+          "mapping": {
+            "key": "entity._uuid && attributeDefinition._uuid"
+          }
+        }
       ]
     },
     "dataSet": {
@@ -125,7 +139,14 @@
       "icon": "\ue918",
       "color": "#795548",
       "partOfBusinessModel": true,
-      "relation_to": []
+      "relation_to": [],
+      "children": [
+        {
+          "dataStructure": {
+            "key": "dataSet._uuid"
+          }
+        }
+      ]
     },
     "dataStructure": {
       "label": "Data Structures",
@@ -137,6 +158,13 @@
         {
           "dataSet": {
             "key": "dataSet._uuid"
+          }
+        }
+      ],
+      "children": [
+        {
+          "dataField": {
+            "key": "dataStructure._uuid"
           }
         }
       ]
