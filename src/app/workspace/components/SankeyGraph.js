@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import * as d3 from 'd3';
 import * as d3Sankey from 'd3-sankey';
 
@@ -10,40 +11,32 @@ class SankeyGraph extends React.Component {
 
     componentDidMount() {
         const graph = this.props.graph;
+        const width = this.props.width;
+        const height = this.props.height;
         const units = "Widgets";
 
         const formatNumber = d3.format(",.0f"),    // zero decimal places
             format = (d) => formatNumber(d) + " " + units,
             color = d3.scaleOrdinal(d3.schemeCategory20);
 
-        function resetZoom() {
-            svg.transition()
-                .duration(750)
-                .call(zoom.transform, d3.zoomIdentity);
-        }
-
-        //"Reset zoom" button
-        d3.select(".reset-zoom")
-            .on("click", resetZoom);
-
-        //zooming
+        // Zooming
         function zoomFunction() {
             let transform = d3.zoomTransform(this);
             svg.attr("transform", transform);
         }
 
         const zoom = d3.zoom()
-            .extent([[0, 0], [width, height]])
             .scaleExtent([0.5, 5])
-            .translateExtent([[0, 0], [width, height]])
             .on("zoom", zoomFunction);
 
         // append the svg canvas to the page
         const svg = d3.select(this.refs.mountPoint)
+            .append("div")
             .call(zoom).on("dblclick.zoom", null)
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .append("svg:svg")
+            //responsive SVG needs these 2 attributes and no width and height attr
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -78,9 +71,7 @@ class SankeyGraph extends React.Component {
             .on("click", highlightLinks)
             .call(d3.drag()
                 .subject((d) => d)
-                .on("start", function () {
-                    this.parentNode.appendChild(this);
-                })
+                .on("start", () => this.parentNode.appendChild(this))
                 .on("drag", dragmove));
 
         node.append("rect")
@@ -119,7 +110,7 @@ class SankeyGraph extends React.Component {
                 nextNodes=[];
 
             let stroke_opacity = 0;
-            if (d3.select(this).attr("data-clicked") == "1") {
+            if (d3.select(this).attr("data-clicked") === "1") {
                 d3.select(this).attr("data-clicked","0");
                 stroke_opacity = 0.2;
             } else {
@@ -161,13 +152,7 @@ class SankeyGraph extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return <div className="mountPoint" ref="mountPoint" />;
     }
 }
 SankeyGraph.propTypes = {
@@ -176,6 +161,8 @@ SankeyGraph.propTypes = {
         children: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired
         })
-    })
+    }),
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
 };
 export default SankeyGraph;

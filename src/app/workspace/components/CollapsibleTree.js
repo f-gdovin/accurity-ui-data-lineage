@@ -23,12 +23,25 @@ class CollapsibleTree extends React.Component {
     }
 
     componentDidMount() {
+        // Zooming
+        function zoomFunction() {
+            let transform = d3.zoomTransform(this);
+            svg.attr("transform", transform);
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 5])
+            .on("zoom", zoomFunction);
+
         const graph = this.props.graph;
 
         svg = d3.select(this.refs.mountPoint)
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .append("div")
+            .call(zoom).on("dblclick.zoom", null)
+            .append("svg:svg")
+            //responsive SVG needs these 2 attributes and no width and height attr
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g");
 
         tree = d3.tree()
@@ -94,6 +107,7 @@ class CollapsibleTree extends React.Component {
         // Update the node attributes and style
         nodeUpdate.select('circle.node')
             .attr('r', 10)
+            .style("stroke", "steelblue")
             .style("fill", (d) => d._children ? "lightsteelblue" : "#fff")
             .attr('cursor', 'pointer');
 
@@ -180,13 +194,7 @@ class CollapsibleTree extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return <div className="mountPoint" ref="mountPoint" />;
     }
 }
 CollapsibleTree.propTypes = {

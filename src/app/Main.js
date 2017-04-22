@@ -65,7 +65,7 @@ class Main extends React.Component {
                             onClick={() => {this.setGraphType("sankey-graph"); this.disableButton(sankeyGraphButton)}}>Sankey graph</button>
                 </div>
                 <div className="separator" style={{clear: "both"}}/>
-                <GraphScreen width='100%' height='{calc(100% - 50px)}' graphType={this.state.graphType}/>
+                <GraphScreen graphType={this.state.graphType}/>
             </div>
         );
     }

@@ -1,17 +1,11 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import * as d3 from 'd3';
 import * as d from "d";
 
-const horizontalPadding = 50;
-const verticalPadding = 100;
-
 let svg, tree, root;
 
-let width = window.innerWidth - horizontalPadding;
-let height = window.innerHeight - verticalPadding;
 let index = 0;
-
-const diameter = Math.max(height, width);
 
 class RadialTidyGraph extends React.Component {
 
@@ -24,15 +18,29 @@ class RadialTidyGraph extends React.Component {
     }
 
     componentDidMount() {
-        const graph = this.props.graph;
+        // Zooming
+        function zoomFunction() {
+            let transform = d3.zoomTransform(this);
+            svg.attr("transform", transform);
+        }
 
-        width = diameter;
-        height = diameter;
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 5])
+            .on("zoom", zoomFunction);
+
+        const graph = this.props.graph;
+        const width = this.props.width;
+        const height = this.props.height;
+
+        const diameter = Math.max(height, width);
 
         svg = d3.select(this.refs.mountPoint)
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .append("div")
+            .call(zoom).on("dblclick.zoom", null)
+            .append("svg:svg")
+            //responsive SVG needs these 2 attributes and no width and height attr
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
             .append("g")
             .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
@@ -117,21 +125,17 @@ class RadialTidyGraph extends React.Component {
 
     //let React do the first render
     render() {
-        const style = {
-            width: '100%',
-            height: '100%',
-            border : '1px solid #323232',
-        };
-
-        return <div style={style} ref="mountPoint" />;
+        return <div className="mountPoint" ref="mountPoint" />;
     }
 }
 RadialTidyGraph.propTypes = {
-    graph: React.PropTypes.shape({
+    graph: PropTypes.shape({
         name: React.PropTypes.string.isRequired,
         children: React.PropTypes.arrayOf({
             name: React.PropTypes.string.isRequired
         })
-    })
+    }),
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired
 };
 export default RadialTidyGraph;
