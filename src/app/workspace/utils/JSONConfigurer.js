@@ -30,8 +30,9 @@ const JSONConfigurer = {
         const to = this.getObjectName(object);
         return {
             to: to,
-            isAnArray: object[to].isAnArray,
             key: object[to].key,
+            relatedObjectKey: object[to].relatedObjectKey,
+            isAnArray: object[to].isAnArray,
             innerKey: object[to].innerKey
         }
     },
@@ -90,21 +91,23 @@ const JSONConfigurer = {
 
                 //iterate relationships and check the Map we have for connection among objects, using the key from config
                 let currentObjectRelationship;
+                let relatedObjectKey;
                 for (let i = 0; i < objectRelationships.length; i++) {
                     currentObjectRelationship = this.getRelationship(objectRelationships[i]);
+                    relatedObjectKey = currentObjectRelationship.relatedObjectKey ? currentObjectRelationship.relatedObjectKey : "_uuid";
 
                     if (currentObjectRelationship.isAnArray) {
                         const relatedObjects = [];
                         const arrayProperty = this.getDottedValue(currentObject, currentObjectRelationship.key);
                         for (let i = 0; i < arrayProperty.length; i++) {
                             let relatedObject = sortedNodes.get(currentObjectRelationship.to)
-                                .find(x => x._uuid === this.getDottedValue(arrayProperty[i], currentObjectRelationship.innerKey));
+                                .find(x => x[relatedObjectKey] === this.getDottedValue(arrayProperty[i], currentObjectRelationship.innerKey));
                             relatedObjects.push(relatedObject);
                         }
                         this.createLinks(links, totalLinkCount, currentObject, relatedObjects);
                     } else {
                         let relatedObject = sortedNodes.get(currentObjectRelationship.to)
-                            .find(x => x._uuid === this.getDottedValue(currentObject, currentObjectRelationship.key));
+                            .find(x => x[relatedObjectKey] === this.getDottedValue(currentObject, currentObjectRelationship.key));
                         this.createLinks(links, totalLinkCount, currentObject, [relatedObject]);
                     }
                 }
@@ -137,6 +140,12 @@ const JSONConfigurer = {
             .map(objectType => {
                     let object = jsonConfig.objectTypes[objectType];
                     APIs.push(object.api + "/");
+                    if (object.alsoLoad) {
+                        object.alsoLoad.forEach(toLoad => {
+                            let related = jsonConfig.objectTypes[this.getObjectName(toLoad)];
+                            APIs.push(related.api + "/");
+                        })
+                    }
                 }
             );
         return APIs;

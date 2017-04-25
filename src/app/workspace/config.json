@@ -6,7 +6,7 @@
       "api": "requirements",
       "icon": "\ue941",
       "color": "#f14a4a",
-      "partOfBusinessModel": true,
+      "partOfBusinessModel": false,
       "relation_to": []
     },
     "subjectArea": {
@@ -14,7 +14,7 @@
       "api": "subject-areas",
       "icon": "\ue956",
       "color": "#e056a1",
-      "partOfBusinessModel": true,
+      "partOfBusinessModel": false,
       "relation_to": []
     },
     "entity": {
@@ -49,7 +49,7 @@
       "icon": "\ue905",
       "icon2": "\ue906 < not sure which of them",
       "color": "#05c1ad",
-      "partOfBusinessModel": true,
+      "partOfBusinessModel": false,
       "relation_to": [
         {
           "attributeDefinition": {
@@ -87,10 +87,19 @@
       "icon": "\ue903",
       "color": "#ead561",
       "partOfBusinessModel": true,
+      "alsoLoad": [
+        {
+          "attributeDefinition": {
+            "key": "attributeDefinition._uuid",
+            "intoProperty": "attributeDefinition"
+          }
+        }
+      ],
       "relation_to": [
         {
           "attributeDefinition": {
-            "key": "attributeDefinition._uuid"
+            "key": "attributeDefinition._uuid",
+            "comment": "not used, as we are merging AttDefs into Attributes"
           }
         },
         {
@@ -121,6 +130,36 @@
         {
           "attribute": {
             "key": "inheritanceParent._uuid",
+            "label": "Parent"
+          }
+        },
+        {
+          "attribute": {
+            "key": "attributeDefinition.parent._uuid",
+            "relatedObjectKey": "attributeDefinition.parent._uuid",
+            "label": "Parent"
+          }
+        },
+        {
+          "attribute": {
+            "key": "attributeDefinition.componentOf._uuid",
+            "relatedObjectKey": "attributeDefinition.componentOf._uuid",
+            "label": "Component of"
+          }
+        },
+        {
+          "attributeType": {
+            "key": "attributeDefinition.attributeType._uuid"
+          }
+        },
+        {
+          "attributeComponent": {
+            "key": "attributeDefinition.componentType._uuid"
+          }
+        },
+        {
+          "entity": {
+            "key": "attributeDefinition.entity._uuid",
             "label": "References"
           }
         }

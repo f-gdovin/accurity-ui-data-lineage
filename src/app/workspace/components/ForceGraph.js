@@ -77,9 +77,9 @@ class ForceGraph extends React.Component {
 
         link.enter().append('svg:line')
             .attr('class', 'link')
-            .attr("stroke", "#504e4e")
+            .attr("stroke", "#363636")
             .attr("stroke-opacity", ".2")
-            .attr("stroke-width", "3.5px");
+            .attr("stroke-width", "1.5em");
         // .attr("stroke-width", (d) => Math.sqrt(d.value));
 
         // Exit any old paths
@@ -102,37 +102,89 @@ class ForceGraph extends React.Component {
             .on('mouseout', tip.hide);
 
 
-        // Append a circle
-        nodeEnter.append("svg:circle")
-            .attr("r", 10)
-            .style("stroke", "gray")
-            .style("fill", (d) => JSONConfigurer.getObjectByItsType(d._type).color);
+        // Append a diamond to Reference Attributes
+        nodeEnter.append("path")
+            .attr("class", "nodeSymbol")
+            .attr("x", (d) => d.cx)
+            .attr("y", (d) => d.cy)
+            .style("opacity", (d) => {
+                if (d._type === "attribute" && d.attributeDefinition.entity._uuid) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            })
+            .style("stroke", "#363636")
+            .style("fill", "#05C1AD")
+            .attr("d", d3.symbol()
+                .size(1500)
+                .type(d3.symbolDiamond));
 
-        // Append an icon
+        // Append an ellipse to Attributes
+        nodeEnter.append("ellipse")
+            .attr("rx", 45)
+            .attr("ry", 25)
+            .style("stroke", "#363636")
+            .style("fill", "#05C1AD")
+            .style("opacity", (d) => {
+                if (d._type === "attribute" && !d.attributeDefinition.entity._uuid) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+
+        // Append a rectangle to Entities
+        nodeEnter.append("rect")
+            .attr("width", 90)
+            .attr("height", 50)
+            .attr("x", -90/2)
+            .attr("y", -50/2)
+            .style("stroke", "#363636")
+            .style("fill", "#9ACE52")
+            .style("opacity", (d) => {
+                if (d._type === "entity") {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+
+        /*// Append an icon
         nodeEnter.append("text")
             .attr("class", "nodeIcon")
             .attr("x", (d) => d.cx)
             .attr("y", (d) => d.cy)
             .attr("font-family", "accurity")
             .attr("font-size", "20px")
-            .attr("fill", "white")
+            .attr("fill", "#FBFBFB")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
-            .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);
+            .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);*/
 
         // Append a label
         nodeEnter.append("text")
             .attr("class", "nodeLabel")
             .attr("x", (d) => d.cx)
             .attr("y", (d) => d.cy)
-            .attr("dx", 12)
-            .attr("dy", ".35em")
+            .attr("dx", 0)
+            .attr("dy", 0)
             .attr("font-family", "roboto-light")
-            .attr("font-size", "9px")
-            .attr("fill", "black")
-            .attr("text-anchor", "start")
+            .attr("font-size", "8px")
+            .attr("fill", "#363636")
+            .attr("text-anchor", "middle")
             .attr("alignment-baseline", "middle")
-            .text((d) => d.name);
+            .text((d) => {
+                if (d._type === "attribute") {
+                    let indexOfDot = d.name.lastIndexOf('.');
+                    if (indexOfDot < 0) {
+                        return d.name;
+                    } else {
+                        return d.name.substring(indexOfDot + 1);
+                    }
+                } else {
+                    return d.name;
+                }});
 
         // Exit any old nodes
         node.exit().remove();
@@ -142,7 +194,7 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(2.5).strength(0.075).id((d) => d._uuid))
+            .force("link", d3.forceLink().distance(12.5).strength(0.0125).id((d) => d._uuid))
             .force("charge", d3.forceManyBody().strength(-50))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
