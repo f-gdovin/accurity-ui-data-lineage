@@ -78,12 +78,8 @@ const JSONConfigurer = {
             //get relationships for certain object type
             let objectRelationships = this.getObjectByItsType(key)['relation_to'];
 
-            console.log("Computing links for the object type \"" + key + "\"");
-
             //only keep those which are relevant to selected object types
             objectRelationships = objectRelationships.filter(relation => selectedObjectTypes.includes(this.getObjectName(relation)));
-
-            console.log("Object type \"" + key + "\" has links to the [" + objectRelationships.map(relation => this.getObjectName(relation)) + "]");
 
             //iterate current values, which are nodes of currently processed object type
             for (let j = 0; j < value.length; j++) {
@@ -104,33 +100,34 @@ const JSONConfigurer = {
                                 .find(x => x[relatedObjectKey] === this.getDottedValue(arrayProperty[i], currentObjectRelationship.innerKey));
                             relatedObjects.push(relatedObject);
                         }
-                        this.createLinks(links, totalLinkCount, currentObject, relatedObjects);
+                        totalLinkCount += this.createLinks(links, totalLinkCount, currentObject, relatedObjects);
                     } else {
                         let relatedObject = sortedNodes.get(currentObjectRelationship.to)
                             .find(x => x[relatedObjectKey] === this.getDottedValue(currentObject, currentObjectRelationship.key));
-                        this.createLinks(links, totalLinkCount, currentObject, [relatedObject]);
+                        totalLinkCount += this.createLinks(links, totalLinkCount, currentObject, [relatedObject]);
                     }
                 }
             }
         });
-        console.log("Computed " + totalLinkCount + " links among all selected object types in total");
         return links;
     },
 
-    createLinks(links: [], index: number, currentObject: Object, relatedObjects: []): number {
+    createLinks(links: [], totalLinkCount: number, currentObject: Object, relatedObjects: []): number {
+        let index = totalLinkCount;
         for (let i = 0; i < relatedObjects.length; i++) {
             let relatedObject = relatedObjects[i];
 
             if (relatedObject && relatedObject._uuid) {
                 links.push({
-                    "id": (index),
-                    "source": currentObject._uuid,
-                    "target": relatedObject._uuid,
+                    "id": index,
+                    "source": (currentObject._uuid),
+                    "target": (relatedObject._uuid),
                     "value": 1
                 });
                 index++;
             }
         }
+        return index + 1;
     },
 
     generateRequest(objectTypes: []): [] {

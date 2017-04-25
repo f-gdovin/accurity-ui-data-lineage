@@ -39,7 +39,7 @@ class ForceGraph extends React.Component {
         }
 
         const zoom = d3.zoom()
-            .scaleExtent([0.5, 5])
+            .scaleExtent([0.5, 10])
             .on("zoom", zoomFunction);
 
         const graph = this.state.graph;
@@ -193,8 +193,8 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(12.5).strength(0.05).id((d) => d._uuid))
-            .force("charge", d3.forceManyBody().strength(-150))
+            .force("link", d3.forceLink().distance(20).strength(0.05).id((d) => d._uuid))
+            .force("charge", d3.forceManyBody().strength(-200).distanceMax(1500))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
             .on("tick", ticked);
@@ -223,7 +223,7 @@ class ForceGraph extends React.Component {
         }
 
         function collide(node) {
-            const r = 120,
+            const r = 400,
                 nx1 = node.x - r,
                 nx2 = node.x + r,
                 ny1 = node.y - r,
@@ -233,7 +233,7 @@ class ForceGraph extends React.Component {
                     let x = node.x - quad.point.x,
                         y = node.y - quad.point.y,
                         l = Math.sqrt(x * x + y * y),
-                        r = 120;
+                        r = 800;
                     if (l < r) {
                         l = (l - r) / l * .5;
                         node.x -= x *= l;
