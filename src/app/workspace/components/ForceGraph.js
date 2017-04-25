@@ -193,8 +193,8 @@ class ForceGraph extends React.Component {
 
         // Adjust these to change the strength of gravitational pull, center of the gravity, link lengths and strengths
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().distance(2.5).strength(0.075).id((d) => d._uuid))
-            .force("charge", d3.forceManyBody().strength(-50).distanceMax(1500))
+            .force("link", d3.forceLink().distance(20).strength(0.05).id((d) => d._uuid))
+            .force("charge", d3.forceManyBody().strength(-200).distanceMax(1500))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .nodes(graph.nodes)
             .on("tick", ticked);
