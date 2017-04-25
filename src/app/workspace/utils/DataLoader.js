@@ -28,11 +28,21 @@ class DataLoader extends React.Component {
         try {
             axios.all(promiseArray)
                 .then((results) => {
+                    let attributeDefinitions = [];
                     for (let i = 0; i < results.length; i++) {
                         let result = results[i];
                         if (result && result.data) {
-                            nodes = nodes.concat(result.data.rows);
+                            let currentNodes = result.data.rows;
+                            if (currentNodes && currentNodes.length > 0 && currentNodes[0]._type === "attributeDefinition") {
+                                attributeDefinitions = currentNodes;
+                            } else {
+                                nodes = nodes.concat(currentNodes);
+                            }
                         }
+                    }
+                    //TODO: make this generic and defined in config.json?
+                    if (attributeDefinitions.length > 0) {
+                        this.mergeAttributesWithDefinitions(nodes, attributeDefinitions);
                     }
                     _dispatcher.dispatch({
                         type: "set-" + (this.props.isModelData ? "model" : "data-lineage") + "-data",
@@ -72,6 +82,14 @@ class DataLoader extends React.Component {
         const newSelectItems = _.extend({}, this.state.selectedItems);
         newSelectItems[element.val()] = checked;
         this.setState({selectedItems: newSelectItems})
+    }
+
+    mergeAttributesWithDefinitions(allNodes: Array, attributeDefinitions: Array) {
+        let attributeNodes = allNodes.filter(node => node._type === "attribute");
+        attributeNodes.forEach(attributeNode =>
+            attributeNode.attributeDefinition = attributeDefinitions.find(attDefinition =>
+                attributeNode.attributeDefinition._uuid === attDefinition._uuid)
+        );
     }
 
     render() {

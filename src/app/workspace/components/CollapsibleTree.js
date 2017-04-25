@@ -93,6 +93,8 @@ class CollapsibleTree extends React.Component {
         nodeEnter.append('text')
             .attr("dy", ".35em")
             .attr("x", (d) => d.children || d._children ? -13 : 13)
+            .style("font-size", "9px")
+            .attr("font-family", "roboto-light")
             .attr("text-anchor", (d) => d.children || d._children ? "end" : "start")
             .text((d) => d.name);
 
