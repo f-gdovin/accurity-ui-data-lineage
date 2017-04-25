@@ -223,7 +223,7 @@ class ForceGraph extends React.Component {
         }
 
         function collide(node) {
-            const r = 120,
+            const r = 400,
                 nx1 = node.x - r,
                 nx2 = node.x + r,
                 ny1 = node.y - r,
@@ -233,7 +233,7 @@ class ForceGraph extends React.Component {
                     let x = node.x - quad.point.x,
                         y = node.y - quad.point.y,
                         l = Math.sqrt(x * x + y * y),
-                        r = 120;
+                        r = 800;
                     if (l < r) {
                         l = (l - r) / l * .5;
                         node.x -= x *= l;
