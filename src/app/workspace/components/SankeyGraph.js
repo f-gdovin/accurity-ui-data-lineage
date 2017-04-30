@@ -96,9 +96,13 @@ class SankeyGraph extends React.Component {
             .attr("transform", (d) => "translate(" + d.x + "," + d.y + ")")
             .on("click", this.highlightLinks)
             .call(d3.drag()
-                .subject((d) => d)
-                .on("start", (d) => this.parentNode.appendChild(this))
-                .on("drag", this.dragmove));
+                .subject(function(d) {
+                    return d;
+                })
+                .on("start", function() {
+                    this.parentNode.appendChild(this);
+                })
+                .on("drag", dragmove));
 
         node.append("rect")
             .attr("height", (d) => d.dy)
@@ -118,12 +122,12 @@ class SankeyGraph extends React.Component {
             .filter((d) => d.x < width / 2)
             .attr("x", 6 + sankey.nodeWidth())
             .attr("text-anchor", "start");
-    }
 
-    dragmove(d) {
-        d3.select(this).attr("transform", (d) => "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
-        sankey.relayout();
-        link.attr("d", path);
+        function dragmove(d) {
+            d3.select(this).attr("transform", (d) => "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+            sankey.relayout();
+            link.attr("d", path);
+        }
     }
 
     highlightLinks(node) {
@@ -195,6 +199,8 @@ class SankeyGraph extends React.Component {
             links: DataStore.getState().dataLineageData.links
         };
         this.setState({graph: graph}, () => {
+            //Clear the canvas and redraw
+            d3.selectAll('.mountPoint > div').remove();
             this.draw();
         });
     }
