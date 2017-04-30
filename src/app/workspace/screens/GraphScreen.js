@@ -1,12 +1,12 @@
 import React from "react";
+import PropTypes from "prop-types";
 import AlertContainer from "react-alert-es6";
 import ForceGraph from "../components/ForceGraph";
-import RadialTidyGraph from "../components/RadialTidyGraph";
-import CollapsibleTree from "../components/CollapsibleTree";
-import FluidGraph from "../components/FluidGraph";
 import SankeyGraph from "../components/SankeyGraph";
+import DataStore from "../utils/DataStore";
+import LoadingOverlay from "../ui/LoadingOverlay";
+import SettingsSetter from "../utils/SettingsSetter";
 
-const radialTidyGraphStaticData = require('json-loader!../data/radialTidy.json');
 const sankeyGraphStaticData = require('json-loader!../data/sankey.json');
 
 const horizontalPadding = 50;
@@ -35,6 +35,8 @@ class GraphScreen extends React.Component {
     }
 
     render() {
+        const loadingState = DataStore.getLoadingState();
+
         const width = this.props.width;
         const height = this.props.height;
 
@@ -43,24 +45,6 @@ class GraphScreen extends React.Component {
             case "force-graph": {
                 graph = (
                     <ForceGraph width={graphWidth} height={graphHeight}/>
-                );
-                break;
-            }
-            case "radial-tidy-graph": {
-                graph = (
-                    <RadialTidyGraph width={graphWidth} height={graphHeight} graph={radialTidyGraphStaticData}/>
-                );
-                break;
-            }
-            case "collapsible-tree": {
-                graph = (
-                    <CollapsibleTree width={graphWidth} height={graphHeight} graph={radialTidyGraphStaticData}/>
-                );
-                break;
-            }
-            case "fluid-graph": {
-                graph = (
-                    <FluidGraph width={graphWidth} height={graphHeight} graph={radialTidyGraphStaticData}/>
                 );
                 break;
             }
@@ -81,7 +65,11 @@ class GraphScreen extends React.Component {
 
         return (
             <div className="graph" style={{width: width, height: height, border: '2px solid #323232'}}>
+                <LoadingOverlay ref={(a) => global.load = a} spinnerSize={"320px"} text={loadingState.loadingText}
+                                show={loadingState.isLoading}/>
                 <AlertContainer ref={(a) => global.msg = a} {...this.alertOptions} />
+
+                <SettingsSetter/>
                 {graph}
             </div>
 
@@ -89,7 +77,7 @@ class GraphScreen extends React.Component {
     }
 }
 GraphScreen.propTypes = {
-    graphType: React.PropTypes.string.isRequired
+    graphType: PropTypes.string
 };
 
 export default GraphScreen;

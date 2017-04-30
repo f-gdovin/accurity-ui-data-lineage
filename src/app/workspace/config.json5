@@ -126,12 +126,13 @@
             "label": "References"
           }
         },
-        {
+        /*{
           "attribute": {
             "key": "inheritanceParent._uuid",
-            "label": "Parent"
+            "label": "Parent",
+            "comment": "gives bad results"
           }
-        },
+        },*/
         {
           "attribute": {
             "key": "attributeDefinition.parent._uuid",

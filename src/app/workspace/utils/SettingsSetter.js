@@ -56,7 +56,6 @@ class SettingsSetter extends Form {
                     {this.state.show ?
                         <div className="dropdown-menu right-zero">
                             <TextField className="listItem" value={this.state.baseUrl}  onChange={(value) => this.setState({baseUrl: value})}  label='Base URL'/>
-                            <TextField className="listItem" value={this.state.timeout}  onChange={(value) => this.setState({timeout: value})}  label='Timeout'/>
                             <TextField className="listItem" value={this.state.username} onChange={(value) => this.setState({username: value})} label='Username'/>
                             <TextField className="listItem" value={this.state.password} onChange={(value) => this.setState({password: value})} label='Password' type="password"
                                       />

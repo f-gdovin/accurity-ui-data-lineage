@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import JSONConfigurer from "../utils/JSONConfigurer";
-import SettingsSetter from "../utils/SettingsSetter";
-import DataLoader from "../utils/DataLoader";
+import DataPicker from "../utils/DataPicker";
 import DataStore from "../utils/DataStore";
 import LoadingOverlay from "../ui/LoadingOverlay";
 
@@ -55,7 +54,6 @@ class ForceGraph extends React.Component {
             //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "0 0 " + width + " " + height)
-            //class to make it responsive
 
             .attr("pointer-events", "all")
             .append('svg:g')
@@ -106,6 +104,7 @@ class ForceGraph extends React.Component {
             .attr("class", "nodeSymbol")
             .attr("x", (d) => d.cx)
             .attr("y", (d) => d.cy)
+            .attr("transform", "rotate(-90)")
             .style("opacity", (d) => {
                 if (d._type === "attribute" && d.attributeDefinition.entity._uuid) {
                     return 1;
@@ -350,7 +349,7 @@ class ForceGraph extends React.Component {
                                 show={!this.state.graphDrawn}/>
 
                 {/*left side*/}
-                <DataLoader isModelData={true}/>
+                <DataPicker isModelData={true}/>
 
                 {/*middle*/}
                 <div className="redrawer">
@@ -361,8 +360,6 @@ class ForceGraph extends React.Component {
                     </button>
                 </div>
 
-                {/*right side*/}
-                <SettingsSetter/>
                 <div className="mountPoint" ref="mountPoint"/>
             </div>);
     }

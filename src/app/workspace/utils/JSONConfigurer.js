@@ -1,4 +1,5 @@
-const jsonConfig = require('json-loader!../config.json');
+// const jsonConfig = require('json-loader!../config.json');
+const jsonConfig = require('json5-loader!../config.json5');
 import DataStore from "../utils/DataStore";
 
 const JSONConfigurer = {
@@ -26,6 +27,18 @@ const JSONConfigurer = {
         return Object.keys(object)[0] + "";
     },
 
+    wrapAsNamedObject(value): {} {
+        return {name: value};
+    },
+
+    wrapAsNamedObjects(array: []): [] {
+        const wrapped = [];
+        array.forEach(element => {
+            wrapped.push(this.wrapAsNamedObject(element));
+        });
+        return wrapped;
+    },
+
     getRelationship(object: Object): Object {
         const to = this.getObjectName(object);
         return {
@@ -41,7 +54,7 @@ const JSONConfigurer = {
         return jsonConfig.objectTypes.filter(objType => selectedKeys.includes(objType));
     },
 
-    generateOptions(generateBusinessModel: boolean = true): [] {
+    generateOptionsFromObjectTypes(generateBusinessModel: boolean = true): [] {
         const options = [];
         Object.keys(jsonConfig.objectTypes).map(
             (objectType) => {
@@ -61,11 +74,33 @@ const JSONConfigurer = {
         return options;
     },
 
+    generateOptions(values: []): [] {
+        const options = [];
+        if (!values) {
+            values = [];
+        }
+        values.forEach(
+            (value) => {
+                options.push(
+                    {
+                        value: value.name,
+                        label: value.name,
+                        selected: false
+                    }
+                )
+
+            }
+        );
+        return options;
+    },
+
     generateLinks(nodes: [], selectedObjectTypes: []): [] {
         const links = [];
 
         let totalLinkCount = 0;
         const sortedNodes = new Map();
+
+        selectedObjectTypes = selectedObjectTypes.filter(objType => typeof objType === 'string' || objType instanceof String);
 
         //now take nodes one by one, check relationships and build links
         for (let i = 0; i < selectedObjectTypes.length; i++) {
@@ -112,6 +147,36 @@ const JSONConfigurer = {
         return links;
     },
 
+    computeFlow(initData: {}): {} {
+        const links = [];
+
+        const originNodes = initData.originNodes;
+        const targetNodes = initData.targetNodes;
+
+        let originIndex = 0;
+        let targetIndex = originNodes.length;
+
+        for (let i = 0; i < originNodes.length; i++) {
+            const originNode = originNodes[i];
+
+            for (let j = 0; j < targetNodes.length; j++) {
+                const targetNode = targetNodes[j];
+                links.push({
+                    source: originIndex,
+                    target: targetIndex,
+                    value: 50 + 5*originIndex + 5*targetIndex
+                });
+                targetIndex++;
+            }
+            originIndex++;
+        }
+
+        return {
+            links: links,
+            nodes: []
+        };
+    },
+
     createLinks(links: [], totalLinkCount: number, currentObject: Object, relatedObjects: []): number {
         let index = totalLinkCount;
         for (let i = 0; i < relatedObjects.length; i++) {
@@ -136,12 +201,27 @@ const JSONConfigurer = {
             .filter(objType => objectTypes.includes(objType))
             .map(objectType => {
                     let object = jsonConfig.objectTypes[objectType];
-                    APIs.push(object.api + "/");
                     if (object.alsoLoad) {
+                        let objectWithChild = {
+                            api: null,
+                            children: []
+                        };
+                        objectWithChild.api = object.api + "/";
+
                         object.alsoLoad.forEach(toLoad => {
-                            let related = jsonConfig.objectTypes[this.getObjectName(toLoad)];
-                            APIs.push(related.api + "/");
-                        })
+                            let relatedName = jsonConfig.objectTypes[this.getObjectName(toLoad)];
+                            let child = {
+                                api: relatedName.api + "/",
+                                parentType: objectType,
+                                childType: this.getObjectName(toLoad),
+                                key: toLoad[this.getObjectName(toLoad)].key,
+                                intoProperty: toLoad[this.getObjectName(toLoad)].intoProperty
+                            };
+                            objectWithChild.children.push(child);
+                        });
+                        APIs.push(objectWithChild);
+                    } else {
+                        APIs.push(object.api + "/");
                     }
                 }
             );

@@ -1,19 +1,43 @@
-import React from 'react';
+import React from "react";
 import PropTypes from "prop-types";
-import * as d3 from 'd3';
-import * as d3Sankey from 'd3-sankey';
-
-const margin = {top: 10, right: 40, bottom: 40, left: 10};
-let width = window.innerWidth - margin.left - margin.right;
-let height = window.innerHeight - margin.top - margin.bottom;
+import * as d3 from "d3";
+import * as d3Sankey from "d3-sankey";
+import JSONConfigurer from "../utils/JSONConfigurer";
+import DataFlowProcessor from "../utils/DataFlowProcessor";
+import DataGetter from "../utils/DataGetter";
+import DataStore from "../utils/DataStore";
+import LoadingOverlay from "../ui/LoadingOverlay";
 
 class SankeyGraph extends React.Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            graph: {
+                dataSets: DataStore.getState().dataLineageData.dataSets,
+                originNodes: DataStore.getState().dataLineageData.originNodes,
+                targetNodes: DataStore.getState().dataLineageData.targetNodes,
+                nodes: DataStore.getState().dataLineageData.nodes,
+                links: DataStore.getState().dataLineageData.links
+            },
+            graphDrawn: true,
+            showSettings: false
+        };
+    }
+
     componentDidMount() {
-        const graph = this.props.graph;
+        this.redraw();
+    }
+
+    draw() {
+        const graph = this.state.graph;
+        graph.nodes = [].concat(graph.nodes ? graph.nodes : [], graph.originNodes, graph.targetNodes);
+        graph.links = DataStore.getState().dataLineageData.links;
+
         const width = this.props.width;
         const height = this.props.height;
-        const units = "Widgets";
+        const units = "Mappings";
 
         const formatNumber = d3.format(",.0f"),    // zero decimal places
             format = (d) => formatNumber(d) + " " + units,
@@ -37,8 +61,10 @@ class SankeyGraph extends React.Component {
             //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "0 0 " + width + " " + height)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            .attr("pointer-events", "all")
+            .append('svg:g')
+            .attr('fill', 'white');
 
         const sankey = d3Sankey.sankey()
             .nodeWidth(15)
@@ -68,11 +94,11 @@ class SankeyGraph extends React.Component {
             .enter().append("g")
             .attr("class", "node")
             .attr("transform", (d) => "translate(" + d.x + "," + d.y + ")")
-            .on("click", highlightLinks)
+            .on("click", this.highlightLinks)
             .call(d3.drag()
                 .subject((d) => d)
                 .on("start", (d) => this.parentNode.appendChild(this))
-                .on("drag", dragmove));
+                .on("drag", this.dragmove));
 
         node.append("rect")
             .attr("height", (d) => d.dy)
@@ -92,71 +118,136 @@ class SankeyGraph extends React.Component {
             .filter((d) => d.x < width / 2)
             .attr("x", 6 + sankey.nodeWidth())
             .attr("text-anchor", "start");
+    }
 
-        function dragmove(d) {
-            d3.select(this).attr("transform", (d) => "translate(" + (d.x =  d3.event.x) + "," + (d.y =  d3.event.y) + ")");
-            sankey.relayout();
-            link.attr("d", path);
+    dragmove(d) {
+        d3.select(this).attr("transform", (d) => "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+        sankey.relayout();
+        link.attr("d", path);
+    }
+
+    highlightLinks(node) {
+        let remainingNodes = [],
+            nextNodes = [];
+
+        let stroke_opacity = 0;
+        if (d3.select(this).attr("data-clicked") === "1") {
+            d3.select(this).attr("data-clicked", "0");
+            stroke_opacity = 0.2;
+        } else {
+            d3.select(this).attr("data-clicked", "1");
+            stroke_opacity = 0.8;
         }
 
-        function highlightLinks(node, i) {
+        const traverse = [{
+            linkType: "sourceLinks",
+            nodeType: "target"
+        }, {
+            linkType: "targetLinks",
+            nodeType: "source"
+        }];
 
-            let remainingNodes=[],
-                nextNodes=[];
-
-            let stroke_opacity = 0;
-            if (d3.select(this).attr("data-clicked") === "1") {
-                d3.select(this).attr("data-clicked","0");
-                stroke_opacity = 0.2;
-            } else {
-                d3.select(this).attr("data-clicked","1");
-                stroke_opacity = 0.8;
-            }
-
-            const traverse = [{
-                linkType: "sourceLinks",
-                nodeType: "target"
-            }, {
-                linkType: "targetLinks",
-                nodeType: "source"
-            }];
-
-            traverse.forEach(function(step){
-                node[step.linkType].forEach(function(link) {
-                    remainingNodes.push(link[step.nodeType]);
-                    highlightLink(link.id, stroke_opacity);
-                });
-
-                while (remainingNodes.length) {
-                    nextNodes = [];
-                    remainingNodes.forEach(function(node) {
-                        node[step.linkType].forEach(function(link) {
-                            nextNodes.push(link[step.nodeType]);
-                            highlightLink(link.id, stroke_opacity);
-                        });
-                    });
-                    remainingNodes = nextNodes;
-                }
+        traverse.forEach((step) => {
+            node[step.linkType].forEach((link) => {
+                remainingNodes.push(link[step.nodeType]);
+                this.highlightLink(link.id, stroke_opacity);
             });
-        }
 
-        function highlightLink(id, opacity) {
-            d3.select("#link-"+id).style("stroke-opacity", opacity);
-        }
+            while (remainingNodes.length) {
+                nextNodes = [];
+                remainingNodes.forEach((node) => {
+                    node[step.linkType].forEach((link) => {
+                        nextNodes.push(link[step.nodeType]);
+                        this.highlightLink(link.id, stroke_opacity);
+                    });
+                });
+                remainingNodes = nextNodes;
+            }
+        });
+    }
+
+    highlightLink(id, opacity) {
+        d3.select("#link-" + id).style("stroke-opacity", opacity);
+    }
+
+
+
+    reloadDataSets() {
+        const graph = this.state.graph;
+        graph.dataSets = DataStore.getDataLineageData().dataSets;
+        this.setState({graph: graph}, () => {
+            const dataFlowProcessor = this.refs.dataFlowProcessor;
+            dataFlowProcessor.setOptions(JSONConfigurer.generateOptions(this.state.graph.dataSets));
+            dataFlowProcessor.setOptions2(JSONConfigurer.generateOptions(this.state.graph.dataSets));
+
+            this.setState({graphDrawn: true});
+
+            msg.success("Data Sets loaded");
+        });
+    }
+
+    updateAndRedraw() {
+        const graph = {
+            dataSets: DataStore.getState().dataLineageData.dataSets,
+            originNodes: DataStore.getState().dataLineageData.originNodes,
+            targetNodes: DataStore.getState().dataLineageData.targetNodes,
+            nodes: DataStore.getState().dataLineageData.nodes,
+            links: DataStore.getState().dataLineageData.links
+        };
+        this.setState({graph: graph}, () => {
+            this.draw();
+        });
+    }
+
+    // Get nodes from store, compute links to them and draw it
+    redraw() {
+        this.setState({graphDrawn: false});
+
+        DataGetter.loadSpecificData("dataSet", this.reloadDataSets.bind(this));
+
+        const originNodes = DataStore.getState().dataLineageData.originNodes;
+        const targetNodes = DataStore.getState().dataLineageData.targetNodes;
+
+        const graph = this.state.graph;
+        graph.originNodes = originNodes;
+        graph.targetNodes = targetNodes;
+
+        this.setState({graph: graph}, () => {
+            //Clear the canvas and redraw
+            d3.selectAll('.mountPoint > div').remove();
+            this.draw();
+            this.setState({graphDrawn: true});
+        });
     }
 
     //let React do the first render
     render() {
-        return <div className="mountPoint" ref="mountPoint" />;
+        return (
+            <div>
+                {/*loading overlay*/}
+                <LoadingOverlay spinnerSize={"320px"} text={"Computing the links and drawing graph, please wait..."}
+                                show={!this.state.graphDrawn}/>
+
+                {/*left side*/}
+                <DataFlowProcessor ref="dataFlowProcessor"
+                                   options={JSONConfigurer.generateOptions(this.state.graph.dataSets)}
+                                   options2={JSONConfigurer.generateOptions(this.state.graph.dataSets)}
+                                   isModelData={false}/>
+
+                {/*middle*/}
+                <div className="redrawer">
+                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
+                            onClick={() => {
+                                this.updateAndRedraw()
+                            }}>Redraw
+                    </button>
+                </div>
+
+                <div className="mountPoint" ref="mountPoint"/>
+            </div>);
     }
 }
 SankeyGraph.propTypes = {
-    graph: React.PropTypes.shape({
-        name: React.PropTypes.string.isRequired,
-        children: React.PropTypes.arrayOf({
-            name: React.PropTypes.string.isRequired
-        })
-    }),
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired
 };
