@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import _ from "underscore";
 import Multiselect from "react-bootstrap-multiselect";
-import JSONConfigurer from "./JSONConfigurer";
+import DataGetter from "./DataGetter";
 
 const _dispatcher = require('./DataDispatcher');
 
@@ -13,19 +13,20 @@ class DataFlowProcessor extends React.Component {
 
         this.state = {
             options: props.options,
-            options2: props.options2,
-            selectedItems: {},
+            options1: props.options,
+            options2: props.options,
+            selectedItems1: {},
             selectedItems2: {}
         };
     }
 
-    //TODO: refactor to avoid code duplicity
-    getSelectedValues(): [] {
+    getSelectedValues1(): [] {
         const selected = [];
-        for (const key of Object.keys(this.state.selectedItems)) {
-            const value = this.state.selectedItems[key];
+        for (const key of Object.keys(this.state.selectedItems1)) {
+            const value = this.state.selectedItems1[key];
             if (value === true) {
-                selected.push(key);
+                const selectedObject = this.state.options.find(option => option.label === key);
+                selected.push(selectedObject.object);
             }
         }
         return selected;
@@ -36,28 +37,95 @@ class DataFlowProcessor extends React.Component {
         for (const key of Object.keys(this.state.selectedItems2)) {
             const value = this.state.selectedItems2[key];
             if (value === true) {
-                selected.push(key);
+                const selectedObject = this.state.options.find(option => option.label === key);
+                selected.push(selectedObject.object);
             }
         }
         return selected;
     }
 
     setOptions(options: []) {
-        this.setState({options: options});
+        this.setState({
+            options: options,
+            options1: options,
+            options2: options
+        });
     }
 
-    setOptions2(options2: []) {
-        this.setState({options2: options2});
-    }
+    handleChange1(element, checked) {
+        const currSelected = this.state.selectedItems1;
+        const newSelected = this.computeSelected(currSelected, element, checked);
 
-    handleChange(element, checked) {
-        let currSelected = this.state["selectedItems"];
-        this.setState({selectedItems: this.computeSelected(currSelected, element, checked)});
+        const newOtherOptions = this.computeUnusedOptions(newSelected);
+
+        const currOtherSelected = this.state.selectedItems2;
+        const newOtherSelected = this.handleOtherSelected(currOtherSelected, newOtherOptions);
+
+        const newOptions = this.computeUnusedOptions(newOtherSelected);
+
+        this.enableAccordingToSelected(newSelected, newOptions);
+        this.enableAccordingToSelected(newOtherSelected, newOtherOptions);
+
+        this.setState({
+            selectedItems1: newSelected,
+            selectedItems2: newOtherSelected,
+            options1: newOptions,
+            options2: newOtherOptions
+        });
     }
 
     handleChange2(element, checked) {
-        let currSelected = this.state["selectedItems2"];
-        this.setState({selectedItems2: this.computeSelected(currSelected, element, checked)});
+        const currSelected = this.state.selectedItems2;
+        const newSelected = this.computeSelected(currSelected, element, checked);
+
+        const newOtherOptions = this.computeUnusedOptions(newSelected);
+
+        const currOtherSelected = this.state.selectedItems1;
+        const newOtherSelected = this.handleOtherSelected(currOtherSelected, newOtherOptions);
+
+        const newOptions = this.computeUnusedOptions(newOtherSelected);
+
+        this.enableAccordingToSelected(newSelected, newOptions);
+        this.enableAccordingToSelected(newOtherSelected, newOtherOptions);
+
+        this.setState({
+            selectedItems2: newSelected,
+            selectedItems1: newOtherSelected,
+            options2: newOptions,
+            options1: newOtherOptions
+        });
+    }
+
+    enableAccordingToSelected(selected: {}, options: []) {
+        const selectedLabels = Object.keys(selected);
+        for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+            if (selectedLabels.includes(option.label)) {
+                option.selected = selected[option.label];
+            } else {
+                option.selected = false;
+            }
+        }
+    }
+
+    computeUnusedOptions(usedInOtherSelect: {}): [] {
+        const selectedLabels = Object.keys(usedInOtherSelect);
+        return this.state.options.filter(option => {
+            return !selectedLabels.includes(option.label) ||
+                usedInOtherSelect[option.label] === false;
+        });
+    }
+
+    handleOtherSelected(oldState: {}, newOptions: []): {} {
+        const oldSelected = Object.keys(oldState);
+        const newSelected = {};
+        for (let i = 0; i < oldSelected.length; i++) {
+            const oldOption = oldSelected[i];
+            if (newOptions.find(newOption => newOption.label === oldOption)) {
+                newSelected[oldOption] = true;
+            }
+        }
+        return newSelected;
     }
 
     computeSelected(items, element, checked) {
@@ -67,7 +135,7 @@ class DataFlowProcessor extends React.Component {
     }
 
     verifyAndCompute() {
-        const originNodes = this.getSelectedValues();
+        const originNodes = this.getSelectedValues1();
         const targetNodes = this.getSelectedValues2();
 
         if (originNodes.length < 1) {
@@ -79,7 +147,10 @@ class DataFlowProcessor extends React.Component {
             return;
         }
 
-        const flow = JSONConfigurer.computeFlow({
+        DataGetter.loadSpecificData("dataStructure", "originDataStructures", this.computeMappings.bind(this), this.createDataStructureFilter(originNodes));
+        DataGetter.loadSpecificData("dataStructure", "targetDataStructures", this.computeMappings.bind(this), this.createDataStructureFilter(targetNodes));
+
+        const flow = this.computeFlow({
             originNodes: originNodes,
             targetNodes: targetNodes,
         });
@@ -87,8 +158,8 @@ class DataFlowProcessor extends React.Component {
         _dispatcher.dispatch({
             type: "set-data-lineage-data",
             data: {
-                "originNodes": JSONConfigurer.wrapAsNamedObjects(originNodes),
-                "targetNodes": JSONConfigurer.wrapAsNamedObjects(targetNodes),
+                "originNodes": originNodes,
+                "targetNodes": targetNodes,
                 "nodes": flow.nodes,
                 "links": flow.links
             }
@@ -97,26 +168,71 @@ class DataFlowProcessor extends React.Component {
         });
     }
 
+    computeFlow(initData: {}): {} {
+        const links = [];
+
+        const originNodes = initData.originNodes;
+        const targetNodes = initData.targetNodes;
+
+        DataGetter.loadSpecificData("dataStructure", "originDataStructures", this.computeMappings.bind(this), createDataStructureFilter(originNodes));
+
+        const originDataStructures = [];
+        const targetDataStructures = [];
+
+        const attributeMappings = [];
+
+        let originIndex = 0;
+        let targetIndex = originNodes.length;
+
+        for (let i = 0; i < originNodes.length; i++) {
+            const originNode = originNodes[i];
+
+            for (let j = 0; j < targetNodes.length; j++) {
+                const targetNode = targetNodes[j];
+                links.push({
+                    source: originIndex,
+                    target: targetIndex,
+                    value: 50 + 5 * originIndex + 5 * targetIndex
+                });
+                targetIndex++;
+            }
+            originIndex++;
+        }
+
+        return {
+            links: links,
+            nodes: []
+        };
+    }
+
+    computeMappings() {
+
+    }
+
+    createDataStructureFilter(dataSets: []): [] {
+
+    }
+
     render() {
         return <div className="dataPicker">
             <Multiselect style={{float: 'left'}}
                          buttonClass="btn btn-danger"
-                         data={this.state.options}
-                         onChange={this.handleChange.bind(this)}
+                         data={this.state.options1}
+                         onChange={this.handleChange1.bind(this)}
                          multiple/>
             <Multiselect style={{float: 'left'}}
                          buttonClass="btn btn-danger"
                          data={this.state.options2}
                          onChange={this.handleChange2.bind(this)}
                          multiple/>
-            <button className="btn btn-warning" style={{float: 'left'}} onClick={this.verifyAndCompute.bind(this)}>Compute flow
+            <button className="btn btn-warning" style={{float: 'left'}} onClick={this.verifyAndCompute.bind(this)}>
+                Compute flow
             </button>
         </div>
     }
 }
 DataFlowProcessor.propTypes = {
-    options: PropTypes.array,
-    options2: PropTypes.array
+    options: PropTypes.array
 };
 
 export default DataFlowProcessor;

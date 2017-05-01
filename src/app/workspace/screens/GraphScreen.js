@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import AlertContainer from "react-alert-es6";
 import ForceGraph from "../components/ForceGraph";
 import SankeyGraph from "../components/SankeyGraph";
-import DataStore from "../utils/DataStore";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import SettingsSetter from "../utils/SettingsSetter";
 
@@ -35,8 +34,6 @@ class GraphScreen extends React.Component {
     }
 
     render() {
-        const loadingState = DataStore.getLoadingState();
-
         const width = this.props.width;
         const height = this.props.height;
 
@@ -50,7 +47,7 @@ class GraphScreen extends React.Component {
             }
             case "sankey-graph": {
                 graph = (
-                    <SankeyGraph width={graphWidth} height={graphHeight} graph={sankeyGraphStaticData}/>
+                    <SankeyGraph width={graphWidth} height={graphHeight}/>
                 );
                 break;
             }
@@ -65,8 +62,8 @@ class GraphScreen extends React.Component {
 
         return (
             <div className="graph" style={{width: width, height: height, border: '2px solid #323232'}}>
-                <LoadingOverlay ref={(a) => global.load = a} spinnerSize={"320px"} text={loadingState.loadingText}
-                                show={loadingState.isLoading}/>
+                <LoadingOverlay ref={(a) => global.load = a} spinnerSize={"320px"} text={""}
+                                show={false}/>
                 <AlertContainer ref={(a) => global.msg = a} {...this.alertOptions} />
 
                 <SettingsSetter/>

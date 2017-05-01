@@ -59,7 +59,6 @@ const JSONConfigurer = {
         Object.keys(jsonConfig.objectTypes).map(
             (objectType) => {
                 let object = this.getObjectByItsType(objectType);
-                //TODO: triple-check this when dealing with Non-business models
                 if (generateBusinessModel === object.partOfBusinessModel) {
                     options.push(
                         {
@@ -85,6 +84,7 @@ const JSONConfigurer = {
                     {
                         value: value.name,
                         label: value.name,
+                        object: value,
                         selected: false
                     }
                 )
@@ -145,36 +145,6 @@ const JSONConfigurer = {
             }
         });
         return links;
-    },
-
-    computeFlow(initData: {}): {} {
-        const links = [];
-
-        const originNodes = initData.originNodes;
-        const targetNodes = initData.targetNodes;
-
-        let originIndex = 0;
-        let targetIndex = originNodes.length;
-
-        for (let i = 0; i < originNodes.length; i++) {
-            const originNode = originNodes[i];
-
-            for (let j = 0; j < targetNodes.length; j++) {
-                const targetNode = targetNodes[j];
-                links.push({
-                    source: originIndex,
-                    target: targetIndex,
-                    value: 50 + 5*originIndex + 5*targetIndex
-                });
-                targetIndex++;
-            }
-            originIndex++;
-        }
-
-        return {
-            links: links,
-            nodes: []
-        };
     },
 
     createLinks(links: [], totalLinkCount: number, currentObject: Object, relatedObjects: []): number {

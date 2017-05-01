@@ -88,7 +88,7 @@ class DataGetter {
         }
     }
 
-    static loadSpecificData(whatToLoad: String, whatToDoNext: Function, filters: Object[]) {
+    static loadSpecificData(whatToLoad: String, whereToStore: String, whatToDoNext: Function, filters: Object[]) {
         load.setBoth(true, "Fetching requested data, please wait...");
 
         const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
@@ -105,11 +105,12 @@ class DataGetter {
             axiosGetter.get(URL)
                 .then((result) => {
                     if (result && result.data) {
+                        const data = {};
+                        data[whereToStore] = result.data.rows;
+
                         _dispatcher.dispatch({
-                            type: "set-data-lineage-data",
-                            data: {
-                                "dataSets": result.data.rows
-                            }
+                            type: "set-additional-data",
+                            data: data
                         });
                         msg.success(object.label + ' loaded');
                     }

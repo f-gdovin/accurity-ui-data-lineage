@@ -27,7 +27,8 @@ class SankeyGraph extends React.Component {
     }
 
     componentDidMount() {
-        this.redraw();
+        this.init();
+        this.draw();
     }
 
     draw() {
@@ -178,11 +179,11 @@ class SankeyGraph extends React.Component {
 
     reloadDataSets() {
         const graph = this.state.graph;
-        graph.dataSets = DataStore.getDataLineageData().dataSets;
+        graph.dataSets = DataStore.getAdditionalData().dataSets;
         this.setState({graph: graph}, () => {
             const dataFlowProcessor = this.refs.dataFlowProcessor;
+
             dataFlowProcessor.setOptions(JSONConfigurer.generateOptions(this.state.graph.dataSets));
-            dataFlowProcessor.setOptions2(JSONConfigurer.generateOptions(this.state.graph.dataSets));
 
             this.setState({graphDrawn: true});
 
@@ -206,24 +207,9 @@ class SankeyGraph extends React.Component {
     }
 
     // Get nodes from store, compute links to them and draw it
-    redraw() {
+    init() {
         this.setState({graphDrawn: false});
-
-        DataGetter.loadSpecificData("dataSet", this.reloadDataSets.bind(this));
-
-        const originNodes = DataStore.getState().dataLineageData.originNodes;
-        const targetNodes = DataStore.getState().dataLineageData.targetNodes;
-
-        const graph = this.state.graph;
-        graph.originNodes = originNodes;
-        graph.targetNodes = targetNodes;
-
-        this.setState({graph: graph}, () => {
-            //Clear the canvas and redraw
-            d3.selectAll('.mountPoint > div').remove();
-            this.draw();
-            this.setState({graphDrawn: true});
-        });
+        DataGetter.loadSpecificData("dataSet", "dataSets", this.reloadDataSets.bind(this));
     }
 
     //let React do the first render
