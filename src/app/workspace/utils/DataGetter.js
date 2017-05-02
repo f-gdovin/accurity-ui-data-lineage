@@ -6,7 +6,7 @@ const _dispatcher = require('./DataDispatcher');
 class DataGetter {
 
     static loadDataForObjectTypes(loadingModelData: boolean = true, objectTypes: []): [] {
-        load.setBoth(true, "Fetching requested data, please wait...");
+        load.setText("Fetching requested data, please wait...");
 
         const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
 
@@ -89,6 +89,7 @@ class DataGetter {
     }
 
     static loadMultipleSpecificData(whatToLoad: [], whereToStore: String, whatToDoNext: Function) {
+        load.setText("Fetching requested data, please wait...");
         let promiseArray = [];
         let nodes = [];
 
@@ -121,10 +122,11 @@ class DataGetter {
                         type: "set-additional-data",
                         data: data
                     });
+                    msg.success('Nodes loaded');
+                    load.setActive(false);
                     if (whatToDoNext) {
                         whatToDoNext();
                     }
-                    load.setActive(false);
                 })
                 .catch(error => {
                     console.log('Loading of nodes failed. Reason: ' + error);
@@ -141,7 +143,7 @@ class DataGetter {
     }
 
     static loadSpecificData(whatToLoad: {}, whereToStore: String, whatToDoNext: Function) {
-        load.setBoth(true, "Fetching requested data, please wait...");
+        load.setText("Fetching requested data, please wait...");
 
         const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
 
@@ -161,10 +163,11 @@ class DataGetter {
                         });
                         msg.success(object.label + ' loaded');
                     }
+                    msg.success('Nodes loaded');
+                    load.setActive(false);
                     if (whatToDoNext) {
                         whatToDoNext();
                     }
-                    load.setActive(false);
                 })
                 .catch(error => {
                     console.log('Loading of data failed. Reason: ' + JSON.stringify(error));

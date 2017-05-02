@@ -136,6 +136,8 @@ class DataFlowProcessor extends React.Component {
     }
 
     verifyAndCompute() {
+        load.setText("Computing flow from origins to the targets, please wait...");
+
         _dispatcher.dispatch({
             type: "set-additional-data",
             data: {
@@ -169,6 +171,7 @@ class DataFlowProcessor extends React.Component {
     }
 
     computeDataStructures(dataSets: [], isOriginData: boolean) {
+        load.setText("Fetching required data structures, please wait...");
         const storeProperty = (isOriginData ? "origin" : "target") + "DataStructures";
         const searchRequest = this.createHomoRequest("dataStructure", dataSets, this.createDataStructureFilter);
 
@@ -176,6 +179,7 @@ class DataFlowProcessor extends React.Component {
     }
 
     computeMappings(isOriginData: boolean) {
+        load.setText("Fetching required mappings, please wait...");
         let dataStructures;
         if (isOriginData) {
             dataStructures = DataStore.getState().additionalData.originDataStructures;
@@ -190,6 +194,7 @@ class DataFlowProcessor extends React.Component {
     }
 
     computeFlow(isOriginData: boolean) {
+        load.setText("Computing flow from origins to the targets, please wait...");
         let links = [];
         let nodes = [];
 
@@ -221,6 +226,7 @@ class DataFlowProcessor extends React.Component {
             const targetEntities = this.getEntitiesFromMappings(targetMappings);
 
             // map the entities one with another and then continue to both origin and target sides
+            load.setText("Computing entities...");
             const matchedEntities = this.intersect(originEntities, targetEntities);
 
             // also, keep everything in some sane object to be able to draw arcs later
@@ -234,6 +240,7 @@ class DataFlowProcessor extends React.Component {
                 targetNodes: []
             };
 
+            load.setText("Computing flow from origins to entities...");
             originMappings.forEach(mapping => {
                 // handle entities
                 const mappingEntityUUID = DataGetter.getDottedProp(mapping, "entity._uuid");
@@ -279,6 +286,7 @@ class DataFlowProcessor extends React.Component {
                 });
             });
 
+            load.setText("Computing flow from entities to targets...");
             targetMappings.forEach(mapping => {
                 // handle entities
                 const mappingEntityUUID = DataGetter.getDottedProp(mapping, "entity._uuid");
@@ -346,6 +354,7 @@ class DataFlowProcessor extends React.Component {
                     links: links
                 }
             });
+            load.setActive(false);
         }
         return {
             links: links,

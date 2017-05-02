@@ -17,12 +17,8 @@ class LoadingOverlay extends React.Component {
     }
 
     setText(text: string) {
-        this.setState({text: text});
-    }
-
-    setBoth(isActive: boolean, text: string) {
         this.setState({
-            isActive: isActive,
+            isActive: true,
             text: text
         });
     }
