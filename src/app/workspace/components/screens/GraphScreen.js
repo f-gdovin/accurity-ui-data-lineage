@@ -1,12 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import AlertContainer from "react-alert-es6";
-import ForceGraph from "../components/ForceGraph";
-import SankeyGraph from "../components/SankeyGraph";
-import LoadingOverlay from "../ui/LoadingOverlay";
-import SettingsSetter from "../utils/SettingsSetter";
-
-const sankeyGraphStaticData = require('json-loader!../data/sankey.json');
+import ForceGraph from "../graphs/ForceGraph";
+import SankeyGraph from "../graphs/SankeyGraph";
+import LoadingOverlay from "../others/LoadingOverlay";
+import SettingsSetter from "../others/SettingsSetter";
 
 const horizontalPadding = 50;
 const verticalPadding = 100;

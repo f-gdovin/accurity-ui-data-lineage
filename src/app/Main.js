@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import GraphScreen from './workspace/screens/GraphScreen';
+import GraphScreen from './workspace/components/screens/GraphScreen';
 
 let forceGraphButton,
     sankeyGraphButton;

@@ -2,10 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import _ from "underscore";
 import Multiselect from "react-bootstrap-multiselect";
-import JSONConfigurer from "./JSONConfigurer";
-import DataGetter from "./DataGetter";
+import JSONConfigurer from "../../utils/JSONConfigProvider";
+import DataGetter from "../../utils/DataGetter";
 
-class DataPicker extends React.Component {
+class ObjectTypePicker extends React.Component {
 
     constructor(props) {
         super(props);
@@ -52,8 +52,7 @@ class DataPicker extends React.Component {
         </div>
     }
 }
-DataPicker.propTypes = {
+ObjectTypePicker.propTypes = {
     isModelData: PropTypes.bool.isRequired
 };
-
-export default DataPicker;
+export default ObjectTypePicker;

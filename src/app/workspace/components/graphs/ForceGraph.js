@@ -2,10 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
-import JSONConfigurer from "../utils/JSONConfigurer";
-import DataPicker from "../utils/DataPicker";
-import DataStore from "../utils/DataStore";
-import LoadingOverlay from "../ui/LoadingOverlay";
+import LinksProcessor from "../../utils/LinksProcessor";
+import DataPicker from "../optionsPickers/ObjectTypePicker";
+import DataStore from "../../utils/DataStore";
 
 // Toggle whether the highlighting is on
 let toggle = 0;
@@ -148,18 +147,6 @@ class ForceGraph extends React.Component {
                 }
             });
 
-        /*// Append an icon
-        nodeEnter.append("text")
-            .attr("class", "nodeIcon")
-            .attr("x", (d) => d.cx)
-            .attr("y", (d) => d.cy)
-            .attr("font-family", "accurity")
-            .attr("font-size", "20px")
-            .attr("fill", "#FBFBFB")
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle")
-            .text((d) => JSONConfigurer.getObjectByItsType(d._type).icon);*/
-
         // Append a label
         nodeEnter.append("text")
             .attr("class", "nodeLabel")
@@ -250,9 +237,7 @@ class ForceGraph extends React.Component {
     redraw() {
         this.setState({graphDrawn: false});
         const newData = DataStore.getModelData();
-        const links = JSONConfigurer.generateLinks(newData.nodes, newData.selectedItems);
-        
-        // TODO: save links in store as well?
+        const links = LinksProcessor.generateLinks(newData.nodes, newData.selectedItems);
 
         // Compute matrix of neighbours
         const neighboursMatrix = [,];
@@ -344,10 +329,6 @@ class ForceGraph extends React.Component {
     render() {
         return (
             <div>
-                {/*loading overlay*/}
-                <LoadingOverlay spinnerSize={"320px"} text={"Computing the links and drawing graph, please wait..."}
-                                show={!this.state.graphDrawn}/>
-
                 {/*left side*/}
                 <DataPicker isModelData={true}/>
 

@@ -1,8 +1,8 @@
 import React from "react";
 import Form, {TextField} from "react-form-js";
-import DataStore from "./DataStore";
+import DataStore from "../../utils/DataStore";
 
-const _dispatcher = require('./DataDispatcher');
+const _dispatcher = require('../../utils/DataDispatcher');
 
 class SettingsSetter extends Form {
 

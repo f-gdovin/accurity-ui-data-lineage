@@ -95,12 +95,12 @@
         }
       ],
       "relation_to": [
-        {
+        // not used, as we are merging Attribute Definitions into Attributes
+        /*{
           "attributeDefinition": {
             "key": "attributeDefinition._uuid",
-            "comment": "not used, as we are merging AttDefs into Attributes"
           }
-        },
+        },*/
         {
           "attributeType": {
             "key": "attributeType.uuid"
@@ -126,11 +126,11 @@
             "label": "References"
           }
         },
+        //we don't need this anymore, Attribute Definitions are merged into Attributes
         /*{
           "attribute": {
             "key": "inheritanceParent._uuid",
-            "label": "Parent",
-            "comment": "gives bad results"
+            "label": "Parent"
           }
         },*/
         {

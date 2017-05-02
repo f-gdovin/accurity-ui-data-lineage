@@ -7,8 +7,6 @@ const _initialState = {
         selectedItems: []
     },
     dataLineageData: {
-        originNodes: [],
-        targetNodes: [],
         nodes: [],
         links: []
     },
@@ -17,6 +15,8 @@ const _initialState = {
         targetDataLoaded: false,
 
         dataSets: [],
+        originDataSets: [],
+        targetDataSets: [],
         originDataStructures: [],
         targetDataStructures: [],
         originMappings: [],
@@ -27,10 +27,6 @@ const _initialState = {
         baseUrl: "http://localhost:8086/v1/",
         timeout: 100000,
         token: "Basic :"
-    },
-    loadingState: {
-        isLoading: false,
-        loadingText: ""
     }
 };
 
@@ -90,11 +86,6 @@ class DataStore extends ReduceStore {
     getSettings(state) {
         const usedState = state ? state : this.getState();
         return usedState.settings;
-    }
-
-    getLoadingState(state) {
-        const usedState = state ? state : this.getState();
-        return usedState.loadingState;
     }
 }
 

@@ -2,11 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import * as d3 from "d3";
 import * as d3Sankey from "d3-sankey";
-import JSONConfigurer from "../utils/JSONConfigurer";
-import DataFlowProcessor from "../utils/DataFlowProcessor";
-import DataGetter from "../utils/DataGetter";
-import DataStore from "../utils/DataStore";
-import LoadingOverlay from "../ui/LoadingOverlay";
+import ObjectTransformer from "../../utils/ObjectTransformer";
+import DataSetPicker from "../optionsPickers/DataSetPicker";
+import DataGetter from "../../utils/DataGetter";
+import DataStore from "../../utils/DataStore";
 
 class SankeyGraph extends React.Component {
 
@@ -15,9 +14,6 @@ class SankeyGraph extends React.Component {
 
         this.state = {
             graph: {
-                dataSets: DataStore.getState().dataLineageData.dataSets,
-                originNodes: DataStore.getState().dataLineageData.originNodes,
-                targetNodes: DataStore.getState().dataLineageData.targetNodes,
                 nodes: DataStore.getState().dataLineageData.nodes,
                 links: DataStore.getState().dataLineageData.links
             },
@@ -178,23 +174,16 @@ class SankeyGraph extends React.Component {
 
 
     reloadDataSets() {
-        const graph = this.state.graph;
-        graph.dataSets = DataStore.getAdditionalData().dataSets;
-        this.setState({graph: graph}, () => {
-            const dataFlowProcessor = this.refs.dataFlowProcessor;
+        const dataSets = DataStore.getAdditionalData().dataSets;
+        const dataSetPicker = this.refs.dataSetPicker;
 
-            dataFlowProcessor.setOptions(JSONConfigurer.generateOptions(this.state.graph.dataSets));
-
-            this.setState({graphDrawn: true});
-
-            msg.success("Data Sets loaded");
-        });
+        dataSetPicker.setOptions(ObjectTransformer.wrapAsOptions(dataSets));
+        this.setState({graphDrawn: true});
+        msg.success("Data Sets loaded");
     }
 
     updateAndRedraw() {
         const graph = {
-            originNodes: DataStore.getState().dataLineageData.originNodes,
-            targetNodes: DataStore.getState().dataLineageData.targetNodes,
             nodes: DataStore.getState().dataLineageData.nodes,
             links: DataStore.getState().dataLineageData.links
         };
@@ -205,7 +194,7 @@ class SankeyGraph extends React.Component {
         });
     }
 
-    // Get nodes from store, compute links to them and draw it
+    // Get Data Sets
     init() {
         this.setState({graphDrawn: false});
         DataGetter.loadSpecificData({objectType: "dataSet"}, "dataSets", this.reloadDataSets.bind(this));
@@ -213,12 +202,9 @@ class SankeyGraph extends React.Component {
 
     //let React do the first render
     render() {
+        const dataSets = DataStore.getAdditionalData().dataSets;
         return (
             <div>
-                {/*loading overlay*/}
-                <LoadingOverlay spinnerSize={"320px"} text={"Computing the links and drawing graph, please wait..."}
-                                show={!this.state.graphDrawn}/>
-
                 {/*left side*/}
                 <div className="reinitialiser">
                     <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-danger"
@@ -227,10 +213,8 @@ class SankeyGraph extends React.Component {
                             }}>Load Data Sets
                     </button>
                 </div>
-                <DataFlowProcessor ref="dataFlowProcessor"
-                                   options={JSONConfigurer.generateOptions(this.state.graph.dataSets)}
-                                   options2={JSONConfigurer.generateOptions(this.state.graph.dataSets)}
-                                   isModelData={false}/>
+                <DataSetPicker ref="dataSetPicker"
+                                   options={ObjectTransformer.wrapAsOptions(dataSets)}/>
 
                 {/*middle*/}
                 <div className="redrawer">

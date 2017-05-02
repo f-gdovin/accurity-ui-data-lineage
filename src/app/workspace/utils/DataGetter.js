@@ -1,5 +1,6 @@
 import axios from "axios-es6";
-import JSONConfigurer from "./JSONConfigurer";
+import JSONConfigProvider from "./JSONConfigProvider";
+import ObjectTransformer from "./ObjectTransformer";
 
 const _dispatcher = require('./DataDispatcher');
 
@@ -8,10 +9,10 @@ class DataGetter {
     static loadDataForObjectTypes(loadingModelData: boolean = true, objectTypes: []): [] {
         load.setText("Fetching requested data, please wait...");
 
-        const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
+        const axiosGetter = axios.create(JSONConfigProvider.createMetaInformation());
 
         let nodes = [];
-        let options = JSONConfigurer.generateRequest(objectTypes);
+        let options = JSONConfigProvider.generateRequest(objectTypes);
         let childrenToLoad = [];
 
         let promiseArray = [];
@@ -93,7 +94,7 @@ class DataGetter {
         let promiseArray = [];
         let nodes = [];
 
-        const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
+        const axiosGetter = axios.create(JSONConfigProvider.createMetaInformation());
 
         whatToLoad.forEach(toLoad => {
             const query = {
@@ -101,7 +102,7 @@ class DataGetter {
             };
 
             const search = toLoad.filters ? "search" : "";
-            const object = JSONConfigurer.getObjectByItsType(toLoad.objectType);
+            const object = JSONConfigProvider.getObjectByItsType(toLoad.objectType);
             const URL = object.api + "/" + search;
 
             promiseArray.push(axiosGetter.post(URL, query));
@@ -117,7 +118,7 @@ class DataGetter {
                         }
                     }
                     const data = {};
-                    data[whereToStore] = this.removeDuplicitiesByUUID(nodes);
+                    data[whereToStore] = ObjectTransformer.removeDuplicitiesByUUID(nodes);
                     _dispatcher.dispatch({
                         type: "set-additional-data",
                         data: data
@@ -145,9 +146,9 @@ class DataGetter {
     static loadSpecificData(whatToLoad: {}, whereToStore: String, whatToDoNext: Function) {
         load.setText("Fetching requested data, please wait...");
 
-        const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
+        const axiosGetter = axios.create(JSONConfigProvider.createMetaInformation());
 
-        const object = JSONConfigurer.getObjectByItsType(whatToLoad.objectType);
+        const object = JSONConfigProvider.getObjectByItsType(whatToLoad.objectType);
         const URL = object.api + "/";
 
         try {
@@ -187,40 +188,9 @@ class DataGetter {
         let parentNodes = allNodes.filter(node => node._type === childrenDefinition.parentType);
         parentNodes.forEach(parentNode =>
             parentNode[childrenDefinition.intoProperty] = childrenDefinition.nodes.find(childNode =>
-            this.getDottedProp(parentNode, childrenDefinition.parentKey) ===
-            this.getDottedProp(childNode, childrenDefinition.childKey))
+            ObjectTransformer.getDottedPropertyValue(parentNode, childrenDefinition.parentKey) ===
+            ObjectTransformer.getDottedPropertyValue(childNode, childrenDefinition.childKey))
         );
-    }
-
-    static getDottedProp(obj, desc) {
-        let arr = desc.split(".");
-        while (arr.length && obj) {
-            obj = obj[arr.shift()];
-        }
-        return obj;
-    }
-
-    static removeDuplicitiesByUUID(nodes: []): [] {
-        const set = [];
-        for (let i = 0; i < nodes.length; i++) {
-            const element = nodes[i];
-            const existing = set.find(x => x._uuid === element._uuid);
-            if (!existing) {
-                set.push(element);
-            }
-        }
-        return set;
-    }
-
-    static removeDuplicitiesBySourceAndTarget(links: []): [] {
-        const set = [];
-        for (let i = 0; i < links.length; i++) {
-            const element = links[i];
-            if (!set.find(x => x.source === element.source && x.target === element.target)) {
-                set.push(element);
-            }
-        }
-        return set;
     }
 }
 
