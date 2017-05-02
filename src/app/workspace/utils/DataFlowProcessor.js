@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import _ from "underscore";
 import Multiselect from "react-bootstrap-multiselect";
 import DataGetter from "./DataGetter";
+import DataStore from "../utils/DataStore";
 
 const _dispatcher = require('./DataDispatcher');
 
@@ -135,6 +136,14 @@ class DataFlowProcessor extends React.Component {
     }
 
     verifyAndCompute() {
+        _dispatcher.dispatch({
+            type: "set-additional-data",
+            data: {
+                originDataLoaded: false,
+                targetDataLoaded: false
+            }
+        });
+
         const originNodes = this.getSelectedValues1();
         const targetNodes = this.getSelectedValues2();
 
@@ -147,70 +156,253 @@ class DataFlowProcessor extends React.Component {
             return;
         }
 
-        DataGetter.loadSpecificData("dataStructure", "originDataStructures", this.computeMappings.bind(this), this.createDataStructureFilter(originNodes));
-        DataGetter.loadSpecificData("dataStructure", "targetDataStructures", this.computeMappings.bind(this), this.createDataStructureFilter(targetNodes));
-
-        const flow = this.computeFlow({
-            originNodes: originNodes,
-            targetNodes: targetNodes,
-        });
-
         _dispatcher.dispatch({
             type: "set-data-lineage-data",
             data: {
-                "originNodes": originNodes,
-                "targetNodes": targetNodes,
-                "nodes": flow.nodes,
-                "links": flow.links
+                originNodes: originNodes,
+                targetNodes: targetNodes
             }
-        }, () => {
-            msg.success('Flow computed');
         });
+
+        this.computeDataStructures(originNodes, true);
+        this.computeDataStructures(targetNodes, false);
     }
 
-    computeFlow(initData: {}): {} {
-        const links = [];
+    computeDataStructures(dataSets: [], isOriginData: boolean) {
+        const storeProperty = (isOriginData ? "origin" : "target") + "DataStructures";
+        const searchRequest = this.createHomoRequest("dataStructure", dataSets, this.createDataStructureFilter);
 
-        const originNodes = initData.originNodes;
-        const targetNodes = initData.targetNodes;
+        DataGetter.loadMultipleSpecificData(searchRequest, storeProperty, this.computeMappings.bind(this, isOriginData));
+    }
 
-        DataGetter.loadSpecificData("dataStructure", "originDataStructures", this.computeMappings.bind(this), createDataStructureFilter(originNodes));
-
-        const originDataStructures = [];
-        const targetDataStructures = [];
-
-        const attributeMappings = [];
-
-        let originIndex = 0;
-        let targetIndex = originNodes.length;
-
-        for (let i = 0; i < originNodes.length; i++) {
-            const originNode = originNodes[i];
-
-            for (let j = 0; j < targetNodes.length; j++) {
-                const targetNode = targetNodes[j];
-                links.push({
-                    source: originIndex,
-                    target: targetIndex,
-                    value: 50 + 5 * originIndex + 5 * targetIndex
-                });
-                targetIndex++;
-            }
-            originIndex++;
+    computeMappings(isOriginData: boolean) {
+        let dataStructures;
+        if (isOriginData) {
+            dataStructures = DataStore.getState().additionalData.originDataStructures;
+        } else {
+            dataStructures = DataStore.getState().additionalData.targetDataStructures;
         }
 
+        const storeProperty = (isOriginData ? "origin" : "target") + "Mappings";
+        const searchRequest = this.createHomoRequest("mapping", dataStructures, this.createMappingFilter);
+
+        DataGetter.loadMultipleSpecificData(searchRequest, storeProperty, this.computeFlow.bind(this, isOriginData));
+    }
+
+    computeFlow(isOriginData: boolean) {
+        let links = [];
+        let nodes = [];
+
+        const storeProperty = (isOriginData ? "origin" : "target") + "DataLoaded";
+        const reverseProperty = (isOriginData ? "target" : "origin") + "DataLoaded";
+
+        const data = {};
+        data[storeProperty] = true;
+
+        _dispatcher.dispatch({
+            type: "set-additional-data",
+            data: data
+        });
+
+        const secondFlowDone = DataStore.getState().additionalData[reverseProperty];
+
+        // both origin and target flows are computed, do the magic
+        if (secondFlowDone === true) {
+            const originNodes = DataStore.getState().dataLineageData.originNodes;
+            const targetNodes = DataStore.getState().dataLineageData.targetNodes;
+
+            const originDataStructures = DataStore.getState().additionalData.originDataStructures;
+            const targetDataStructures = DataStore.getState().additionalData.targetDataStructures;
+
+            const originMappings = DataStore.getState().additionalData.originMappings;
+            const targetMappings = DataStore.getState().additionalData.targetMappings;
+
+            const originEntities = this.getEntitiesFromMappings(originMappings);
+            const targetEntities = this.getEntitiesFromMappings(targetMappings);
+
+            // map the entities one with another and then continue to both origin and target sides
+            const matchedEntities = this.intersect(originEntities, targetEntities);
+
+            // also, keep everything in some sane object to be able to draw arcs later
+            let nodesTree = {
+                entities: matchedEntities,
+                originMappings: [],
+                targetMappings: [],
+                originDataStructures: [],
+                targetDataStructures: [],
+                originNodes: [],
+                targetNodes: []
+            };
+
+            originMappings.forEach(mapping => {
+                // handle entities
+                const mappingEntityUUID = DataGetter.getDottedProp(mapping, "entity._uuid");
+                const matchedEntity = matchedEntities.find(entity => entity._uuid === mappingEntityUUID);
+                if (matchedEntity) {
+                    nodesTree.originMappings.push(mapping);
+                    links.push({
+                        source: mapping,
+                        target: matchedEntity,
+                        value: 1
+                    })
+                }
+
+                // handle data structures
+                const mappingMappingSection = JSON.stringify(DataGetter.getDottedProp(mapping, "mappingSection"));
+                const mappingSelectionSection = JSON.stringify(DataGetter.getDottedProp(mapping, "selectionSection"));
+                const mappingJoinSection = JSON.stringify(DataGetter.getDottedProp(mapping, "joinSection"));
+
+                originDataStructures.forEach(dataStructure => {
+                    if (mappingMappingSection.includes(dataStructure._uuid) ||
+                        mappingSelectionSection.includes(dataStructure._uuid) ||
+                        mappingJoinSection.includes(dataStructure._uuid)) {
+
+                        nodesTree.originDataStructures.push(dataStructure);
+                        links.push({
+                            source: dataStructure,
+                            target: mapping,
+                            value: 1
+                        });
+
+                        // handle data sets
+                        const dataStructureDataSetUUID = DataGetter.getDottedProp(dataStructure, "dataSet._uuid");
+                        const matchedDataSet = originNodes.find(dataSet => dataSet._uuid === dataStructureDataSetUUID);
+                        if (matchedDataSet) {
+                            nodesTree.originNodes.push(matchedDataSet);
+                            links.push({
+                                source: matchedDataSet,
+                                target: dataStructure,
+                                value: 1
+                            })
+                        }
+                    }
+                });
+            });
+
+            targetMappings.forEach(mapping => {
+                // handle entities
+                const mappingEntityUUID = DataGetter.getDottedProp(mapping, "entity._uuid");
+                const matchedEntity = matchedEntities.find(entity => entity._uuid === mappingEntityUUID);
+                if (matchedEntity) {
+                    nodesTree.targetMappings.push(mapping);
+                    links.push({
+                        source: matchedEntity,
+                        target: mapping,
+                        value: 1
+                    })
+                }
+
+                // handle data structures
+                const mappingMappingSection = JSON.stringify(DataGetter.getDottedProp(mapping, "mappingSection"));
+                const mappingSelectionSection = JSON.stringify(DataGetter.getDottedProp(mapping, "selectionSection"));
+                const mappingJoinSection = JSON.stringify(DataGetter.getDottedProp(mapping, "joinSection"));
+
+                targetDataStructures.forEach(dataStructure => {
+                    if (mappingMappingSection.includes(dataStructure._uuid) ||
+                        mappingSelectionSection.includes(dataStructure._uuid) ||
+                        mappingJoinSection.includes(dataStructure._uuid)) {
+
+                        nodesTree.targetDataStructures.push(dataStructure);
+                        links.push({
+                            source: mapping,
+                            target: dataStructure,
+                            value: 1
+                        });
+
+                        // handle data sets
+                        const dataStructureDataSetUUID = DataGetter.getDottedProp(dataStructure, "dataSet._uuid");
+                        const matchedDataSet = targetNodes.find(dataSet => dataSet._uuid === dataStructureDataSetUUID);
+                        if (matchedDataSet) {
+                            nodesTree.targetNodes.push(matchedDataSet);
+                            links.push({
+                                source: dataStructure,
+                                target: matchedDataSet,
+                                value: 1
+                            })
+                        }
+                    }
+                });
+            });
+
+            nodes = nodes.concat(
+                nodesTree.originNodes,
+                nodesTree.originDataStructures,
+                nodesTree.originMappings,
+                nodesTree.entities,
+                nodesTree.targetMappings,
+                nodesTree.targetDataStructures,
+                nodesTree.targetNodes
+            );
+
+            nodes = DataGetter.removeDuplicitiesByUUID(nodes);
+            links = DataGetter.removeDuplicitiesBySourceAndTarget(links);
+
+            _dispatcher.dispatch({
+                type: "set-data-lineage-data",
+                data: {
+                    originNodes: originNodes,
+                    targetNodes: targetNodes,
+                    nodes: nodes,
+                    links: links
+                }
+            });
+        }
         return {
             links: links,
-            nodes: []
+            nodes: nodes
         };
     }
 
-    computeMappings() {
+    getEntitiesFromMappings(mappings: []): [] {
+        const entityProperty = "entity";
+        const entities = [];
 
+        for (let i = 0; i < mappings.length; i++) {
+            const entity = DataGetter.getDottedProp(mappings[i], entityProperty);
+            if (entity) {
+                entities.push(entity);
+            }
+        }
+        return entities;
     }
 
-    createDataStructureFilter(dataSets: []): [] {
+    createHomoRequest(objectType: string, relevantObjects: [] = null, filterCreationFunction: Function): [] {
+        const requestArray = [];
 
+        if (relevantObjects) {
+            for (let i = 0; i < relevantObjects.length; i++) {
+                const relevantObject = relevantObjects[i];
+                const filters = filterCreationFunction(relevantObject);
+                requestArray.push({
+                    objectType: objectType,
+                    filters: filters
+                })
+            }
+        }
+        return requestArray;
+    }
+
+    intersect(a: [], b: []): [] {
+        const setA = new Set(a);
+        const setB = new Set(b.map(element => element._uuid));
+        const intersection = new Set([...setA].filter(x => setB.has(x._uuid)));
+        return Array.from(intersection);
+    }
+
+    createDataStructureFilter(dataSet: {}): [] {
+        return [{
+            type: "REFERENCE",
+            property: "dataSet",
+            value: dataSet._uuid
+        }]
+    }
+
+    createMappingFilter(dataStructure: {}): [] {
+        return [{
+            type: "REFERENCE",
+            property: "dataStructure",
+            value: dataStructure._uuid
+        }]
     }
 
     render() {

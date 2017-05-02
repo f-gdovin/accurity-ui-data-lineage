@@ -88,18 +88,65 @@ class DataGetter {
         }
     }
 
-    static loadSpecificData(whatToLoad: String, whereToStore: String, whatToDoNext: Function, filters: Object[]) {
+    static loadMultipleSpecificData(whatToLoad: [], whereToStore: String, whatToDoNext: Function) {
+        let promiseArray = [];
+        let nodes = [];
+
+        const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
+
+        whatToLoad.forEach(toLoad => {
+            const query = {
+                filters: toLoad.filters
+            };
+
+            const search = toLoad.filters ? "search" : "";
+            const object = JSONConfigurer.getObjectByItsType(toLoad.objectType);
+            const URL = object.api + "/" + search;
+
+            promiseArray.push(axiosGetter.post(URL, query));
+        });
+        try {
+            axios.all(promiseArray)
+                .then((results) => {
+                    for (let i = 0; i < results.length; i++) {
+                        let result = results[i];
+                        if (result && result.data) {
+                            let currentNodes = result.data.rows;
+                            nodes = nodes.concat(currentNodes);
+                        }
+                    }
+                    const data = {};
+                    data[whereToStore] = this.removeDuplicitiesByUUID(nodes);
+                    _dispatcher.dispatch({
+                        type: "set-additional-data",
+                        data: data
+                    });
+                    if (whatToDoNext) {
+                        whatToDoNext();
+                    }
+                    load.setActive(false);
+                })
+                .catch(error => {
+                    console.log('Loading of nodes failed. Reason: ' + error);
+                    msg.error('Loading of nodes failed. Please check provided URL, credentials and server status.');
+
+                    load.setActive(false);
+                });
+        } catch (err) {
+            console.log('Loading of nodes failed. Reason: ' + JSON.stringify(err));
+            msg.error('Loading of nodes failed. Please check provided URL, credentials and server status.');
+
+            load.setActive(false);
+        }
+    }
+
+    static loadSpecificData(whatToLoad: {}, whereToStore: String, whatToDoNext: Function) {
         load.setBoth(true, "Fetching requested data, please wait...");
 
         const axiosGetter = axios.create(JSONConfigurer.createMetaInformation());
 
-        const query = {
-            filters: filters
-        };
-
-        const search = filters ? "search/" : "";
-        const object = JSONConfigurer.getObjectByItsType(whatToLoad);
-        const URL = object.api + "/" + search;
+        const object = JSONConfigurer.getObjectByItsType(whatToLoad.objectType);
+        const URL = object.api + "/";
 
         try {
             axiosGetter.get(URL)
@@ -148,6 +195,29 @@ class DataGetter {
             obj = obj[arr.shift()];
         }
         return obj;
+    }
+
+    static removeDuplicitiesByUUID(nodes: []): [] {
+        const set = [];
+        for (let i = 0; i < nodes.length; i++) {
+            const element = nodes[i];
+            const existing = set.find(x => x._uuid === element._uuid);
+            if (!existing) {
+                set.push(element);
+            }
+        }
+        return set;
+    }
+
+    static removeDuplicitiesBySourceAndTarget(links: []): [] {
+        const set = [];
+        for (let i = 0; i < links.length; i++) {
+            const element = links[i];
+            if (!set.find(x => x.source === element.source && x.target === element.target)) {
+                set.push(element);
+            }
+        }
+        return set;
     }
 }
 

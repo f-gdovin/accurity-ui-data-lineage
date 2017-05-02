@@ -33,7 +33,7 @@ class SankeyGraph extends React.Component {
 
     draw() {
         const graph = this.state.graph;
-        graph.nodes = [].concat(graph.nodes ? graph.nodes : [], graph.originNodes, graph.targetNodes);
+        graph.nodes = [].concat(graph.nodes ? graph.nodes : []);
         graph.links = DataStore.getState().dataLineageData.links;
 
         const width = this.props.width;
@@ -193,7 +193,6 @@ class SankeyGraph extends React.Component {
 
     updateAndRedraw() {
         const graph = {
-            dataSets: DataStore.getState().dataLineageData.dataSets,
             originNodes: DataStore.getState().dataLineageData.originNodes,
             targetNodes: DataStore.getState().dataLineageData.targetNodes,
             nodes: DataStore.getState().dataLineageData.nodes,
@@ -209,7 +208,7 @@ class SankeyGraph extends React.Component {
     // Get nodes from store, compute links to them and draw it
     init() {
         this.setState({graphDrawn: false});
-        DataGetter.loadSpecificData("dataSet", "dataSets", this.reloadDataSets.bind(this));
+        DataGetter.loadSpecificData({objectType: "dataSet"}, "dataSets", this.reloadDataSets.bind(this));
     }
 
     //let React do the first render
@@ -221,6 +220,13 @@ class SankeyGraph extends React.Component {
                                 show={!this.state.graphDrawn}/>
 
                 {/*left side*/}
+                <div className="reinitialiser">
+                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-danger"
+                            onClick={() => {
+                                this.init()
+                            }}>Load Data Sets
+                    </button>
+                </div>
                 <DataFlowProcessor ref="dataFlowProcessor"
                                    options={JSONConfigurer.generateOptions(this.state.graph.dataSets)}
                                    options2={JSONConfigurer.generateOptions(this.state.graph.dataSets)}

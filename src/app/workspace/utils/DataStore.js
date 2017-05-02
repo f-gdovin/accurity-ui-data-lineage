@@ -13,9 +13,14 @@ const _initialState = {
         links: []
     },
     additionalData: {
+        originDataLoaded: false,
+        targetDataLoaded: false,
+
         dataSets: [],
         originDataStructures: [],
         targetDataStructures: [],
+        originMappings: [],
+        targetMappings: [],
         mappings: []
     },
     settings: {
