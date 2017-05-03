@@ -47,7 +47,6 @@
       "label": "Attribute Definitions",
       "api": "attribute-definitions",
       "icon": "\ue905",
-      "icon2": "\ue906 < not sure which of them",
       "color": "#05c1ad",
       "partOfBusinessModel": false,
       "relation_to": [
@@ -96,12 +95,12 @@
         }
       ],
       "relation_to": [
-        {
+        // not used, as we are merging Attribute Definitions into Attributes
+        /*{
           "attributeDefinition": {
             "key": "attributeDefinition._uuid",
-            "comment": "not used, as we are merging AttDefs into Attributes"
           }
-        },
+        },*/
         {
           "attributeType": {
             "key": "attributeType.uuid"
@@ -127,12 +126,13 @@
             "label": "References"
           }
         },
-        {
+        //we don't need this anymore, Attribute Definitions are merged into Attributes
+        /*{
           "attribute": {
             "key": "inheritanceParent._uuid",
             "label": "Parent"
           }
-        },
+        },*/
         {
           "attribute": {
             "key": "attributeDefinition.parent._uuid",
@@ -177,7 +177,7 @@
       "api": "data-sets",
       "icon": "\ue918",
       "color": "#795548",
-      "partOfBusinessModel": true,
+      "partOfBusinessModel": false,
       "relation_to": [],
       "children": [
         {
@@ -232,7 +232,7 @@
       "api": "mappings",
       "icon": "\ue92d",
       "color": "#607d8b",
-      "partOfBusinessModel": true,
+      "partOfBusinessModel": false,
       "relation_to": [
         {
           "entity": {
