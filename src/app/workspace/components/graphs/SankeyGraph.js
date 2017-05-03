@@ -58,7 +58,6 @@ class SankeyGraph extends React.Component {
             //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "0 0 " + width + " " + height)
-
             .attr("pointer-events", "all")
             .append('svg:g')
             .attr('fill', 'white');
@@ -93,10 +92,10 @@ class SankeyGraph extends React.Component {
             .attr("transform", (d) => "translate(" + d.x + "," + d.y + ")")
             .on("click", this.highlightLinks)
             .call(d3.drag()
-                .subject(function(d) {
+                .subject(function (d) {
                     return d;
                 })
-                .on("start", function() {
+                .on("start", function () {
                     this.parentNode.appendChild(this);
                 })
                 .on("drag", dragmove));
@@ -172,11 +171,11 @@ class SankeyGraph extends React.Component {
     }
 
 
-
     reloadDataSets() {
         const dataSets = DataStore.getAdditionalData().dataSets;
         const dataSetPicker = this.refs.dataSetPicker;
 
+        // TODO: use newly fetched options, but select old ones if possible?
         dataSetPicker.setOptions(ObjectTransformer.wrapAsOptions(dataSets));
         this.setState({graphDrawn: true});
         msg.success("Data Sets loaded");
@@ -205,26 +204,28 @@ class SankeyGraph extends React.Component {
         const dataSets = DataStore.getAdditionalData().dataSets;
         return (
             <div>
-                {/*left side*/}
-                <div className="reinitialiser">
-                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-danger"
-                            onClick={() => {
-                                this.init()
-                            }}>Load Data Sets
-                    </button>
-                </div>
-                <DataSetPicker ref="dataSetPicker"
+                {/*graph header*/}
+                <div className="shadow graph-header">
+                    {/*left side*/}
+                    <div className="reinitialiser">
+                        <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-danger"
+                                onClick={() => {
+                                    this.init()
+                                }}>Load Data Sets
+                        </button>
+                    </div>
+                    <DataSetPicker ref="dataSetPicker"
                                    options={ObjectTransformer.wrapAsOptions(dataSets)}/>
 
-                {/*middle*/}
-                <div className="redrawer">
-                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
-                            onClick={() => {
-                                this.updateAndRedraw()
-                            }}>Redraw
-                    </button>
+                    {/*middle*/}
+                    <div className="redrawer">
+                        <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
+                                onClick={() => {
+                                    this.updateAndRedraw()
+                                }}>Redraw
+                        </button>
+                    </div>
                 </div>
-
                 <div className="mountPoint" ref="mountPoint"/>
             </div>);
     }

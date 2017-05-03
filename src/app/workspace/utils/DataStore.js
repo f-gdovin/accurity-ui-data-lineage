@@ -1,4 +1,5 @@
 import {ReduceStore} from "flux/utils";
+
 const _dispatcher = require('./DataDispatcher');
 
 const _initialState = {
@@ -24,8 +25,10 @@ const _initialState = {
         mappings: []
     },
     settings: {
+        loggedIn: false,
         baseUrl: "http://localhost:8086/v1/",
-        timeout: 100000,
+        username: "",
+        fullName: "",
         token: "Basic :"
     }
 };
@@ -86,6 +89,11 @@ class DataStore extends ReduceStore {
     getSettings(state) {
         const usedState = state ? state : this.getState();
         return usedState.settings;
+    }
+
+    isUserLogged(state) {
+        const usedState = state ? state : this.getState();
+        return usedState.settings.loggedIn;
     }
 }
 

@@ -1,0 +1,86 @@
+a {
+    color: #CE5599;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.4s;
+}
+
+a:hover {
+    opacity: 0.4;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.top-bar {
+    padding: 10px 15px;
+}
+
+.top-bar::after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.top-bar-left {
+    float: left;
+    font-size: 1.5em;
+}
+
+.top-bar-right {
+    margin-top: 9px;
+    float: right;
+}
+
+.top-bar a,
+.nav a {
+    margin: 0 8px;
+}
+
+.sideBySide {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.sideBySide > div {
+    flex: 1;
+    text-align: center;
+
+    margin: 5px;
+}
+
+.sideBySide > div > img {
+    width: 100%;
+    min-width: 200px;
+    max-width: 100%;
+}
+
+.container {
+    margin: 0 auto;
+    text-align: center;
+    width: 97%;
+}
+
+.card-heading {
+    padding: 16px;
+}
+
+.field-line, .button-line {
+    padding: 16px;
+}
+
+.error-message {
+    padding: 0 16px;
+    color: tomato;
+}
+
+.success-message {
+    padding: 0 16px;
+    color: green;
+}
+
+.shadow {
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px,
+    rgba(0, 0, 0, 0.12) 0px 1px 4px;
+}

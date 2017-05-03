@@ -1,53 +1,51 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import GraphScreen from './workspace/components/screens/GraphScreen';
+import React from "react";
+import getMuiTheme from "material-ui/styles/getMuiTheme";
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import {BrowserRouter as Router, Link, Route} from "react-router-dom";
 
-let forceGraphButton,
-    sankeyGraphButton;
+import Extras from "./workspace/components/others/Extras";
+import HomePage from "./workspace/components/screens/HomePage";
+import ConnectionPage from "./workspace/components/screens/ConnectionPage";
+import BusinessModelGraphPage from "./workspace/components/screens/BusinessModelGraphPage";
+import DataLineageGraphPage from "./workspace/components/screens/DataLineageGraphPage";
+import DataStore from "./workspace/utils/DataStore";
 
 class Main extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-    }
-
-    componentWillMount () {
-        this.setState({
-            graphType: null
-        });
-    }
-
-    componentDidMount() {
-        forceGraphButton       = ReactDOM.findDOMNode(this.refs.forceGraph);
-        sankeyGraphButton      = ReactDOM.findDOMNode(this.refs.sankeyGraph);
-    }
-
-    setGraphType(type) {
-        this.setState({
-            graphType: type
-        });
-    }
-
-    disableButton(button) {
-        forceGraphButton.disabled       = false;
-        sankeyGraphButton.disabled      = false;
-
-        button.disabled = true;
+    constructor(props) {
+        super(props);
+        this.state = {settings: DataStore.getState().settings};
     }
 
     render() {
         return (
             <div>
-                <div className="mainMenu">
-                    <button ref={"forceGraph"}
-                            style={{float: 'left'}}
-                            onClick={() => {this.setGraphType("force-graph"); this.disableButton(forceGraphButton)}}>Force graph</button>
-                    <button ref={"sankeyGraph"}
-                            style={{float: 'left'}}
-                            onClick={() => {this.setGraphType("sankey-graph"); this.disableButton(sankeyGraphButton)}}>Sankey graph</button>
-                </div>
-                <div className="separator" style={{clear: "both"}}/>
-                <GraphScreen graphType={this.state.graphType}/>
+                <Extras/>
+                <MuiThemeProvider muiTheme={getMuiTheme()}>
+                    <Router>
+                        <div>
+                            <div className="top-bar">
+                                <div className="top-bar-left">
+                                    <Link to="/">Home</Link>
+                                </div>
+
+                                <div className="top-bar-right">
+                                    <Link to="/connect">Connect to Glossary</Link>
+                                </div>
+
+                            </div>
+                            <div className="content">
+                                <Route exact path="/" component={HomePage}/>
+                                <Route path="/connect" component={ConnectionPage}/>
+
+                                <div className="graph">
+                                    <Route path="/graph/BIM" component={BusinessModelGraphPage}/>
+                                    <Route path="/graph/DL" component={DataLineageGraphPage}/>
+                                </div>
+                            </div>
+                        </div>
+                    </Router>
+                </MuiThemeProvider>
             </div>
         );
     }

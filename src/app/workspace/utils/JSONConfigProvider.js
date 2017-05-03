@@ -8,7 +8,7 @@ class JSONConfigProvider {
         const settings = DataStore.getSettings();
         return {
             baseURL: settings.baseUrl,
-            timeout: settings.timeout,
+            timeout: jsonConfig.timeout,
             headers: {
                 authorization: settings.token
             }
