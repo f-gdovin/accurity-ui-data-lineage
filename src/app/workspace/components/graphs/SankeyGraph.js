@@ -177,6 +177,7 @@ class SankeyGraph extends React.Component {
         const dataSets = DataStore.getAdditionalData().dataSets;
         const dataSetPicker = this.refs.dataSetPicker;
 
+        // TODO: use newly fetched options, but select old ones if possible?
         dataSetPicker.setOptions(ObjectTransformer.wrapAsOptions(dataSets));
         this.setState({graphDrawn: true});
         msg.success("Data Sets loaded");
