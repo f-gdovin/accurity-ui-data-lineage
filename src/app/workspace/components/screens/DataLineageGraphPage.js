@@ -27,7 +27,7 @@ class DataLineageGraphPage extends React.Component {
             )
         }
         return (
-            <div style={{border: '2px solid #323232'}}>
+            <div className="graph-div shadow">
                 <SankeyGraph width={graphWidth} height={graphHeight}/>
             </div>);
     }

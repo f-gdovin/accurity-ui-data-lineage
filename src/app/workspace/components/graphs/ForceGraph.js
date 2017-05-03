@@ -53,7 +53,6 @@ class ForceGraph extends React.Component {
             //responsive SVG needs these 2 attributes and no width and height attr
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "0 0 " + width + " " + height)
-
             .attr("pointer-events", "all")
             .append('svg:g')
             .attr('fill', 'white');
@@ -135,8 +134,8 @@ class ForceGraph extends React.Component {
         nodeEnter.append("rect")
             .attr("width", 90)
             .attr("height", 50)
-            .attr("x", -90/2)
-            .attr("y", -50/2)
+            .attr("x", -90 / 2)
+            .attr("y", -50 / 2)
             .style("stroke", "#363636")
             .style("fill", "#9ACE52")
             .style("opacity", (d) => {
@@ -169,7 +168,8 @@ class ForceGraph extends React.Component {
                     }
                 } else {
                     return d.name;
-                }});
+                }
+            });
 
         // Exit any old nodes
         node.exit().remove();
@@ -214,7 +214,7 @@ class ForceGraph extends React.Component {
                 nx2 = node.x + r,
                 ny1 = node.y - r,
                 ny2 = node.y + r;
-            return function(quad, x1, y1, x2, y2) {
+            return function (quad, x1, y1, x2, y2) {
                 if (quad.point && (quad.point !== node)) {
                     let x = node.x - quad.point.x,
                         y = node.y - quad.point.y,
@@ -329,20 +329,23 @@ class ForceGraph extends React.Component {
     render() {
         return (
             <div>
-                {/*left side*/}
-                <DataPicker isModelData={true}/>
+                {/*graph header*/}
+                <div className="shadow graph-header">
+                    {/*left side*/}
+                    <DataPicker isModelData={true}/>
 
-                {/*middle*/}
-                <div className="redrawer">
-                    <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
-                            onClick={() => {
-                                this.redraw()
-                            }}>Redraw
-                    </button>
+                    {/*middle*/}
+                    <div className="redrawer">
+                        <button disabled={!this.state.graphDrawn} style={{float: 'left'}} className="btn btn-greenlight"
+                                onClick={() => {
+                                    this.redraw()
+                                }}>Redraw
+                        </button>
+                    </div>
                 </div>
-
                 <div className="mountPoint" ref="mountPoint"/>
-            </div>);
+            </div>)
+        ;
     }
 }
 ForceGraph.propTypes = {
