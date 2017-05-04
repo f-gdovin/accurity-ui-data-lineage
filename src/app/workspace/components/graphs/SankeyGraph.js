@@ -34,10 +34,11 @@ class SankeyGraph extends React.Component {
 
         const width = this.props.width;
         const height = this.props.height;
-        const units = "Mappings";
+        const unit = "Mapping";
+        const units = unit + "s";
 
         const formatNumber = d3.format(",.0f"),    // zero decimal places
-            format = (d) => formatNumber(d) + " " + units,
+            format = (d) => formatNumber(d) + " " + (d === 1 ? unit : units),
             color = d3.scaleOrdinal(d3.schemeCategory20);
 
         // Zooming
@@ -62,12 +63,12 @@ class SankeyGraph extends React.Component {
             .append('svg:g')
             .attr('fill', 'white');
 
-        const sankeyHeight = 3000;
-
         const sankey = d3Sankey.sankey()
             .nodeWidth(15)
             .nodePadding(20)
-            .size([width, sankeyHeight]);
+            // this can be used as height of the graph as Sankey cannot handle many nodes correctly (fit them on screen)
+            // .size([width, 3000]);
+            .size([width, height]);
 
         const path = sankey.link();
 

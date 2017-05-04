@@ -103,8 +103,6 @@ class FlowProcessor {
                 targetDataSets: [],
                 originDataStructures: [],
                 targetDataStructures: [],
-                originMappings: [],
-                targetMappings: [],
                 entities: matchedEntities
             };
 
@@ -114,44 +112,42 @@ class FlowProcessor {
                 const mappingEntityUUID = ObjectTransformer.getDottedPropertyValue(mapping, "entity._uuid");
                 const matchedEntity = matchedEntities.find(entity => entity._uuid === mappingEntityUUID);
                 if (matchedEntity) {
-                    nodesTree.originMappings.push(mapping);
-                    links.push({
-                        source: mapping,
-                        target: matchedEntity,
-                        value: 1
-                    })
-                }
+                    // handle data structures
+                    const mappingMappingSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "mappingSection"));
+                    const mappingSelectionSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "selectionSection"));
+                    const mappingJoinSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "joinSection"));
 
-                // handle data structures
-                const mappingMappingSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "mappingSection"));
-                const mappingSelectionSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "selectionSection"));
-                const mappingJoinSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "joinSection"));
+                    originDataStructures.forEach(dataStructure => {
+                        if (mappingMappingSection.includes(dataStructure._uuid) ||
+                            mappingSelectionSection.includes(dataStructure._uuid) ||
+                            mappingJoinSection.includes(dataStructure._uuid)) {
 
-                originDataStructures.forEach(dataStructure => {
-                    if (mappingMappingSection.includes(dataStructure._uuid) ||
-                        mappingSelectionSection.includes(dataStructure._uuid) ||
-                        mappingJoinSection.includes(dataStructure._uuid)) {
-
-                        nodesTree.originDataStructures.push(dataStructure);
-                        links.push({
-                            source: dataStructure,
-                            target: mapping,
-                            value: 1
-                        });
-
-                        // handle data sets
-                        const dataStructureDataSetUUID = ObjectTransformer.getDottedPropertyValue(dataStructure, "dataSet._uuid");
-                        const matchedDataSet = originDataSets.find(dataSet => dataSet._uuid === dataStructureDataSetUUID);
-                        if (matchedDataSet) {
-                            nodesTree.originDataSets.push(matchedDataSet);
-                            links.push({
-                                source: matchedDataSet,
-                                target: dataStructure,
+                            const link = {
+                                source: dataStructure,
+                                target: matchedEntity,
                                 value: 1
-                            })
+                            };
+
+                            this.pushIfNotPresent(nodesTree.originDataStructures, dataStructure);
+                            this.pushOrIncrementValue(links, link);
+
+                            // handle data sets
+                            const dataStructureDataSetUUID = ObjectTransformer.getDottedPropertyValue(dataStructure, "dataSet._uuid");
+                            const matchedDataSet = originDataSets.find(dataSet => dataSet._uuid === dataStructureDataSetUUID);
+                            if (matchedDataSet) {
+
+                                const link = {
+                                    source: matchedDataSet,
+                                    target: dataStructure,
+                                    value: 1
+                                };
+
+                                this.pushIfNotPresent(nodesTree.originDataSets, matchedDataSet);
+                                this.pushOrIncrementValue(links, link);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
 
             load.setText("Computing flow from entities to targets...");
@@ -160,52 +156,48 @@ class FlowProcessor {
                 const mappingEntityUUID = ObjectTransformer.getDottedPropertyValue(mapping, "entity._uuid");
                 const matchedEntity = matchedEntities.find(entity => entity._uuid === mappingEntityUUID);
                 if (matchedEntity) {
-                    nodesTree.targetMappings.push(mapping);
-                    links.push({
-                        source: matchedEntity,
-                        target: mapping,
-                        value: 1
-                    })
-                }
+                    // handle data structures
+                    const mappingMappingSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "mappingSection"));
+                    const mappingSelectionSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "selectionSection"));
+                    const mappingJoinSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "joinSection"));
 
-                // handle data structures
-                const mappingMappingSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "mappingSection"));
-                const mappingSelectionSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "selectionSection"));
-                const mappingJoinSection = JSON.stringify(ObjectTransformer.getDottedPropertyValue(mapping, "joinSection"));
+                    targetDataStructures.forEach(dataStructure => {
+                        if (mappingMappingSection.includes(dataStructure._uuid) ||
+                            mappingSelectionSection.includes(dataStructure._uuid) ||
+                            mappingJoinSection.includes(dataStructure._uuid)) {
 
-                targetDataStructures.forEach(dataStructure => {
-                    if (mappingMappingSection.includes(dataStructure._uuid) ||
-                        mappingSelectionSection.includes(dataStructure._uuid) ||
-                        mappingJoinSection.includes(dataStructure._uuid)) {
-
-                        nodesTree.targetDataStructures.push(dataStructure);
-                        links.push({
-                            source: mapping,
-                            target: dataStructure,
-                            value: 1
-                        });
-
-                        // handle data sets
-                        const dataStructureDataSetUUID = ObjectTransformer.getDottedPropertyValue(dataStructure, "dataSet._uuid");
-                        const matchedDataSet = targetDataSets.find(dataSet => dataSet._uuid === dataStructureDataSetUUID);
-                        if (matchedDataSet) {
-                            nodesTree.targetDataSets.push(matchedDataSet);
-                            links.push({
-                                source: dataStructure,
-                                target: matchedDataSet,
+                            const link = {
+                                source: matchedEntity,
+                                target: dataStructure,
                                 value: 1
-                            })
+                            };
+
+                            this.pushIfNotPresent(nodesTree.targetDataStructures, dataStructure);
+                            this.pushOrIncrementValue(links, link);
+
+                            // handle data sets
+                            const dataStructureDataSetUUID = ObjectTransformer.getDottedPropertyValue(dataStructure, "dataSet._uuid");
+                            const matchedDataSet = targetDataSets.find(dataSet => dataSet._uuid === dataStructureDataSetUUID);
+                            if (matchedDataSet) {
+
+                                const link = {
+                                    source: dataStructure,
+                                    target: matchedDataSet,
+                                    value: 1
+                                };
+
+                                this.pushIfNotPresent(nodesTree.targetDataSets, matchedDataSet);
+                                this.pushOrIncrementValue(links, link);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
 
             nodes = nodes.concat(
                 nodesTree.originDataSets,
                 nodesTree.originDataStructures,
-                nodesTree.originMappings,
                 nodesTree.entities,
-                nodesTree.targetMappings,
                 nodesTree.targetDataStructures,
                 nodesTree.targetDataSets
             );
@@ -274,6 +266,22 @@ class FlowProcessor {
             property: "dataStructure",
             value: dataStructure._uuid
         }]
+    }
+
+    static pushIfNotPresent(nodes: [], node: {}) {
+        if (!nodes.find(existingNode => existingNode._uuid === node.uuid)) {
+            nodes.push(node);
+        }
+    }
+
+    static pushOrIncrementValue(links: [], link: {}) {
+        const existingLink = links.find(existingLink => existingLink.source === link.source && existingLink.target === link.target);
+
+        if (!existingLink) {
+            links.push(link);
+        } else {
+            existingLink.value = existingLink.value + 1;
+        }
     }
 }
 export default FlowProcessor;
