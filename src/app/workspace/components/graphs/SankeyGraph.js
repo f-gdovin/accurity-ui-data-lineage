@@ -34,10 +34,11 @@ class SankeyGraph extends React.Component {
 
         const width = this.props.width;
         const height = this.props.height;
-        const units = "Mappings";
+        const unit = "Mapping";
+        const units = unit + "s";
 
         const formatNumber = d3.format(",.0f"),    // zero decimal places
-            format = (d) => formatNumber(d) + " " + units,
+            format = (d) => formatNumber(d) + " " + (d === 1 ? unit : units),
             color = d3.scaleOrdinal(d3.schemeCategory20);
 
         // Zooming
@@ -64,7 +65,9 @@ class SankeyGraph extends React.Component {
 
         const sankey = d3Sankey.sankey()
             .nodeWidth(15)
-            .nodePadding(10)
+            .nodePadding(20)
+            // this can be used as height of the graph as Sankey cannot handle many nodes correctly (fit them on screen)
+            // .size([width, 3000]);
             .size([width, height]);
 
         const path = sankey.link();
@@ -109,13 +112,13 @@ class SankeyGraph extends React.Component {
             .text((d) => d.name + "\n" + format(d.value));
 
         node.append("text")
+            .attr("class", "label")
             .attr("x", -6)
             .attr("y", (d) => d.dy / 2)
             .attr("dy", ".35em")
             .attr("text-anchor", "end")
             .attr("transform", null)
             .text((d) => d.name)
-            .filter((d) => d.x < width / 2)
             .attr("x", 6 + sankey.nodeWidth())
             .attr("text-anchor", "start");
 
