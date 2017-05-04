@@ -1,72 +1,51 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import GraphScreen from './workspace/screens/GraphScreen';
+import React from "react";
+import getMuiTheme from "material-ui/styles/getMuiTheme";
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import {BrowserRouter as Router, Link, Route} from "react-router-dom";
 
-let forceGraphButton,
-    radialTidyGraphButton,
-    collapsibleTreeButton,
-    fluidGraphButton,
-    sankeyGraphButton;
+import Extras from "./workspace/components/others/Extras";
+import HomePage from "./workspace/components/screens/HomePage";
+import ConnectionPage from "./workspace/components/screens/ConnectionPage";
+import BusinessModelGraphPage from "./workspace/components/screens/BusinessModelGraphPage";
+import DataLineageGraphPage from "./workspace/components/screens/DataLineageGraphPage";
+import DataStore from "./workspace/utils/DataStore";
 
 class Main extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-    }
-
-    componentWillMount () {
-        this.setState({
-            graphType: null
-        });
-    }
-
-    componentDidMount() {
-        forceGraphButton       = ReactDOM.findDOMNode(this.refs.forceGraph);
-        radialTidyGraphButton  = ReactDOM.findDOMNode(this.refs.radialTidyGraph);
-        collapsibleTreeButton  = ReactDOM.findDOMNode(this.refs.collapsibleTree);
-        fluidGraphButton       = ReactDOM.findDOMNode(this.refs.fluidGraph);
-        sankeyGraphButton      = ReactDOM.findDOMNode(this.refs.sankeyGraph);
-    }
-
-    setGraphType(type) {
-        this.setState({
-            graphType: type
-        });
-    }
-
-    disableButton(button) {
-        forceGraphButton.disabled       = false;
-        radialTidyGraphButton.disabled  = false;
-        collapsibleTreeButton.disabled  = false;
-        fluidGraphButton.disabled       = false;
-        sankeyGraphButton.disabled      = false;
-
-        button.disabled = true;
+    constructor(props) {
+        super(props);
+        this.state = {settings: DataStore.getState().settings};
     }
 
     render() {
         return (
             <div>
-                <button ref={"forceGraph"}
-                        style={{float: 'left'}}
-                        onClick={() => {this.setGraphType("force-graph"); this.disableButton(forceGraphButton)}}>Force graph</button>
-                <button ref={"radialTidyGraph"}
-                        style={{float: 'left'}}
-                        onClick={() => {this.setGraphType("radial-tidy-graph"); this.disableButton(radialTidyGraphButton)}}>Radial tidy graph</button>
-                <button ref={"collapsibleTree"}
-                        style={{float: 'left'}}
-                        onClick={() => {this.setGraphType("collapsible-tree"); this.disableButton(collapsibleTreeButton)}}>Collapsible tree</button>
-                <button ref={"fluidGraph"}
-                        style={{float: 'left'}}
-                        onClick={() => {this.setGraphType("fluid-graph"); this.disableButton(fluidGraphButton)}}>Fluid graph</button>
-                <button ref={"sankeyGraph"}
-                        style={{float: 'left'}}
-                        onClick={() => {this.setGraphType("sankey-graph"); this.disableButton(sankeyGraphButton)}}>Sankey graph</button>
+                <Extras/>
+                <MuiThemeProvider muiTheme={getMuiTheme()}>
+                    <Router>
+                        <div>
+                            <div className="top-bar">
+                                <div className="top-bar-left">
+                                    <Link to="/">Home</Link>
+                                </div>
 
+                                <div className="top-bar-right">
+                                    <Link to="/connect">Connect to Glossary</Link>
+                                </div>
 
-                <div className="separator" style={{clear: "both"}}/>
+                            </div>
+                            <div className="content">
+                                <Route exact path="/" component={HomePage}/>
+                                <Route path="/connect" component={ConnectionPage}/>
 
-                <GraphScreen width='100%' height='{calc(100% - 50px)}' graphType={this.state.graphType}/>
+                                <div className="graph">
+                                    <Route path="/graph/BIM" component={BusinessModelGraphPage}/>
+                                    <Route path="/graph/DL" component={DataLineageGraphPage}/>
+                                </div>
+                            </div>
+                        </div>
+                    </Router>
+                </MuiThemeProvider>
             </div>
         );
     }

@@ -1,0 +1,168 @@
+span.multiselect-native-select {
+    position: relative;
+    float: left;
+}
+
+span.multiselect-native-select select {
+    border: 0 !important;
+    clip: rect(0 0 0 0) !important;
+    height: 1px !important;
+    margin: -1px -1px -1px -3px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: absolute !important;
+    width: 1px !important;
+    left: 50%;
+    top: 30px
+}
+
+.multiselect-container {
+    position: absolute;
+    list-style-type: none;
+    margin: 0;
+    padding: 0
+}
+
+.multiselect-container .input-group {
+    margin: 5px
+}
+
+.multiselect-container > li {
+    padding: 0
+}
+
+.multiselect-container > li > a.multiselect-all label {
+    font-weight: 700
+}
+
+.multiselect-container > li.multiselect-group label {
+    margin: 0;
+    padding: 3px 20px 3px 20px;
+    height: 100%;
+    font-weight: 700
+}
+
+.multiselect-container > li.multiselect-group-clickable label {
+    cursor: pointer
+}
+
+.multiselect-container > li > a {
+    padding: 0
+}
+
+.multiselect-container > li > a > label {
+    margin: 0;
+    height: 100%;
+    cursor: pointer;
+    font-weight: 400;
+    padding: 3px 20px 3px 40px
+}
+
+.multiselect-container > li > a > label.radio, .multiselect-container > li > a > label.checkbox {
+    margin: 0
+}
+
+.multiselect-container > li > a > label > input[type=checkbox] {
+    margin-bottom: 5px
+}
+
+.btn-group > .btn-group:nth-child(2) > .multiselect.btn {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px
+}
+
+.btn {
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d43f3a;
+}
+
+.btn-warning {
+    color: #fff;
+    background-color: #d97b1f;
+    border-color: #d4620e;
+}
+
+.btn-greenlight {
+    color: #fff;
+    background-color: #41d93f;
+    border-color: #0dd408;
+}
+
+.form-inline .multiselect-container label.checkbox, .form-inline .multiselect-container label.radio {
+    padding: 3px 20px 3px 40px
+}
+
+.form-inline .multiselect-container li a label.checkbox input[type=checkbox], .form-inline .multiselect-container li a label.radio input[type=radio] {
+    margin-left: -20px;
+    margin-right: 0
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    min-width: 250px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    font-size: 14px;
+    text-align: left;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    background-clip: padding-box;
+}
+.open>.dropdown-menu {
+    display: block;
+}
+
+/*use these to override multiselect settings*/
+.listItem {
+    display: inline-block;
+    margin-left: 10px;
+    width: 92%;
+}
+
+.confirm-button {
+    float: right;
+    margin-right: 10px;
+    min-height: 1.5em;
+    min-width: 12em;
+}
+
+.listItem > input {
+    float: right;
+}
+
+.float-right {
+    float: right !important;
+}
+
+.right-zero {
+    left: auto;
+    right: 0 !important;
+}
