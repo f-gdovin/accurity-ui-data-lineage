@@ -21,6 +21,11 @@
     cursor: pointer;
 }
 
+.label {
+    fill: #3d3d3d;
+    stroke: #3d3d3d;
+}
+
 .link {
     fill: none;
     stroke: #7A7A7A;

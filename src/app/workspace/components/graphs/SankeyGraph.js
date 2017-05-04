@@ -62,10 +62,12 @@ class SankeyGraph extends React.Component {
             .append('svg:g')
             .attr('fill', 'white');
 
+        const sankeyHeight = 3000;
+
         const sankey = d3Sankey.sankey()
             .nodeWidth(15)
-            .nodePadding(10)
-            .size([width, height]);
+            .nodePadding(20)
+            .size([width, sankeyHeight]);
 
         const path = sankey.link();
 
@@ -109,13 +111,13 @@ class SankeyGraph extends React.Component {
             .text((d) => d.name + "\n" + format(d.value));
 
         node.append("text")
+            .attr("class", "label")
             .attr("x", -6)
             .attr("y", (d) => d.dy / 2)
             .attr("dy", ".35em")
             .attr("text-anchor", "end")
             .attr("transform", null)
             .text((d) => d.name)
-            .filter((d) => d.x < width / 2)
             .attr("x", 6 + sankey.nodeWidth())
             .attr("text-anchor", "start");
 
