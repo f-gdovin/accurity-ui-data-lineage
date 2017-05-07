@@ -14,12 +14,16 @@ class HomePage extends React.Component {
 
                 <div className="sideBySide">
                     <div className="big-pic shadow">
-                        <Link to="/graph/BIM">Business Information Model Graph</Link>
-                        <img src={ERD} />
+                        <Link to="/graph/BIM">
+                            <div className="image"/>
+                            <img src={ERD} />
+                        </Link>
                     </div>
                     <div className="big-pic shadow">
-                        <Link to="/graph/DL">Data Lineage Graph</Link>
-                        <img src={sankey} />
+                        <Link to="/graph/DL">
+                            <div className="big-pic shadow"/>
+                            <img src={sankey} />
+                        </Link>
                     </div>
                 </div>
             </Card>
