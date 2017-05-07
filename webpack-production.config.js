@@ -19,7 +19,7 @@ const config = {
     output: {
         path: path.join(__dirname, 'dist'),
         filename: 'app.js',
-        publicPath: path.join(__dirname, 'dist')
+        publicPath: '/'
     },
     plugins: [
         //Minify the bundle
@@ -71,10 +71,7 @@ const config = {
             },
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,
-                loader: "file-loader",
-                options: {
-                    name: '[path].[name].[ext]',
-                },
+                loader: 'url-loader?limit=8192'
             }
         ],
     }

@@ -50,6 +50,10 @@ span.multiselect-native-select select {
     padding: 0
 }
 
+.multiselect-container > li > a:hover {
+    opacity: 1;
+}
+
 .multiselect-container > li > a > label {
     margin: 0;
     height: 100%;
