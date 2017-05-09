@@ -2,8 +2,8 @@ import React from "react";
 import {Card, CardTitle} from "material-ui/Card";
 import {Link} from "react-router-dom";
 
-const ERD = require('../../../../www/images/ERD.png');
-const sankey = require('../../../../www/images/sankey.png');
+const ERD = require('../../../../www/images/BIM_icon.png');
+const sankey = require('../../../../www/images/DL_icon.png');
 
 class HomePage extends React.Component {
 

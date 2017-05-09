@@ -9,11 +9,8 @@ const config = {
     },
     entry: [path.join(__dirname, '/src/app/app.js')],
     resolve: {
-        //When require, do not have to add these extensions to file's name
         extensions: [".js"],
-        //node_modules: ["web_modules", "node_modules"]  (Default Settings)
     },
-    //Render source-map file for final build
     devtool: 'source-map',
     //output config
     output: {
@@ -45,9 +42,7 @@ const config = {
                 screw_ie8: true
             }
         }),
-        //Allows error warnings but does not stop compiling. Will remove when eslint is added
         new webpack.NoEmitOnErrorsPlugin(),
-        //Transfer Files
         new TransferWebpackPlugin([
             {from: 'www'},
         ], path.resolve(__dirname, "src")),
@@ -60,8 +55,8 @@ const config = {
     module: {
         rules: [
             {
-                test: /\.js$/,          // All .js files
-                loader: 'babel-loader', //react-hot is like browser sync and babel loads jsx and es6-7
+                test: /\.js$/,
+                loader: 'babel-loader',
                 exclude: [nodeModulesPath],
             },
             {
