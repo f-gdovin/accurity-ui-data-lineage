@@ -46,6 +46,10 @@ const config = {
                 loaders: ['react-hot-loader', 'babel-loader'], //react-hot is like browser sync and babel loads jsx and es6-7
                 exclude: [nodeModulesPath],
             },
+            {
+                test: /\.(jpe?g|png|gif|svg)$/i,
+                loader: 'url-loader?limit=8192'
+            }
         ],
     }
 };

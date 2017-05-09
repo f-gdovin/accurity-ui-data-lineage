@@ -55,6 +55,7 @@
     "react-router-dom": "^4.1.1",
     "react-tap-event-plugin": "^2.0.1",
     "svg.js": "^2.5.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "url-loader": "^0.5.8"
   }
 }
