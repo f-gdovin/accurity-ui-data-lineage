@@ -67,7 +67,7 @@ class DataStore extends ReduceStore {
     }
 
     reduce(state, action): Object {
-        var reducer: Function = reducers[action.type];
+        const reducer: Function = reducers[action.type];
         return reducer ? reducer(state, action) : state;
     }
 
