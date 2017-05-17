@@ -1,7 +1,7 @@
 import React from "react";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
-import {HashRouter, Link, Route} from "react-router-dom";
+import {BrowserRouter, Link, Route} from "react-router-dom";
 
 import Extras from "./workspace/components/others/Extras";
 import HomePage from "./workspace/components/screens/HomePage";
@@ -22,7 +22,7 @@ class Main extends React.Component {
             <div>
                 <Extras/>
                 <MuiThemeProvider muiTheme={getMuiTheme()}>
-                    <HashRouter>
+                    <BrowserRouter>
                         <div>
                             <div className="top-bar">
                                 <div className="top-bar-left">
@@ -44,7 +44,7 @@ class Main extends React.Component {
                                 </div>
                             </div>
                         </div>
-                    </HashRouter>
+                    </BrowserRouter>
                 </MuiThemeProvider>
             </div>
         );
